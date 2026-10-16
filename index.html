@@ -136,6 +136,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);background:var(--fill);color:var(--fill-ink);border-radius:99px;padding:11px 18px;font-weight:600;font-size:13px;z-index:40;transition:transform .3s cubic-bezier(.2,.9,.3,1.2);max-width:calc(100% - 40px);text-align:center}
 .toast{visibility:hidden}.toast.show{transform:translate(-50%,0);visibility:visible}
 @media (max-width:370px){.sum b{font-size:20px}.km{font-size:8px}}
+#app{min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));box-sizing:border-box;justify-content:center}
+.top{flex-direction:column;align-items:center;text-align:center;gap:6px}
+.top h1{margin-left:.22em}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .auth{display:flex;flex-direction:column;gap:12px}
 .auth input{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:14px;font:500 16px var(--font);min-width:0}
