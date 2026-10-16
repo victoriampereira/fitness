@@ -32,7 +32,7 @@ body{margin:0}
 *{box-sizing:border-box}
 html,body{background:var(--bg)}
 body{color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
-.wrap{max-width:520px;margin:0 auto;padding-block:24px 64px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:24px}
+.wrap{max-width:520px;margin:0 auto;padding-block:24px 64px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
 h1,h2,h3{margin:0;text-wrap:balance}
 button{font-family:var(--font)}
 button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
@@ -42,7 +42,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 
 /* topo + abas */
 .top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-.top h1{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-top:2px}
+.top h1{font-size:25px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-top:2px}
 .streak{display:flex;align-items:center;gap:5px;font-weight:600;font-size:14px;white-space:nowrap}
 .streak svg{width:14px;height:14px;color:var(--run)}
 .tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);border-radius:99px;padding:4px}
@@ -57,7 +57,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 
 /* cabeçalho de período */
 .ph{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ph h2{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.ph h2{font-size:18px;font-weight:700;letter-spacing:-.02em}
 .nav{display:flex;gap:2px}
 .nav button{width:34px;height:34px;border-radius:50%;border:none;background:none;color:var(--ink);cursor:pointer;display:grid;place-items:center}
 .nav button:disabled{opacity:.25;cursor:default}
@@ -73,15 +73,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 
 /* semana: lista de dias */
 .days{display:flex;flex-direction:column;border-top:1px solid var(--line)}
-.day{all:unset;box-sizing:border-box;display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.day{all:unset;box-sizing:border-box;display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;align-items:center;padding:4px 2px;border-bottom:1px solid var(--line);cursor:pointer}
 .day:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
-.day .dn{font-size:22px;font-weight:600;line-height:1;letter-spacing:-.03em}
-.day .dw{font-size:11px;color:var(--muted);margin-top:2px}
+.day .dn{font-size:20px;font-weight:600;line-height:1;letter-spacing:-.03em}
+.day .dw{font-size:11px;color:var(--muted);margin-top:1px}
 .day.today .dw{color:var(--ink);font-weight:700}
 .acts{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;min-width:0}
 .act{display:flex;align-items:center;gap:7px;font-family:var(--label);font-size:14px;font-weight:500;white-space:nowrap}
 .rest{font-size:13px;color:var(--muted)}
-.add{width:32px;height:32px;border:1.5px dashed var(--muted);border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:20px;font-weight:500;line-height:1}
+.add{width:28px;height:28px;border:1.5px dashed var(--muted);border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:20px;font-weight:500;line-height:1}
 
 /* mês: calendário */
 .dow,.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
@@ -171,7 +171,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <button class="tab" role="tab" id="tab-mes" aria-selected="false" aria-controls="pg-mes">Mês</button>
   </div>
 
-  <section id="pg-sem" role="tabpanel" aria-labelledby="tab-sem" style="display:flex;flex-direction:column;gap:20px">
+  <section id="pg-sem" role="tabpanel" aria-labelledby="tab-sem" style="display:flex;flex-direction:column;gap:14px">
     <div class="ph"><h2 id="sem-t">Esta semana</h2>
       <div class="nav"><button id="w-prev" aria-label="Semana anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button><button id="w-next" aria-label="Próxima semana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
     </div>
