@@ -454,10 +454,10 @@ const ICK={run:"run",esc:"esc",inf:"inf",sup:"sup",abd:"abd"};
 function planWeeks(){
   const z=zones(),fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F);
   const run=(r,big)=>{const st=runStats(r[2]);return {k:"run",t:big?r[0]:"Corrida · "+r[0],d:fill(r[1]),v:nf(Math.round(st.km*10)/10)+" km",p:(st.mixed?"média ":"")+mmss(st.avg)+"/km",big}};
-  const esc=m=>({k:"esc",t:"Escada",d:m<=8?"Leve. Pode pausar 1 min se precisar":"Ritmo constante",v:m+" min"});
-  const inf=(w,extra)=>({k:"inf",t:"Inferiores",d:(LIGHT.includes(w)?"Semana leve: reduza a carga":"Pernas e glúteos")+(extra?" · "+extra:"")});
-  const sup=w=>({k:"sup",t:"Superiores",d:LIGHT.includes(w)?"Semana leve: reduza a carga":"Braços, ombros e costas"});
-  const abd={k:"abd",t:"Abdômen",d:"15 a 20 min de core"};
+  const esc=m=>({k:"esc",t:"Escada",v:m+" min"});
+  const inf=(w,extra)=>({k:"inf",t:"Inferiores"});
+  const sup=w=>({k:"sup",t:"Superiores"});
+  const abd={k:"abd",t:"Abdômen"};
   return RUNS.map((R,w)=>{
     const E=ESC[w];let D;
     if(w===0) D=[[{k:"run",t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância",v:"12 min",p:"no máximo",big:true},abd],
