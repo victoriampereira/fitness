@@ -143,7 +143,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .tile .ic svg{display:none}
 .tile .marks{gap:3px}
 .tile .val{gap:3px}
-.sum.three div{text-align:center}
+.sum div{text-align:center}
 .chipsum{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .chipsum>span{flex-direction:column;background:none;padding:0;gap:6px;font-size:12px}
 .tabs{width:fit-content;margin:0 auto;grid-template-columns:auto auto;gap:2px;padding:3px}
@@ -325,8 +325,8 @@ function render(){
   $("w-next").disabled=isCur;
   $("w-km").innerHTML=nf(W.reduce((a,d)=>a+(+d.km||0),0))+"<small>km</small>";
   $("w-esc").innerHTML=nf(W.reduce((a,d)=>a+(+d.esc||0),0))+"<small>min</small>";
-  $("w-mus").innerHTML=W.filter(d=>d.inf||d.sup).length+"<small>dias</small>";
-  $("w-abd").innerHTML=W.filter(d=>d.abd).length+"<small>dias</small>";
+  {const n=W.filter(d=>d.inf||d.sup).length;$("w-mus").innerHTML=n+"<small>"+(n===1?"dia":"dias")+"</small>"}
+  {const n=W.filter(d=>d.abd).length;$("w-abd").innerHTML=n+"<small>"+(n===1?"dia":"dias")+"</small>"}
   $("days").innerHTML=wk.filter(d=>d<=t).reverse().map(d=>{const k=key(d),v=days[k]||{};
     const body=active(v)?actsHTML(v):(k===tk?'<span class="add" aria-label="Lançar hoje">+</span>':'<span class="rest">Descanso</span>');
     return '<button type="button" class="day'+(k===tk?' today':'')+'" data-k="'+k+'"><div><div class="dn">'+d.getDate()+'</div><div class="dw">'+(k===tk?"Hoje":DW[d.getDay()])+'</div></div><div class="acts">'+body+'</div></button>'}).join("");
