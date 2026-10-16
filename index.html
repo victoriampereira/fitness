@@ -146,6 +146,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .sum.three div{text-align:center}
 .chipsum{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .chipsum>span{flex-direction:column;background:none;padding:0;gap:6px;font-size:12px}
+.tabs{width:fit-content;margin:0 auto;grid-template-columns:auto auto;gap:2px;padding:3px}
+.tab{padding:6px 18px;font-size:13px;font-weight:500}
+.tab[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .auth{display:flex;flex-direction:column;gap:12px}
 .auth input{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:14px;font:500 16px var(--font);min-width:0}
