@@ -166,7 +166,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 <div class="wrap" id="app" hidden>
   <header class="top">
     <div><div class="lbl" id="hoje">Hoje</div><h1>Fitness</h1></div>
-    <div class="streak" title="Dias seguidos com treino"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2.4 1-4 2.5-5.5C9.8 9.6 11 10.5 11.5 12 13 9.5 11.5 5 12 2z"/></svg><span id="streak-n">0 dias</span></div>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Visão">
@@ -305,7 +304,6 @@ function actsHTML(v){
 function render(){
   const t=today0(),tk=key(t);
   $("hoje").textContent=t.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  const s=streak();$("streak-n").textContent=s+(s===1?" dia seguido":" dias seguidos");
   $("tab-sem").setAttribute("aria-selected",String(page==="sem"));$("tab-mes").setAttribute("aria-selected",String(page==="mes"));
   $("pg-sem").hidden=page!=="sem";$("pg-mes").hidden=page!=="mes";$("pg-mes").style.display=page==="mes"?"flex":"";
 
@@ -383,8 +381,7 @@ $("sheet").addEventListener("submit",async e=>{
   $("save").disabled=true;
   try{await saveDay(k,d);}catch(err){$("err").textContent="Não salvou. Verifique a conexão e toque em Salvar de novo.";$("save").disabled=false;return;}
   $("save").disabled=false;closeDay();
-  const s=streak();
-  toast(active(d)?(was?"Dia atualizado":"Treino registrado · "+s+(s===1?" dia seguido":" dias seguidos")):"Dia limpo");
+  toast(active(d)?(was?"Dia atualizado":"Treino registrado"):"Dia limpo");
 });
 
 let tt;function toast(s){const t=$("toast");t.textContent=s;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2400);}
