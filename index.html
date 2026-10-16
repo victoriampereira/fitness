@@ -139,6 +139,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 #app{min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));box-sizing:border-box;justify-content:center}
 .top{flex-direction:column;align-items:center;text-align:center;gap:6px}
 .top h1{margin-left:.22em}
+.tile .ic,.tile .val .ic{width:9px;height:9px}
+.tile .ic svg{display:none}
+.tile .marks{gap:3px}
+.tile .val{gap:3px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .auth{display:flex;flex-direction:column;gap:12px}
 .auth input{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:14px;font:500 16px var(--font);min-width:0}
