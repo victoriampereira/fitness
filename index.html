@@ -81,7 +81,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .acts{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;min-width:0}
 .act{display:flex;align-items:center;gap:7px;font-family:var(--label);font-size:14px;font-weight:500;white-space:nowrap}
 .rest{font-size:13px;color:var(--muted)}
-.add{border:1px dashed var(--muted);border-radius:99px;padding:6px 14px;color:var(--muted);font-size:13px;font-weight:600}
+.add{width:32px;height:32px;border:1.5px dashed var(--muted);border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:20px;font-weight:500;line-height:1}
 
 /* mês: calendário */
 .dow,.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
@@ -317,7 +317,7 @@ function render(){
   $("w-mus").innerHTML=W.filter(d=>d.inf||d.sup).length+"<small>dias</small>";
   $("w-abd").innerHTML=W.filter(d=>d.abd).length+"<small>dias</small>";
   $("days").innerHTML=wk.filter(d=>d<=t).reverse().map(d=>{const k=key(d),v=days[k]||{};
-    const body=active(v)?actsHTML(v):(k===tk?'<span class="add">+ Lançar hoje</span>':'<span class="rest">Descanso</span>');
+    const body=active(v)?actsHTML(v):(k===tk?'<span class="add" aria-label="Lançar hoje">+</span>':'<span class="rest">Descanso</span>');
     return '<button type="button" class="day'+(k===tk?' today':'')+'" data-k="'+k+'"><div><div class="dn">'+d.getDate()+'</div><div class="dw">'+(k===tk?"Hoje":DW[d.getDay()])+'</div></div><div class="acts">'+body+'</div></button>'}).join("");
 
   /* mês */
