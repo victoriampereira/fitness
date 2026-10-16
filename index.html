@@ -146,10 +146,32 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .sum div{text-align:center}
 .chipsum{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .chipsum>span{flex-direction:column;background:none;padding:0;gap:6px;font-size:12px}
-.tabs{width:fit-content;margin:0 auto;grid-template-columns:auto auto;gap:2px;padding:3px}
+.tabs{width:fit-content;margin:0 auto;grid-template-columns:auto auto auto;gap:2px;padding:3px}
 .tab{padding:6px 18px;font-size:13px;font-weight:500}
 .tab[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .top h1{font-family:"Inter",var(--font);font-style:italic;font-weight:300;text-transform:lowercase;letter-spacing:.4em;margin-left:.4em}
+.zones{display:flex;flex-direction:column;gap:8px;background:var(--soft);border-radius:14px;padding:12px 14px}
+.zones .zh{font-size:11px;color:var(--muted)}
+.zones .zr{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center}
+.zones .zr b{display:block;font-size:16px;font-weight:600;letter-spacing:-.02em}
+.zones .zr span{font-size:11px;color:var(--muted)}
+.plan{display:flex;flex-direction:column;gap:18px}
+.wk h3{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;font-weight:600;margin:0 0 4px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.wk h3 span{font-size:11px;font-weight:400;color:var(--muted)}
+.wk.cur h3{color:var(--run)}
+.ses{all:unset;box-sizing:border-box;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 2px;border-bottom:1px solid var(--line);cursor:pointer;width:100%}
+.ses:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.ses .sd{font-size:17px;font-weight:600;line-height:1;letter-spacing:-.02em}
+.ses .sw{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.ses .px{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ses .px strong{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.ses .px small{font-size:12px;color:var(--muted);line-height:1.35}
+.ses .sk{font-size:13px;font-weight:600;white-space:nowrap;text-align:right}
+.ses .sk small{display:block;font-size:10px;font-weight:500;color:var(--muted)}
+.ses.big{background:var(--fill);color:var(--fill-ink);border-radius:12px;padding:12px 10px;border:none;margin-top:4px}
+.ses.big .sw,.ses.big .px small,.ses.big .sk small{color:inherit;opacity:.7}
+.ses.ok .sd::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--run);margin-left:4px;vertical-align:middle}
+.ses.today{box-shadow:inset 3px 0 0 var(--run)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .auth{display:flex;flex-direction:column;gap:12px}
 .auth input{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:14px;font:500 16px var(--font);min-width:0}
@@ -182,6 +204,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
   <div class="tabs" role="tablist" aria-label="Visão">
     <button class="tab" role="tab" id="tab-sem" aria-selected="true" aria-controls="pg-sem">Semana</button>
     <button class="tab" role="tab" id="tab-mes" aria-selected="false" aria-controls="pg-mes">Mês</button>
+    <button class="tab" role="tab" id="tab-plano" aria-selected="false" aria-controls="pg-plano">Plano</button>
   </div>
 
   <section id="pg-sem" role="tabpanel" aria-labelledby="tab-sem" style="display:flex;flex-direction:column;gap:14px">
@@ -211,6 +234,18 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
       <div><b id="m-esc">0</b><span>escada no mês</span></div>
     </div>
     <div class="chipsum" id="m-chips"></div>
+  </section>
+
+  <section id="pg-plano" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
+    <div class="ph"><h2>Rumo aos 7,5 km</h2><span class="lbl" id="pl-sem"></span></div>
+    <div class="sum three">
+      <div><b>7,5<small>km</small></b><span>31 de dezembro</span></div>
+      <div><b>5:55<small>/km</small></b><span>pace alvo</span></div>
+      <div><b>44:22</b><span>tempo final</span></div>
+    </div>
+    <div class="zones" id="pl-zones"></div>
+    <div class="plan" id="pl-weeks"></div>
+    <p class="note">Sinta dor que não passa ou que piora correndo? Pare e descanse. Dá para trocar os dias, desde que fique 1 dia entre um treino e outro.</p>
   </section>
 
   <p class="note" id="sync">Carregando seus treinos…</p>
@@ -276,7 +311,7 @@ const SUPABASE_URL="https://ufbmhikchqhstcbhioib.supabase.co";
 const SUPABASE_KEY="sb_publishable_QGj4aoHhWZXbCUBep2tylA_a8NckDy7";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 let session=null,channel=null;
-try{const p=localStorage.getItem("fitness-pagina");if(p==="mes")page="mes"}catch(e){}
+try{const p=localStorage.getItem("fitness-pagina");if(p==="mes"||p==="plano")page=p}catch(e){}
 
 async function reload(){
   if(!session)return;
@@ -315,8 +350,8 @@ function actsHTML(v){
 function render(){
   const t=today0(),tk=key(t);
   $("hoje").textContent=t.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  $("tab-sem").setAttribute("aria-selected",String(page==="sem"));$("tab-mes").setAttribute("aria-selected",String(page==="mes"));
-  $("pg-sem").hidden=page!=="sem";$("pg-mes").hidden=page!=="mes";$("pg-mes").style.display=page==="mes"?"flex":"";
+  $("tab-sem").setAttribute("aria-selected",String(page==="sem"));$("tab-mes").setAttribute("aria-selected",String(page==="mes"));$("tab-plano").setAttribute("aria-selected",String(page==="plano"));
+  $("pg-sem").hidden=page!=="sem";$("pg-mes").hidden=page!=="mes";$("pg-mes").style.display=page==="mes"?"flex":"";$("pg-plano").hidden=page!=="plano";$("pg-plano").style.display=page==="plano"?"flex":"";renderPlan();
 
   /* semana */
   const wk=[...Array(7)].map((_,i)=>addDays(wStart,i));
@@ -357,9 +392,84 @@ function render(){
     .map(([f,l])=>'<span>'+ic(f,"md")+l+'</span>').join("");
 }
 
+
+/* ===== plano de corrida: 7,5 km em 31/12 a 5:55/km ===== */
+const COOPER_KM=null;          // resultado do teste (km em 12 min); null = estimativa
+const COOPER_EST=2.2;
+const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+function zones(){const c=COOPER_KM||COOPER_EST,pc=720/c;
+  return {L1:mmss(pc+95),L2:mmss(pc+125),T:mmss(pc+10),R:"5:55",F:"5:45"}}
+const PLAN=[
+ {t:"Volta aos treinos",s:[
+  ["2026-10-19","teste","Teste de Cooper","Aqueça 10 min. Corra o máximo que conseguir em 12 min e anote a distância.","12 min"],
+  ["2026-10-21","leve","Corre e caminha","5 × (4 min de trote + 1 min caminhando)",3],
+  ["2026-10-24","leve","Leve contínuo","20 a 25 min sem parar, bem confortável",3]]},
+ {t:"Base",s:[
+  ["2026-10-27","leve","Leve","30 min contínuos, num ritmo que dê para conversar",4],
+  ["2026-10-29","qual","Fartlek","10 min de trote + 6 × (1 min forte / 2 min trote) + 5 min solto",4],
+  ["2026-10-31","longo","Longão","Tudo leve, a {L}",5]]},
+ {t:"Base",s:[
+  ["2026-11-03","leve","Leve + acelerações","4 km leve e no fim 4 × 80 m acelerando",4.5],
+  ["2026-11-05","qual","Tiros de 400 m","10 min de trote + 6 × 400 m a {T} com 2 min de trote + 5 min solto",5],
+  ["2026-11-07","longo","Longão","Tudo leve, a {L}",5.5]]},
+ {t:"Semana mais leve",s:[
+  ["2026-11-10","leve","Leve","Solto, a {L}",4],
+  ["2026-11-12","qual","Ritmo de prova","10 min de trote + 3 × 1 km a {R} com 2 min de trote",5],
+  ["2026-11-14","longo","Longão","Tudo leve, a {L}",5]]},
+ {t:"Construção",s:[
+  ["2026-11-17","leve","Leve","Solto, a {L}",5],
+  ["2026-11-19","qual","Tiros de 400 m","10 min de trote + 8 × 400 m a {T} com 90 s de trote",6],
+  ["2026-11-21","longo","Longão","Tudo leve, a {L}",6.5]]},
+ {t:"Construção",s:[
+  ["2026-11-24","qual","Progressivo","5 km: os 3 primeiros leves e os 2 últimos a {R}",5],
+  ["2026-11-26","qual","1 km forte","10 min de trote + 4 × 1 km a {F} com 2 min de trote",6],
+  ["2026-11-28","longo","Longão","Tudo leve, a {L}",7]]},
+ {t:"Construção",s:[
+  ["2026-12-01","leve","Leve","Solto, a {L}",5],
+  ["2026-12-03","qual","Contínuo","1,5 km de trote + 3 km a 6:00 + 1 km solto",5.5],
+  ["2026-12-05","longo","Longão","Tudo leve, a {L}",8]]},
+ {t:"Semana mais leve",s:[
+  ["2026-12-08","leve","Leve","Solto, a {L}",5],
+  ["2026-12-10","qual","1 km forte","10 min de trote + 5 × 1 km a {F} com 2 min de trote",7],
+  ["2026-12-12","qual","Simulado","6 km: 3 leves e 3 a {R}",6]]},
+ {t:"Pico",s:[
+  ["2026-12-15","leve","Leve + acelerações","5 km leve e no fim 4 × 80 m acelerando",5],
+  ["2026-12-17","qual","Ritmo de prova","10 min de trote + 2 × 2,5 km a {R} com 3 min de trote",7],
+  ["2026-12-19","longo","Longão","O mais longo do plano, tudo leve a {L}",8.5]]},
+ {t:"Reduzindo",s:[
+  ["2026-12-22","leve","Leve","Solto, a {L}",5],
+  ["2026-12-23","qual","Contínuo","1 km de trote + 4 km a 5:50 + 1 km solto",6],
+  ["2026-12-26","longo","Leve","Tudo leve, a {L}",6]]},
+ {t:"Semana da prova",s:[
+  ["2026-12-29","leve","Ativação","3 km leve + 3 × 200 m a 5:40",3.5],
+  ["2026-12-31","prova","Prova · 7,5 km","Primeiro km a 6:00, depois segure 5:55. Se sobrar, acelere no último km.",7.5]]}
+];
+const TAG={teste:"Teste",leve:"Leve",qual:"Qualidade",longo:"Longão",prova:"Prova"};
+function renderPlan(){
+  const z=zones(),t=today0(),tk=key(t),L=z.L1+"–"+z.L2;
+  $("pl-zones").innerHTML='<div class="zh">'+(COOPER_KM?"Seus ritmos pelo Cooper ("+nf(COOPER_KM)+" km)":"Ritmos estimados · atualizo depois do Cooper de segunda")+'</div>'+
+    '<div class="zr"><div><b>'+L+'</b><span>leve</span></div><div><b>'+z.R+'</b><span>ritmo de prova</span></div><div><b>'+z.T+'</b><span>tiros de 400 m</span></div></div>';
+  const fill=x=>x.replace(/\{L\}/g,L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F);
+  let cur=-1;
+  const html=PLAN.map((w,i)=>{
+    const a=new Date(w.s[0][0]+"T12:00:00"),mon=mondayOf(a),sun=addDays(mon,6);
+    const isCur=t>=mon&&t<=sun;if(isCur)cur=i;
+    const rng=mon.getDate()+(mon.getMonth()!==sun.getMonth()?" "+mon.toLocaleDateString("pt-BR",{month:"short"}).replace(".",""):"")+" – "+sun.getDate()+" "+sun.toLocaleDateString("pt-BR",{month:"short"}).replace(".","");
+    return '<div class="wk'+(isCur?' cur':'')+'"><h3>Semana '+(i+1)+' · '+w.t+'<span>'+rng+'</span></h3>'+w.s.map(([k,ty,ti,de,km])=>{
+      const d=new Date(k+"T12:00:00"),v=days[k],ok=v&&v.km>0,big=ty==="prova"||ty==="teste";
+      const kmTxt=typeof km==="number"?nf(km)+' km':km;
+      return '<button type="button" class="ses'+(big?' big':'')+(ok?' ok':'')+(k===tk?' today':'')+'"'+(d<=addDays(t,0)||k===tk?' data-k="'+k+'"':'')+'>'+
+        '<span><span class="sd">'+d.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[d.getDay()])+'</span></span>'+
+        '<span class="px"><strong>'+ti+'</strong><small>'+fill(de)+'</small></span>'+
+        '<span class="sk">'+kmTxt+'<small>'+TAG[ty]+'</small></span></button>'}).join("")+'</div>'}).join("");
+  $("pl-weeks").innerHTML=html;
+  const first=new Date(PLAN[0].s[0][0]+"T12:00:00");
+  $("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+PLAN.length:(t<first?"começa seg, 19 out":"");
+}
+
 /* abas e navegação */
 function setPage(p){page=p;try{localStorage.setItem("fitness-pagina",p)}catch(e){}render()}
-$("tab-sem").onclick=()=>setPage("sem");$("tab-mes").onclick=()=>setPage("mes");
+$("tab-sem").onclick=()=>setPage("sem");$("tab-mes").onclick=()=>setPage("mes");$("tab-plano").onclick=()=>setPage("plano");
 $("w-prev").onclick=()=>{wStart=addDays(wStart,-7);render()};
 $("w-next").onclick=()=>{wStart=addDays(wStart,7);render()};
 $("m-prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
