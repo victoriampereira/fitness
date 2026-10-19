@@ -404,10 +404,14 @@ function render(){
 
 /* ===== plano completo até 31/12 ===== */
 let checks=new Set();
-const COOPER_KM=null;          // resultado do teste (km em 12 min); null = estimativa
+const COOPER_KM=1.76;          // Cooper de 19/10: 1.760 m em 12 min
 const COOPER_EST=2.2;
 const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
-function zones(){const c=COOPER_KM||COOPER_EST,pc=720/c;return {L:mmss(pc+105),T:mmss(pc+10),R:"5:55",F:"5:45"}}
+// ritmo de prova sobe aos poucos até a meta de 6:30/km (semana 1 → 11)
+const RW=[420,420,415,410,406,402,398,395,392,390,390];
+let CURW=0;
+function paceSec(k){const c=COOPER_KM||COOPER_EST,pc=720/c,R=RW[CURW];return typeof k==="number"?k:{L:pc+80,T:R-20,R:R,F:R-12,C:R+10,W:600}[k]}
+function zones(){return {L:mmss(paceSec("L")),T:mmss(paceSec("T")),R:mmss(paceSec("R")),F:mmss(paceSec("F")),C:mmss(paceSec("C"))}}
 // corridas de cada semana: [título, detalhe, km, pace]  ({L} leve · {T} tiros · {R} prova · {F} forte)
 // corridas: [título, detalhe, trechos]; trecho = ["k",km,pace] ou ["m",minutos,pace]; pace: L leve · T tiros · R prova · F forte · W caminhada · ou segundos/km
 const RUNS=[
@@ -429,7 +433,7 @@ const RUNS=[
   ["1 km forte","10 min a {L} + 4 × 1 km a {F}, com 2 min de trote entre eles + 5 min solto",[["m",10,"L"],["k",4,"F"],["m",6,"L"],["m",5,"L"]]],
   ["Longão","Tudo no mesmo ritmo",[["k",7,"L"]]]],
  [["Leve","Ritmo de conversa",[["k",5,"L"]]],
-  ["Contínuo","1,5 km a {L} + 3 km a 6:00 + 1 km solto",[["k",1.5,"L"],["k",3,360],["k",1,"L"]]],
+  ["Contínuo","1,5 km a {L} + 3 km a {C} + 1 km solto",[["k",1.5,"L"],["k",3,"C"],["k",1,"L"]]],
   ["Longão","Tudo no mesmo ritmo",[["k",8,"L"]]]],
  [["Leve","Ritmo de conversa",[["k",5,"L"]]],
   ["1 km forte","10 min a {L} + 5 × 1 km a {F}, com 2 min de trote entre eles + 5 min solto",[["m",10,"L"],["k",5,"F"],["m",8,"L"],["m",5,"L"]]],
@@ -438,12 +442,11 @@ const RUNS=[
   ["Ritmo de prova","10 min a {L} + 2 × 2,5 km a {R}, com 3 min de trote entre eles + 5 min solto",[["m",10,"L"],["k",5,"R"],["m",3,"L"],["m",5,"L"]]],
   ["Longão","O mais longo do plano",[["k",8.5,"L"]]]],
  [["Leve","Ritmo de conversa",[["k",5,"L"]]],
-  ["Contínuo","1 km a {L} + 4 km a 5:50 + 1 km solto",[["k",1,"L"],["k",4,350],["k",1,"L"]]],
+  ["Contínuo","1 km a {L} + 4 km a {R} + 1 km solto",[["k",1,"L"],["k",4,"R"],["k",1,"L"]]],
   ["Leve","Tudo no mesmo ritmo",[["k",6,"L"]]]],
- [["Ativação","3 km a {L} + 3 × 200 m a 5:40",[["k",3,"L"],["k",.6,340]]]]
+ [["Ativação","3 km a {L} + 3 × 200 m a {F}",[["k",3,"L"],["k",.6,"F"]]]]
 ];
-const PROVA=["Prova · 7,5 km","1º km a 6:00, depois segure 5:54. Se sobrar, acelere no último km",[["k",1,360],["k",6.5,354]]];
-function paceSec(k){const c=COOPER_KM||COOPER_EST,pc=720/c;return typeof k==="number"?k:{L:pc+105,T:pc+10,R:355,F:345,W:600}[k]}
+const PROVA=["Prova · 7,5 km","1º km a 6:40, depois segure 6:28. Se sobrar, acelere no último km",[["k",1,400],["k",6.5,388]]];
 function runStats(segs){let km=0,sec=0;const ps=new Set();
   segs.forEach(([u,v,pk])=>{const p=paceSec(pk);ps.add(Math.round(p));if(u==="k"){km+=v;sec+=v*p}else{sec+=v*60;km+=v*60/p}});
   return {km,avg:sec/km,mixed:ps.size>1}}
@@ -453,13 +456,14 @@ const LIGHT=[3,7,9,10];
 const START=new Date(2026,9,19);
 const ICK={run:"run",esc:"esc",inf:"inf",sup:"sup",abd:"abd"};
 function planWeeks(){
-  const z=zones(),fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F);
+  let z,fill;
   const run=(r,big)=>{const st=runStats(r[2]);return {k:"run",t:big?r[0]:"Corrida · "+r[0],d:fill(r[1]),n:Math.round(st.km*10)/10,v:nf(Math.round(st.km*10)/10)+" km",p:(st.mixed?"média ":"")+mmss(st.avg)+"/km",big}};
   const esc=m=>({k:"esc",t:"Escada",n:m,v:m+" min"});
   const inf=(w,extra)=>({k:"inf",t:"Inferiores"});
   const sup=w=>({k:"sup",t:"Superiores"});
   const abd={k:"abd",t:"Abdômen"};
   return RUNS.map((R,w)=>{
+    CURW=w;z=zones();fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F).replace(/\{C\}/g,z.C);
     const E=ESC[w];let D;
     if(w===0) D=[[{k:"run",cooper:true,t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância",v:"12 min",p:"no máximo",big:true},abd],
                  [inf(w),esc(E[0])],[sup(w),esc(E[1])],[run(R[0]),abd],[inf(w),esc(E[2])],[run(R[1]),sup(w)],[]];
@@ -471,7 +475,7 @@ function planWeeks(){
 }
 const PITEMS={};
 function renderPlan(){
-  const z=zones(),t=today0(),tk=key(t),W=planWeeks();
+  const t=today0(),tk=key(t),W=planWeeks(),z=zones();
   if($("pl-zones"))$("pl-zones").innerHTML='<div class="zh">'+(COOPER_KM?"Seus paces pelo Cooper ("+nf(COOPER_KM)+" km)":"Paces estimados · atualizo depois do Cooper de segunda")+'</div>'+
     '<div class="zr"><div><b>'+z.L+'</b><span>leve</span></div><div><b>'+z.R+'</b><span>prova</span></div><div><b>'+z.F+'</b><span>1 km forte</span></div><div><b>'+z.T+'</b><span>tiros 400 m</span></div></div>';
   let cur=W.findIndex(w=>t>=w.mon&&t<=addDays(w.mon,6));
