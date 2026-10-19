@@ -216,6 +216,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .drag-ghost{position:fixed;z-index:50;pointer-events:none;background:var(--bg);box-shadow:0 8px 24px rgba(0,0,0,.18);border-radius:12px;opacity:.97}
 .drag-ghost .it{margin:0}
 .it.dragging{opacity:.3}
+.it.ins-before{box-shadow:0 -3px 0 var(--run)}
+.it.ins-after{box-shadow:0 3px 0 var(--run)}
 .it .ex{display:block;font-style:normal;font-size:11px;font-weight:700;color:#2FA36B}
 .it .ex.neg{color:var(--muted)}
 .it.done .sk:has(.ex){opacity:1}
@@ -295,7 +297,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 
   <section id="pg-plano" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
     <div class="adj" id="pl-adj" hidden></div>
-    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste a atividade para outro dia</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
+    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia ou para mudar a ordem no mesmo dia</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
   </section>
@@ -393,8 +395,8 @@ async function reload(){
   if(!ck.error){checks=new Set(ck.data.map(r=>r.item))}
   const aj=await sb.from("fitness_adjust").select("semana,dr,dl,de,msg,desfeito");
   if(!aj.error)adj=aj.data;
-  const mv=await sb.from("fitness_moves").select("item,para");
-  if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]=r.para})}
+  const mv=await sb.from("fitness_moves").select("item,para,ordem");
+  if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]={para:r.para,ordem:r.ordem}})}
   $("sync").textContent="Toque em um dia para lançar o que você fez.";render();autoAdjust();
 }
 let rt=null;const reloadSoon=()=>{clearTimeout(rt);rt=setTimeout(reload,250)};
@@ -487,7 +489,7 @@ function zones(){return {L:mmss(paceSec("L")),T:mmss(paceSec("T")),R:mmss(paceSe
 // corridas de cada semana: [título, detalhe, km, pace]  ({L} leve · {T} tiros · {R} prova · {F} forte)
 // corridas: [título, detalhe, trechos]; trecho = ["k",km,pace] ou ["m",minutos,pace]; pace: L leve · T tiros · R prova · F forte · W caminhada · ou segundos/km
 const RUNS=[
- [["Corre e caminha","5 × (4 min de trote a {L} + 1 min caminhando)",[["m",20,"L"],["m",5,"W"]]],
+ [["Corre e caminha","5 × (4 min de trote a {L} + 1 min caminhando a {W})",[["m",20,"L"],["m",5,"W"]]],
   ["Leve contínuo","25 min sem parar, ritmo de conversa",[["m",25,"L"]]]],
  [["Leve","30 min contínuos, ritmo de conversa",[["m",30,"L"]]],
   ["Fartlek","10 min a {L} + 6 × (1 min a {T} / 2 min a {L}) + 5 min solto",[["m",10,"L"],["m",6,"T"],["m",12,"L"],["m",5,"L"]]],
@@ -535,7 +537,7 @@ function planWeeks(){
   const sup=w=>({k:"sup",t:"Superiores"});
   const abd={k:"abd",t:"Abdômen"};
   return RUNS.map((R,w)=>{
-    CURW=w;z=zones();fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F).replace(/\{C\}/g,z.C);
+    CURW=w;z=zones();fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F).replace(/\{C\}/g,z.C).replace(/\{W\}/g,mmss(paceSec("W")));
     const E=ESC[w].map(m=>Math.max(3,m+offs(w,"de",-3,6)));let D;
     if(w===0) D=[[{k:"run",cooper:true,t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância",v:"12 min",p:"no máximo",big:true},abd],
                  [inf(w),esc(E[0])],[sup(w),esc(E[1])],[run(R[0]),abd],[inf(w),esc(E[2])],[run(R[1]),sup(w)],[]];
@@ -548,8 +550,9 @@ function planWeeks(){
 let moves={},editMode=false;
 const PITEMS={};
 function planWeeksMoved(){const W=planWeeks(),map={};
-  W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items.forEach(it=>{it.id=dk+"-"+it.k;const tg=moves[it.id]||dk;it.moved=tg!==dk;(map[tg]=map[tg]||[]).push(it)})}));
-  W.forEach(w=>w.days.forEach(d=>{d.items=map[key(d.date)]||[]}));return W}
+  W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items=d.items.map(x=>({...x}));d.items.forEach((it,i)=>{it.id=dk+"-"+it.k;const mv=moves[it.id],tg=(mv&&mv.para)||dk;it.moved=tg!==dk;
+    it.ord=mv&&mv.ordem!=null?mv.ordem:(tg===dk?i:100+i);(map[tg]=map[tg]||[]).push(it)})}));
+  W.forEach(w=>w.days.forEach(d=>{d.items=(map[key(d.date)]||[]).slice().sort((a,b)=>a.ord-b.ord)}));return W}
 function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;return v[it.k]?1:0}
 function renderPlan(){
   renderAdj();
@@ -674,12 +677,12 @@ $("pl-reset").onclick=async()=>{
   const r=await sb.from("fitness_moves").delete().eq("user_id",session.user.id);
   if(r.error){moves=old;renderPlanKeep();toast("Não salvou. Verifique a internet.")}else toast("Plano original restaurado");
 };
-async function saveMove(id,to){
-  const orig=id.slice(0,10),old=moves[id];
-  if(to===orig)delete moves[id];else moves[id]=to;renderPlanKeep();
-  const r=to===orig?await sb.from("fitness_moves").delete().eq("user_id",session.user.id).eq("item",id)
-                   :await sb.from("fitness_moves").upsert({user_id:session.user.id,item:id,para:to,updated_at:new Date().toISOString()});
-  if(r.error){if(old)moves[id]=old;else delete moves[id];renderPlanKeep();toast("Não salvou. Verifique a internet.")}
+async function saveOrder(day,ids){
+  const old=JSON.parse(JSON.stringify(moves)),now=new Date().toISOString();
+  const rows=ids.map((id,i)=>({user_id:session.user.id,item:id,para:day,ordem:i,updated_at:now}));
+  rows.forEach(r=>{moves[r.item]={para:day,ordem:r.ordem}});renderPlanKeep();
+  const r=await sb.from("fitness_moves").upsert(rows);
+  if(r.error){moves=old;renderPlanKeep();toast("Não salvou. Verifique a internet.")}
 }
 let drag=null;
 $("pl-weeks").addEventListener("pointerdown",e=>{
@@ -696,12 +699,21 @@ function dragMove(e){
   drag.g.style.top=(e.clientY-drag.dy)+"px";
   const el=document.elementFromPoint(e.clientX,e.clientY),pd=el&&el.closest(".pd");
   if(drag.over!==pd){drag.over&&drag.over.classList.remove("drop");pd&&pd.classList.add("drop");drag.over=pd}
+  document.querySelectorAll(".ins-before,.ins-after").forEach(x=>x.classList.remove("ins-before","ins-after"));drag.idx=0;
+  if(pd){const its=[...pd.querySelectorAll(".it[data-id]")].filter(x=>x!==drag.row);let i=its.findIndex(x=>{const b=x.getBoundingClientRect();return e.clientY<b.top+b.height/2});
+    if(i<0){i=its.length;its.length&&its[its.length-1].classList.add("ins-after")}else its[i].classList.add("ins-before");drag.idx=i}
   if(e.clientY<70)window.scrollBy(0,-12);else if(e.clientY>innerHeight-70)window.scrollBy(0,12);
 }
 function dragEnd(e){
   if(!drag)return;const d=drag;drag=null;
   d.g.remove();d.row.classList.remove("dragging");d.over&&d.over.classList.remove("drop");
-  if(e.type==="pointerup"&&d.over){const to=d.over.dataset.day,cur=PITEMS[d.id]&&PITEMS[d.id].day;if(to&&to!==cur){saveMove(d.id,to);toast("Atividade movida")}}
+  document.querySelectorAll(".ins-before,.ins-after").forEach(x=>x.classList.remove("ins-before","ins-after"));
+  if(e.type==="pointerup"&&d.over){const to=d.over.dataset.day,cur=PITEMS[d.id]&&PITEMS[d.id].day;if(!to)return;
+    const ids=[...d.over.querySelectorAll(".it[data-id]")].map(x=>x.dataset.id).filter(x=>x!==d.id);
+    const before=to===cur?[...d.over.querySelectorAll(".it[data-id]")].map(x=>x.dataset.id).join():"";
+    ids.splice(Math.min(d.idx||0,ids.length),0,d.id);
+    if(to===cur&&ids.join()===before)return;
+    saveOrder(to,ids);toast(to===cur?"Ordem alterada":"Atividade movida")}
 }
 document.addEventListener("pointermove",dragMove,{passive:false});
 document.addEventListener("pointerup",dragEnd);document.addEventListener("pointercancel",dragEnd);
