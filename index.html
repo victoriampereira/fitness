@@ -177,6 +177,21 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .it .sk small{display:block;font-size:10.5px;font-weight:600;color:var(--run)}
 .it.done .px,.it.done .sk,.it.done .ic{opacity:.4}
 .it[data-k]{cursor:pointer}
+.pl-bar{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
+.pl-bar .note{flex:1 1 100%;text-align:left;margin:0}
+.pl-btn{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:99px;padding:6px 14px;font:500 12px var(--font);cursor:pointer}
+.pl-btn.on{background:var(--fill);color:var(--fill-ink);border-color:var(--fill)}
+.pl-btn.ghostb{background:none;color:var(--muted)}
+.hd{width:28px;height:28px;display:grid;place-items:center;color:var(--muted);font-size:20px;line-height:1;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.editing{user-select:none;-webkit-user-select:none}
+.editing .it:not(.rest){border:1px dashed var(--line);border-radius:12px;padding:6px 4px 6px 6px}
+.editing .it.big{border-style:solid}
+.editing .it.moved{border-color:var(--run)}
+.pd.drop{background:var(--soft);border-radius:10px}
+.pd.drop .it.rest{color:var(--ink)}
+.drag-ghost{position:fixed;z-index:50;pointer-events:none;background:var(--bg);box-shadow:0 8px 24px rgba(0,0,0,.18);border-radius:12px;opacity:.97}
+.drag-ghost .it{margin:0}
+.it.dragging{opacity:.3}
 .it .ex{display:block;font-style:normal;font-size:11px;font-weight:700;color:#2FA36B}
 .it .ex.neg{color:var(--muted)}
 .it.done .sk:has(.ex){opacity:1}
@@ -254,6 +269,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
   </section>
 
   <section id="pg-plano" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
+    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste a atividade para outro dia</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
   </section>
@@ -331,12 +347,14 @@ async function reload(){
   days=m;
   const ck=await sb.from("fitness_checks").select("item");
   if(!ck.error){checks=new Set(ck.data.map(r=>r.item))}
+  const mv=await sb.from("fitness_moves").select("item,para");
+  if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]=r.para})}
   $("sync").textContent="Toque em um dia para lançar o que você fez.";render();
 }
 let rt=null;const reloadSoon=()=>{clearTimeout(rt);rt=setTimeout(reload,250)};
 function subscribe(){
   if(channel)sb.removeChannel(channel);
-  channel=sb.channel("fitness-"+session.user.id).on("postgres_changes",{event:"*",schema:"public",table:"fitness_dias",filter:"user_id=eq."+session.user.id},reloadSoon).on("postgres_changes",{event:"*",schema:"public",table:"fitness_checks",filter:"user_id=eq."+session.user.id},reloadSoon).subscribe();
+  channel=sb.channel("fitness-"+session.user.id).on("postgres_changes",{event:"*",schema:"public",table:"fitness_dias",filter:"user_id=eq."+session.user.id},reloadSoon).on("postgres_changes",{event:"*",schema:"public",table:"fitness_checks",filter:"user_id=eq."+session.user.id},reloadSoon).on("postgres_changes",{event:"*",schema:"public",table:"fitness_moves",filter:"user_id=eq."+session.user.id},reloadSoon).subscribe();
 }
 async function setSession(s){
   const changed=(s?.user?.id)!==(session?.user?.id);session=s;
@@ -477,10 +495,15 @@ function planWeeks(){
     return {t:WT[w],mon,days:D.map((items,i)=>({date:addDays(mon,i),items}))};
   });
 }
+let moves={},editMode=false;
 const PITEMS={};
+function planWeeksMoved(){const W=planWeeks(),map={};
+  W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items.forEach(it=>{it.id=dk+"-"+it.k;const tg=moves[it.id]||dk;it.moved=tg!==dk;(map[tg]=map[tg]||[]).push(it)})}));
+  W.forEach(w=>w.days.forEach(d=>{d.items=map[key(d.date)]||[]}));return W}
 function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;return v[it.k]?1:0}
 function renderPlan(){
-  const t=today0(),tk=key(t),W=planWeeks(),z=zones();
+  const t=today0(),tk=key(t),W=planWeeksMoved(),z=zones();
+  $("pl-weeks").classList.toggle("editing",editMode);
   if($("pl-zones"))$("pl-zones").innerHTML='<div class="zh">'+(COOPER_KM?"Seus paces pelo Cooper ("+nf(COOPER_KM)+" km)":"Paces estimados · atualizo depois do Cooper de segunda")+'</div>'+
     '<div class="zr"><div><b>'+z.L+'</b><span>leve</span></div><div><b>'+z.R+'</b><span>prova</span></div><div><b>'+z.F+'</b><span>1 km forte</span></div><div><b>'+z.T+'</b><span>tiros 400 m</span></div></div>';
   let cur=W.findIndex(w=>t>=w.mon&&t<=addDays(w.mon,6));
@@ -492,27 +515,27 @@ function renderPlan(){
     let tot=0,done=0;
     const body=w.days.map(({date,items})=>{
       const k=key(date);
-      const its=items.length?items.map(it=>{tot++;const id=k+"-"+it.k,lv=logged(k,it),on=checks.has(id)||!!lv;if(on)done++;PITEMS[id]=it;
+      const its=items.length?items.map(it=>{tot++;const id=it.id,lv=logged(k,it),on=checks.has(id)||!!lv;if(on)done++;it.day=k;PITEMS[id]=it;
         let ex="";if(lv&&it.n&&!it.cooper&&(it.k==="esc"||it.k==="run")){const df=Math.round((lv-it.n)*10)/10;if(Math.abs(df)>=0.1)ex='<em class="ex'+(df<0?' neg':'')+'">'+(df>0?"+":"−")+nf(Math.abs(df))+(it.k==="esc"?" min":" km")+'</em>'}
-        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+'"'+(date<=t||k===tk?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k],"md")+
+        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+(it.moved?' moved':'')+'" data-id="'+id+'"'+(!editMode&&(date<=t||k===tk)?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k],"md")+
           '<span class="px"><strong>'+it.t+'</strong>'+(it.d?'<small>'+it.d+'</small>':'')+'</span>'+
           '<span class="sk">'+(it.v||"")+(it.p?'<small>'+it.p+'</small>':'')+ex+'</span>'+
-          '<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>'}).join("")
+          (editMode?'<span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
         :'<div class="it rest">Descanso</div>';
-      return '<div class="pd'+(k===tk?' today':'')+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
+      return '<div class="pd'+(k===tk?' today':'')+'" data-day="'+k+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
     return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+'</span><span>'+done+'/'+tot+' · '+rng+'</span></summary>'+body+'</details>'}).join("");
   if($("pl-sem"))$("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+W.length:(t<W[0].mon?"começa seg, 19 out":"");
 }
 $("pl-weeks").addEventListener("click",async e=>{
   const b=e.target.closest("[data-ck]");if(!b||!session)return;
   e.preventDefault();e.stopPropagation();
-  const id=b.dataset.ck,it0=PITEMS[id],on=checks.has(id)||!!(it0&&logged(id.slice(0,10),it0));
+  const id=b.dataset.ck,it0=PITEMS[id],on=checks.has(id)||!!(it0&&logged(it0.day,it0));
   on?checks.delete(id):checks.add(id);renderPlanKeep();
   const r=on?await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",id)
             :await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id});
   if(r.error){on?checks.add(id):checks.delete(id);renderPlanKeep();toast("Não salvou. Verifique a internet.");return}
   // atualiza o dia nas abas Semana e Mês
-  const it=PITEMS[id],k=id.slice(0,10);if(!it)return;
+  const it=PITEMS[id];if(!it)return;const k=it.day;
   if(it.cooper&&!on){openDay(k);toast("Coloque os km que você fez no Cooper");return}
   const cur=days[k]||{},d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:+cur.km||0,esc:+cur.esc||0};
   if(it.k==="run")d.km=on?0:(d.km||it.n||0);
@@ -520,6 +543,48 @@ $("pl-weeks").addEventListener("click",async e=>{
   else d[it.k]=!on;
   try{await saveDay(k,d)}catch(err){toast("Marcado no plano, mas não atualizou o dia. Verifique a internet.")}
 });
+/* modo edição: arrastar atividades entre dias */
+function setEdit(on){editMode=on;$("pl-edit").textContent=on?"Concluir":"Editar plano";$("pl-edit").classList.toggle("on",on);$("pl-reset").hidden=!on;$("pl-hint").hidden=!on;renderPlanKeep()}
+$("pl-edit").onclick=()=>setEdit(!editMode);
+let resetArm=false;
+$("pl-reset").onclick=async()=>{
+  if(!resetArm){resetArm=true;$("pl-reset").textContent="Toque de novo para confirmar";setTimeout(()=>{resetArm=false;$("pl-reset").textContent="Restaurar original"},3000);return}
+  resetArm=false;$("pl-reset").textContent="Restaurar original";
+  const old=moves;moves={};renderPlanKeep();
+  const r=await sb.from("fitness_moves").delete().eq("user_id",session.user.id);
+  if(r.error){moves=old;renderPlanKeep();toast("Não salvou. Verifique a internet.")}else toast("Plano original restaurado");
+};
+async function saveMove(id,to){
+  const orig=id.slice(0,10),old=moves[id];
+  if(to===orig)delete moves[id];else moves[id]=to;renderPlanKeep();
+  const r=to===orig?await sb.from("fitness_moves").delete().eq("user_id",session.user.id).eq("item",id)
+                   :await sb.from("fitness_moves").upsert({user_id:session.user.id,item:id,para:to,updated_at:new Date().toISOString()});
+  if(r.error){if(old)moves[id]=old;else delete moves[id];renderPlanKeep();toast("Não salvou. Verifique a internet.")}
+}
+let drag=null;
+$("pl-weeks").addEventListener("pointerdown",e=>{
+  const h=e.target.closest("[data-drag]");if(!h||!editMode)return;
+  e.preventDefault();
+  const row=h.closest(".it"),r=row.getBoundingClientRect(),g=document.createElement("div");g.appendChild(row.cloneNode(true));
+  g.className="editing drag-ghost";g.style.width=r.width+"px";g.style.left=r.left+"px";g.style.top=r.top+"px";document.body.appendChild(g);
+  row.classList.add("dragging");
+  drag={id:h.dataset.drag,row,g,dx:e.clientX-r.left,dy:e.clientY-r.top,over:null,pid:e.pointerId};
+  try{h.setPointerCapture(e.pointerId)}catch(_){}
+});
+function dragMove(e){
+  if(!drag)return;e.preventDefault();
+  drag.g.style.top=(e.clientY-drag.dy)+"px";
+  const el=document.elementFromPoint(e.clientX,e.clientY),pd=el&&el.closest(".pd");
+  if(drag.over!==pd){drag.over&&drag.over.classList.remove("drop");pd&&pd.classList.add("drop");drag.over=pd}
+  if(e.clientY<70)window.scrollBy(0,-12);else if(e.clientY>innerHeight-70)window.scrollBy(0,12);
+}
+function dragEnd(e){
+  if(!drag)return;const d=drag;drag=null;
+  d.g.remove();d.row.classList.remove("dragging");d.over&&d.over.classList.remove("drop");
+  if(e.type==="pointerup"&&d.over){const to=d.over.dataset.day,cur=PITEMS[d.id]&&PITEMS[d.id].day;if(to&&to!==cur){saveMove(d.id,to);toast("Atividade movida")}}
+}
+document.addEventListener("pointermove",dragMove,{passive:false});
+document.addEventListener("pointerup",dragEnd);document.addEventListener("pointercancel",dragEnd);
 function renderPlanKeep(){const open=[...document.querySelectorAll("#pl-weeks details")].map(d=>d.open);renderPlan();document.querySelectorAll("#pl-weeks details").forEach((d,i)=>{if(open[i]!==undefined)d.open=open[i]})}
 
 /* abas e navegação */
