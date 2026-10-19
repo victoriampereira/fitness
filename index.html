@@ -131,6 +131,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{border:1px solid var(--line);background:none;color:var(--ink);border-radius:99px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
 .chip.zero{color:var(--muted)}
+.sens{display:flex;align-items:center;gap:6px;border-top:1px dashed var(--line);padding-top:10px}
+.sens span{flex:1;font-size:13px;font-weight:600}
+.sens button{border:1px solid var(--line);background:none;color:var(--ink);border-radius:99px;padding:6px 12px;font:600 12px var(--font);cursor:pointer}
+.sens button[aria-pressed="true"]{background:var(--fill);color:var(--fill-ink);border-color:var(--fill)}
+.adj{background:var(--soft);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.adj h3{margin:0;font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.adj p{margin:0;font-size:12.5px;line-height:1.4;color:var(--ink)}
+.adj p.mut{color:var(--muted)}
+.adj button{border:none;background:none;color:var(--muted);font:600 12px var(--font);cursor:pointer;padding:0;text-decoration:underline}
 .pacel{display:flex;align-items:center;gap:10px;border-top:1px dashed var(--line);padding-top:10px}
 .pacel label{flex:1;font-size:13px;font-weight:600}
 .pacel input{width:90px;text-align:right;font:600 22px/1 var(--font);border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:var(--soft);color:var(--ink)}
@@ -289,6 +298,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
   </section>
 
   <section id="pg-plano" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
+    <div class="adj" id="pl-adj" hidden></div>
     <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste a atividade para outro dia</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
@@ -328,6 +338,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <div class="meter-h"><strong><span data-ic="run" data-sz="md"></span>Corrida</strong><span>0 = não corri</span></div>
     <div class="ctl"><button type="button" class="st" data-f="km" data-s="-0.5" aria-label="Menos meio km">−</button><input id="in-km" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Quilômetros corridos"><em>km</em><button type="button" class="st" data-f="km" data-s="0.5" aria-label="Mais meio km">+</button></div>
     <div class="chips" data-f="km"><button type="button" class="chip zero" data-v="0">Não corri</button><button type="button" class="chip" data-v="3">3 km</button><button type="button" class="chip" data-v="5">5 km</button><button type="button" class="chip" data-v="8">8 km</button><button type="button" class="chip" data-v="10">10 km</button></div>
+    <div class="sens" id="sens" role="group" aria-label="Como foi a corrida"><span>Como foi?</span><button type="button" data-s="1">Fácil</button><button type="button" data-s="2">Ok</button><button type="button" data-s="3">Difícil</button></div>
     <div class="pacel"><label for="in-pace">Pace médio</label><input id="in-pace" type="text" inputmode="numeric" autocomplete="off" placeholder="7:45" aria-label="Pace médio em minutos e segundos por km"><em>/km</em></div>
   </div>
   <div class="meter">
@@ -379,20 +390,22 @@ try{const p=localStorage.getItem("fitness-pagina");if(p==="mes"||p==="plano"||p=
 
 async function reload(){
   if(!session)return;
-  const {data,error}=await sb.from("fitness_dias").select("dia,inf,sup,abd,km,esc,pace");
+  const {data,error}=await sb.from("fitness_dias").select("dia,inf,sup,abd,km,esc,pace,sens");
   if(error){console.error(error);$("sync").textContent="Não foi possível carregar seus treinos. Verifique a internet.";return}
-  const m={};data.forEach(r=>{m[r.dia]={inf:r.inf,sup:r.sup,abd:r.abd,km:Number(r.km)||0,esc:Number(r.esc)||0,pace:r.pace||null}});
+  const m={};data.forEach(r=>{m[r.dia]={inf:r.inf,sup:r.sup,abd:r.abd,km:Number(r.km)||0,esc:Number(r.esc)||0,pace:r.pace||null,sens:r.sens||null}});
   days=m;
   const ck=await sb.from("fitness_checks").select("item");
   if(!ck.error){checks=new Set(ck.data.map(r=>r.item))}
+  const aj=await sb.from("fitness_adjust").select("semana,dr,dl,de,msg,desfeito");
+  if(!aj.error)adj=aj.data;
   const mv=await sb.from("fitness_moves").select("item,para");
   if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]=r.para})}
-  $("sync").textContent="Toque em um dia para lançar o que você fez.";render();
+  $("sync").textContent="Toque em um dia para lançar o que você fez.";render();autoAdjust();
 }
 let rt=null;const reloadSoon=()=>{clearTimeout(rt);rt=setTimeout(reload,250)};
 function subscribe(){
   if(channel)sb.removeChannel(channel);
-  channel=sb.channel("fitness-"+session.user.id).on("postgres_changes",{event:"*",schema:"public",table:"fitness_dias",filter:"user_id=eq."+session.user.id},reloadSoon).on("postgres_changes",{event:"*",schema:"public",table:"fitness_checks",filter:"user_id=eq."+session.user.id},reloadSoon).on("postgres_changes",{event:"*",schema:"public",table:"fitness_moves",filter:"user_id=eq."+session.user.id},reloadSoon).subscribe();
+  channel=sb.channel("fitness-"+session.user.id).on("postgres_changes",{event:"*",schema:"public",table:"fitness_dias",filter:"user_id=eq."+session.user.id},reloadSoon).on("postgres_changes",{event:"*",schema:"public",table:"fitness_checks",filter:"user_id=eq."+session.user.id},reloadSoon).on("postgres_changes",{event:"*",schema:"public",table:"fitness_moves",filter:"user_id=eq."+session.user.id},reloadSoon).on("postgres_changes",{event:"*",schema:"public",table:"fitness_adjust",filter:"user_id=eq."+session.user.id},reloadSoon).subscribe();
 }
 async function setSession(s){
   const changed=(s?.user?.id)!==(session?.user?.id);session=s;
@@ -471,7 +484,10 @@ const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart
 // ritmo de prova sobe aos poucos até a meta de 6:30/km (semana 1 → 11)
 const RW=[420,420,415,410,406,402,398,395,392,390,390];
 let CURW=0;
-function paceSec(k){const c=COOPER_KM||COOPER_EST,pc=720/c,R=RW[CURW];return typeof k==="number"?k:{L:pc+80,T:R-20,R:R,F:R-12,C:R+10,W:600}[k]}
+let adj=[];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function offs(w,f,a,b){if(w>=10)return 0;return clamp(adj.filter(x=>!x.desfeito&&x.semana<=w).reduce((s,x)=>s+(x[f]||0),0),a,b)}
+function paceSec(k){const c=COOPER_KM||COOPER_EST,pc=720/c,R=RW[CURW]+offs(CURW,"dr",-20,20),L=pc+80+offs(CURW,"dl",-20,20);return typeof k==="number"?k:{L:L,T:R-20,R:R,F:R-12,C:R+10,W:600}[k]}
 function zones(){return {L:mmss(paceSec("L")),T:mmss(paceSec("T")),R:mmss(paceSec("R")),F:mmss(paceSec("F")),C:mmss(paceSec("C"))}}
 // corridas de cada semana: [título, detalhe, km, pace]  ({L} leve · {T} tiros · {R} prova · {F} forte)
 // corridas: [título, detalhe, trechos]; trecho = ["k",km,pace] ou ["m",minutos,pace]; pace: L leve · T tiros · R prova · F forte · W caminhada · ou segundos/km
@@ -525,7 +541,7 @@ function planWeeks(){
   const abd={k:"abd",t:"Abdômen"};
   return RUNS.map((R,w)=>{
     CURW=w;z=zones();fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F).replace(/\{C\}/g,z.C);
-    const E=ESC[w];let D;
+    const E=ESC[w].map(m=>Math.max(3,m+offs(w,"de",-3,6)));let D;
     if(w===0) D=[[{k:"run",cooper:true,t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância",v:"12 min",p:"no máximo",big:true},abd],
                  [inf(w),esc(E[0])],[sup(w),esc(E[1])],[run(R[0]),abd],[inf(w),esc(E[2])],[run(R[1]),sup(w)],[]];
     else if(w===10) D=[[sup(w),esc(E[0])],[run(R[0]),abd],[],[run(PROVA,true)]];
@@ -541,6 +557,7 @@ function planWeeksMoved(){const W=planWeeks(),map={};
   W.forEach(w=>w.days.forEach(d=>{d.items=map[key(d.date)]||[]}));return W}
 function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;return v[it.k]?1:0}
 function renderPlan(){
+  renderAdj();
   const t=today0(),tk=key(t),W=planWeeksMoved(),z=zones();
   $("pl-weeks").classList.toggle("editing",editMode);
   if($("pl-zones"))$("pl-zones").innerHTML='<div class="zh">'+(COOPER_KM?"Seus paces pelo Cooper ("+nf(COOPER_KM)+" km)":"Paces estimados · atualizo depois do Cooper de segunda")+'</div>'+
@@ -578,7 +595,7 @@ $("pl-weeks").addEventListener("click",async e=>{
   // atualiza o dia nas abas Semana e Mês
   const it=PITEMS[id];if(!it)return;const k=it.day;
   if(it.cooper&&!on){openDay(k);toast("Coloque os km que você fez no Cooper");return}
-  const cur=days[k]||{},d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:+cur.km||0,esc:+cur.esc||0,pace:cur.pace||null};if(it.k==="run"&&on)d.pace=null;
+  const cur=days[k]||{},d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:+cur.km||0,esc:+cur.esc||0,pace:cur.pace||null,sens:cur.sens||null};if(it.k==="run"&&on){d.pace=null;d.sens=null}
   if(it.k==="run")d.km=on?0:(d.km||it.n||0);
   else if(it.k==="esc")d.esc=on?0:(d.esc||it.n||0);
   else d[it.k]=!on;
@@ -610,6 +627,47 @@ function calcPace(){const dv=$("cv-dist").value.trim(),tv=$("cv-time").value.tri
   const p=t/d;out.innerHTML=mmss(p)+'<small>/km · '+(3600/p).toLocaleString("pt-BR",{maximumFractionDigits:1})+' km/h</small>'}
 $("cv-dist").addEventListener("input",calcPace);$("cv-time").addEventListener("input",calcPace);
 function renderConv(){}
+
+/* ajuste automático semanal */
+document.getElementById("sens").addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(!b)return;const on=b.getAttribute("aria-pressed")==="true";document.querySelectorAll("#sens button").forEach(x=>x.setAttribute("aria-pressed","false"));if(!on)b.setAttribute("aria-pressed","true")});
+const weekIdx=()=>Math.floor((today0()-START)/(7*864e5));
+function evaluateWeek(w){
+  const W=planWeeksMoved(),prev=W[w-1];let runs=0,doneRuns=0,diffs=[],hard=0,escP=0,more=0,less=0,extra=0;
+  prev.days.forEach(({date,items})=>{const v=days[key(date)]||{};items.forEach(it=>{
+    if(it.k==="run"&&!it.cooper){runs++;if(v.km>0){doneRuns++;if(v.pace&&it.avg)diffs.push(v.pace-it.avg);if(v.sens===3)hard++}}
+    if(it.k==="esc"){escP++;const lv=+v.esc||0;if(lv>=it.n+1){more++;extra+=lv-it.n}else if(lv<it.n)less++}})});
+  let dr=0,dl=0,de=0;const m=[];const avg=diffs.length?diffs.reduce((a,b)=>a+b,0)/diffs.length:null;
+  if(runs){
+    if(doneRuns<runs-1){dr=5;dl=5;m.push("Corrida: "+doneRuns+" de "+runs+" treinos feitos. Ritmos 5 s/km mais leves para você retomar com calma.")}
+    else if(avg===null){m.push("Corrida: sem pace lançado na semana passada, então os ritmos ficaram iguais. Lance o pace médio para o app conseguir ajustar.")}
+    else if(avg<=-10&&!hard){dr=-5;dl=-5;m.push("Corrida: você correu em média "+mmss(-avg)+" mais rápido que o previsto. Ritmos 5 s/km mais rápidos a partir de agora.")}
+    else if(avg<=-10&&hard){m.push("Corrida: você foi mais rápida que o previsto, mas marcou treino difícil. Ritmos mantidos para não forçar.")}
+    else if(avg>=15||hard>=2){dr=5;dl=5;m.push("Corrida: "+(avg>=15?"você correu em média "+mmss(avg)+" mais devagar que o previsto":"vários treinos difíceis")+". Ritmos 5 s/km mais leves esta semana.")}
+    else m.push("Corrida: você está no ritmo certo"+(avg!==null?" (diferença média de "+(avg<0?"−":"+")+mmss(Math.abs(avg))+")":"")+". Ritmos mantidos.")}
+  if(escP){
+    if(more>=2){de=extra/more>=2?2:1;m.push("Escada: você fez mais que o previsto em "+more+" sessões. +"+de+" min em cada sessão.")}
+    else if(less>=2){de=-1;m.push("Escada: "+less+" sessões abaixo do previsto. −1 min em cada sessão para você pegar o ritmo.")}
+    else m.push("Escada: dentro do previsto. Minutos mantidos.")}
+  return {semana:w,dr,dl,de,msg:m.join("\n")};
+}
+let adjusting=false;
+async function autoAdjust(){
+  if(!session||adjusting)return;const cw=weekIdx();if(cw<1)return;adjusting=true;
+  try{for(let w=1;w<=Math.min(cw,9);w++){if(adj.some(a=>a.semana===w))continue;
+    const r=evaluateWeek(w);const {error}=await sb.from("fitness_adjust").insert({user_id:session.user.id,...r});
+    if(error){if(String(error.code)==="23505")continue;console.error(error);break}adj.push({...r,desfeito:false})}}
+  finally{adjusting=false}
+  renderPlanKeep();
+}
+function renderAdj(){const el=$("pl-adj");if(!el)return;const cw=weekIdx(),a=adj.find(x=>x.semana===cw);
+  if(!a||cw<1||cw>9){el.hidden=true;return}
+  const changed=a.dr||a.dl||a.de;
+  el.hidden=false;el.innerHTML='<h3><span>Ajustes desta semana</span>'+(changed?(a.desfeito?'<button type="button" id="adj-redo">Reaplicar</button>':'<button type="button" id="adj-undo">Desfazer</button>'):'')+'</h3>'+
+    a.msg.split("\n").map(t=>'<p'+(a.desfeito?' class="mut"':'')+'>'+t+'</p>').join("")+(a.desfeito?'<p class="mut">Ajuste desfeito. O plano voltou ao previsto.</p>':'')}
+$("pl-adj").addEventListener("click",async e=>{const b=e.target.closest("#adj-undo,#adj-redo");if(!b)return;const cw=weekIdx(),a=adj.find(x=>x.semana===cw);if(!a)return;
+  const v=b.id==="adj-undo";a.desfeito=v;renderPlanKeep();
+  const {error}=await sb.from("fitness_adjust").update({desfeito:v}).eq("user_id",session.user.id).eq("semana",cw);
+  if(error){a.desfeito=!v;renderPlanKeep();toast("Não salvou. Verifique a internet.")}});
 
 /* modo edição: arrastar atividades entre dias */
 function setEdit(on){editMode=on;$("pl-edit").textContent=on?"Concluir":"Editar plano";$("pl-edit").classList.toggle("on",on);$("pl-reset").hidden=!on;$("pl-hint").hidden=!on;renderPlanKeep()}
@@ -669,7 +727,7 @@ function openDay(k){
   const d=new Date(k+"T12:00:00"),tk=key(today0());
   $("sh-t").textContent=k===tk?"Hoje":k===key(addDays(today0(),-1))?"Ontem":d.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"});
   ["inf","sup","abd"].forEach(f=>$("tg-"+f).setAttribute("aria-pressed",String(!!v[f])));
-  $("in-km").value=nf(v.km||0);$("in-pace").value=v.pace?mmss(v.pace):"";$("in-esc").value=nf(v.esc||0);$("err").textContent="";
+  $("in-km").value=nf(v.km||0);$("in-pace").value=v.pace?mmss(v.pace):"";document.querySelectorAll("#sens button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.s===v.sens)));$("in-esc").value=nf(v.esc||0);$("err").textContent="";
   $("sheet").classList.add("open");$("scrim").classList.add("open");$("sheet").setAttribute("aria-hidden","false");
   setTimeout(()=>$("tg-inf").focus(),50);
 }
@@ -686,7 +744,7 @@ document.querySelectorAll(".chips").forEach(c=>c.onclick=e=>{const b=e.target.cl
 $("sheet").addEventListener("submit",async e=>{
   e.preventDefault();if(!editing)return;
   const d={inf:$("tg-inf").getAttribute("aria-pressed")==="true",sup:$("tg-sup").getAttribute("aria-pressed")==="true",abd:$("tg-abd").getAttribute("aria-pressed")==="true",km:num("in-km"),esc:num("in-esc"),pace:null};
-  {const pc=parsePace($("in-pace").value);if(Number.isNaN(pc)){$("err").textContent="Pace inválido. Digite só os números, ex.: 745 para 7:45.";return}d.pace=d.km>0?pc:null}
+  {const pc=parsePace($("in-pace").value);if(Number.isNaN(pc)){$("err").textContent="Pace inválido. Digite só os números, ex.: 745 para 7:45.";return}d.pace=d.km>0?pc:null;const sb_=document.querySelector("#sens button[aria-pressed=true]");d.sens=d.km>0&&sb_?+sb_.dataset.s:null}
   const k=editing,was=active(days[k]);
   $("save").disabled=true;
   try{await saveDay(k,d);}catch(err){$("err").textContent="Não salvou. Verifique a conexão e toque em Salvar de novo.";$("save").disabled=false;return;}
