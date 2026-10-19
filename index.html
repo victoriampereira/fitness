@@ -188,6 +188,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .cv input:focus{outline:none;border-bottom-color:var(--run)}
 .cv em{font-style:normal;font-size:12px;color:var(--muted)}
 .cv-eq{text-align:center;color:var(--muted);font-size:16px}
+.cv-res{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:12px;margin-top:6px}
+.cv-res span{font-size:13px;font-weight:600}
+.cv-res b{font-size:34px;font-weight:600;letter-spacing:-.03em;color:var(--run)}
+.cv-res b small{font-size:12px;font-weight:500;color:var(--muted);margin-left:4px}
 .cv-list{display:flex;flex-direction:column}
 .cv-list h3{font-size:12px;font-weight:600;color:var(--muted);margin:0 0 4px}
 .cv-row{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:9px 2px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13.5px}
@@ -298,7 +302,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
       <label class="cv"><span>Velocidade</span><input id="cv-kmh" type="text" inputmode="decimal" autocomplete="off" placeholder="8,0"><em>km/h</em></label>
     </div>
     <p class="note" id="cv-msg">Digite em qualquer um dos campos. O outro é calculado na hora.</p>
-    <div class="cv-list" id="cv-list"></div>
+    <div class="ph"><h2>Distância e tempo → pace</h2></div>
+    <div class="conv">
+      <label class="cv"><span>Distância</span><input id="cv-dist" type="text" inputmode="decimal" autocomplete="off" placeholder="5"><em>km</em></label>
+      <label class="cv"><span>Tempo</span><input id="cv-time" type="text" inputmode="numeric" autocomplete="off" placeholder="35:00"><em>min:seg</em></label>
+      <div class="cv-res" id="cv-res"><span>Pace</span><b>–</b></div>
+    </div>
+    <p class="note" id="cv-msg2">Tempo como 35:00 ou 1:05:30 (horas:min:seg).</p>
   </section>
 
   <p class="note" id="sync">Carregando seus treinos…</p>
@@ -582,11 +592,17 @@ $("cv-pace").addEventListener("input",()=>{const v=$("cv-pace").value.trim();if(
 $("cv-kmh").addEventListener("input",()=>{const v=parseFloat($("cv-kmh").value.replace(",","."));if(!$("cv-kmh").value.trim()){$("cv-pace").value="";cvMsg();return}
   if(!(v>=3&&v<=25)){cvMsg("Use uma velocidade entre 3 e 25 km/h.");return}
   $("cv-pace").value=mmss(3600/v);cvMsg()});
-function renderConv(){CURW=Math.max(0,Math.min(10,Math.floor((today0()-START)/(7*864e5))));
-  const list=[["Leve",paceSec("L")],["Ritmo de prova desta semana",paceSec("R")],["1 km forte desta semana",paceSec("F")],["Tiros desta semana",paceSec("T")],["Meta da prova",390],["Cooper (19/10)",720/(COOPER_KM||COOPER_EST)]];
-  $("cv-list").innerHTML='<h3>Seus paces do plano</h3>'+list.map(([n,s])=>'<button type="button" class="cv-row" data-p="'+Math.round(s)+'"><b>'+n+'</b><span>'+mmss(s)+'/km</span><span>'+(3600/s).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+' km/h</span></button>').join("")}
-$("cv-list").addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b)return;const s=+b.dataset.p;$("cv-pace").value=mmss(s);$("cv-kmh").value=(3600/s).toLocaleString("pt-BR",{maximumFractionDigits:2});cvMsg()});
-if(page==="conv")setTimeout(renderConv,0);
+function parseTime(x){x=String(x||"").trim();if(!x)return null;const p=x.split(/[:.,'h]/).map(v=>v.trim());if(p.some(v=>!/^\d+$/.test(v))||p.length>3)return NaN;
+  const n=p.map(Number);if(p.length===1)return n[0]*60;if(p.length===2)return n[1]<60?n[0]*60+n[1]:NaN;return n[1]<60&&n[2]<60?n[0]*3600+n[1]*60+n[2]:NaN}
+function calcPace(){const dv=$("cv-dist").value.trim(),tv=$("cv-time").value.trim(),out=$("cv-res").querySelector("b"),msg=$("cv-msg2");
+  msg.textContent="Tempo como 35:00 ou 1:05:30 (horas:min:seg).";
+  if(!dv||!tv){out.innerHTML="–";return}
+  const d=parseFloat(dv.replace(",","."));const t=parseTime(tv);
+  if(!(d>0)){out.innerHTML="–";msg.textContent="Coloque a distância em km, por exemplo 5 ou 7,5.";return}
+  if(!t||Number.isNaN(t)){out.innerHTML="–";msg.textContent="Escreva o tempo como 35:00 ou 1:05:30.";return}
+  const p=t/d;out.innerHTML=mmss(p)+'<small>/km · '+(3600/p).toLocaleString("pt-BR",{maximumFractionDigits:1})+' km/h</small>'}
+$("cv-dist").addEventListener("input",calcPace);$("cv-time").addEventListener("input",calcPace);
+function renderConv(){}
 
 /* modo edição: arrastar atividades entre dias */
 function setEdit(on){editMode=on;$("pl-edit").textContent=on?"Concluir":"Editar plano";$("pl-edit").classList.toggle("on",on);$("pl-reset").hidden=!on;$("pl-hint").hidden=!on;renderPlanKeep()}
@@ -634,7 +650,7 @@ function renderPlanKeep(){const open=[...document.querySelectorAll("#pl-weeks de
 
 /* abas e navegação */
 function setPage(p){page=p;try{localStorage.setItem("fitness-pagina",p)}catch(e){}render()}
-$("tab-sem").onclick=()=>setPage("sem");$("tab-mes").onclick=()=>setPage("mes");$("tab-plano").onclick=()=>setPage("plano");$("tab-conv").onclick=()=>{setPage("conv");renderConv()};
+$("tab-sem").onclick=()=>setPage("sem");$("tab-mes").onclick=()=>setPage("mes");$("tab-plano").onclick=()=>setPage("plano");$("tab-conv").onclick=()=>setPage("conv");
 $("w-prev").onclick=()=>{wStart=addDays(wStart,-7);render()};
 $("w-next").onclick=()=>{wStart=addDays(wStart,7);render()};
 $("m-prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
