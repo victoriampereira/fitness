@@ -131,10 +131,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{border:1px solid var(--line);background:none;color:var(--ink);border-radius:99px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
 .chip.zero{color:var(--muted)}
-.sens{display:flex;align-items:center;gap:6px;border-top:1px dashed var(--line);padding-top:10px}
-.sens span{flex:1;font-size:13px;font-weight:600}
-.sens button{border:1px solid var(--line);background:none;color:var(--ink);border-radius:99px;padding:6px 12px;font:600 12px var(--font);cursor:pointer}
-.sens button[aria-pressed="true"]{background:var(--fill);color:var(--fill-ink);border-color:var(--fill)}
 .adj{background:var(--soft);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
 .adj h3{margin:0;font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .adj p{margin:0;font-size:12.5px;line-height:1.4;color:var(--ink)}
@@ -338,7 +334,6 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <div class="meter-h"><strong><span data-ic="run" data-sz="md"></span>Corrida</strong><span>0 = não corri</span></div>
     <div class="ctl"><button type="button" class="st" data-f="km" data-s="-0.5" aria-label="Menos meio km">−</button><input id="in-km" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Quilômetros corridos"><em>km</em><button type="button" class="st" data-f="km" data-s="0.5" aria-label="Mais meio km">+</button></div>
     <div class="chips" data-f="km"><button type="button" class="chip zero" data-v="0">Não corri</button><button type="button" class="chip" data-v="3">3 km</button><button type="button" class="chip" data-v="5">5 km</button><button type="button" class="chip" data-v="8">8 km</button><button type="button" class="chip" data-v="10">10 km</button></div>
-    <div class="sens" id="sens" role="group" aria-label="Como foi a corrida"><span>Como foi?</span><button type="button" data-s="1">Fácil</button><button type="button" data-s="2">Ok</button><button type="button" data-s="3">Difícil</button></div>
     <div class="pacel"><label for="in-pace">Pace médio</label><input id="in-pace" type="text" inputmode="numeric" autocomplete="off" placeholder="7:45" aria-label="Pace médio em minutos e segundos por km"><em>/km</em></div>
   </div>
   <div class="meter">
@@ -595,7 +590,7 @@ $("pl-weeks").addEventListener("click",async e=>{
   // atualiza o dia nas abas Semana e Mês
   const it=PITEMS[id];if(!it)return;const k=it.day;
   if(it.cooper&&!on){openDay(k);toast("Coloque os km que você fez no Cooper");return}
-  const cur=days[k]||{},d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:+cur.km||0,esc:+cur.esc||0,pace:cur.pace||null,sens:cur.sens||null};if(it.k==="run"&&on){d.pace=null;d.sens=null}
+  const cur=days[k]||{},d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:+cur.km||0,esc:+cur.esc||0,pace:cur.pace||null};if(it.k==="run"&&on)d.pace=null;
   if(it.k==="run")d.km=on?0:(d.km||it.n||0);
   else if(it.k==="esc")d.esc=on?0:(d.esc||it.n||0);
   else d[it.k]=!on;
@@ -629,20 +624,19 @@ $("cv-dist").addEventListener("input",calcPace);$("cv-time").addEventListener("i
 function renderConv(){}
 
 /* ajuste automático semanal */
-document.getElementById("sens").addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(!b)return;const on=b.getAttribute("aria-pressed")==="true";document.querySelectorAll("#sens button").forEach(x=>x.setAttribute("aria-pressed","false"));if(!on)b.setAttribute("aria-pressed","true")});
-const weekIdx=()=>Math.floor((today0()-START)/(7*864e5));
+// o ajuste da semana seguinte sai no domingo às 18h (6 h antes da segunda)
+const weekIdx=()=>Math.floor((Date.now()-START.getTime()+6*36e5)/(7*864e5));
 function evaluateWeek(w){
   const W=planWeeksMoved(),prev=W[w-1];let runs=0,doneRuns=0,diffs=[],hard=0,escP=0,more=0,less=0,extra=0;
   prev.days.forEach(({date,items})=>{const v=days[key(date)]||{};items.forEach(it=>{
-    if(it.k==="run"&&!it.cooper){runs++;if(v.km>0){doneRuns++;if(v.pace&&it.avg)diffs.push(v.pace-it.avg);if(v.sens===3)hard++}}
+    if(it.k==="run"&&!it.cooper){runs++;if(v.km>0){doneRuns++;if(v.pace&&it.avg)diffs.push(v.pace-it.avg)}}
     if(it.k==="esc"){escP++;const lv=+v.esc||0;if(lv>=it.n+1){more++;extra+=lv-it.n}else if(lv<it.n)less++}})});
   let dr=0,dl=0,de=0;const m=[];const avg=diffs.length?diffs.reduce((a,b)=>a+b,0)/diffs.length:null;
   if(runs){
     if(doneRuns<runs-1){dr=5;dl=5;m.push("Corrida: "+doneRuns+" de "+runs+" treinos feitos. Ritmos 5 s/km mais leves para você retomar com calma.")}
     else if(avg===null){m.push("Corrida: sem pace lançado na semana passada, então os ritmos ficaram iguais. Lance o pace médio para o app conseguir ajustar.")}
-    else if(avg<=-10&&!hard){dr=-5;dl=-5;m.push("Corrida: você correu em média "+mmss(-avg)+" mais rápido que o previsto. Ritmos 5 s/km mais rápidos a partir de agora.")}
-    else if(avg<=-10&&hard){m.push("Corrida: você foi mais rápida que o previsto, mas marcou treino difícil. Ritmos mantidos para não forçar.")}
-    else if(avg>=15||hard>=2){dr=5;dl=5;m.push("Corrida: "+(avg>=15?"você correu em média "+mmss(avg)+" mais devagar que o previsto":"vários treinos difíceis")+". Ritmos 5 s/km mais leves esta semana.")}
+    else if(avg<=-10){dr=-5;dl=-5;m.push("Corrida: você correu em média "+mmss(-avg)+" mais rápido que o previsto. Ritmos 5 s/km mais rápidos a partir de agora.")}
+    else if(avg>=15){dr=5;dl=5;m.push("Corrida: você correu em média "+mmss(avg)+" mais devagar que o previsto. Ritmos 5 s/km mais leves esta semana.")}
     else m.push("Corrida: você está no ritmo certo"+(avg!==null?" (diferença média de "+(avg<0?"−":"+")+mmss(Math.abs(avg))+")":"")+". Ritmos mantidos.")}
   if(escP){
     if(more>=2){de=extra/more>=2?2:1;m.push("Escada: você fez mais que o previsto em "+more+" sessões. +"+de+" min em cada sessão.")}
@@ -662,7 +656,7 @@ async function autoAdjust(){
 function renderAdj(){const el=$("pl-adj");if(!el)return;const cw=weekIdx(),a=adj.find(x=>x.semana===cw);
   if(!a||cw<1||cw>9){el.hidden=true;return}
   const changed=a.dr||a.dl||a.de;
-  el.hidden=false;el.innerHTML='<h3><span>Ajustes desta semana</span>'+(changed?(a.desfeito?'<button type="button" id="adj-redo">Reaplicar</button>':'<button type="button" id="adj-undo">Desfazer</button>'):'')+'</h3>'+
+  el.hidden=false;el.innerHTML='<h3><span>'+(today0()<addDays(START,7*cw)?'Ajustes da próxima semana':'Ajustes desta semana')+'</span>'+(changed?(a.desfeito?'<button type="button" id="adj-redo">Reaplicar</button>':'<button type="button" id="adj-undo">Desfazer</button>'):'')+'</h3>'+
     a.msg.split("\n").map(t=>'<p'+(a.desfeito?' class="mut"':'')+'>'+t+'</p>').join("")+(a.desfeito?'<p class="mut">Ajuste desfeito. O plano voltou ao previsto.</p>':'')}
 $("pl-adj").addEventListener("click",async e=>{const b=e.target.closest("#adj-undo,#adj-redo");if(!b)return;const cw=weekIdx(),a=adj.find(x=>x.semana===cw);if(!a)return;
   const v=b.id==="adj-undo";a.desfeito=v;renderPlanKeep();
@@ -727,7 +721,7 @@ function openDay(k){
   const d=new Date(k+"T12:00:00"),tk=key(today0());
   $("sh-t").textContent=k===tk?"Hoje":k===key(addDays(today0(),-1))?"Ontem":d.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"});
   ["inf","sup","abd"].forEach(f=>$("tg-"+f).setAttribute("aria-pressed",String(!!v[f])));
-  $("in-km").value=nf(v.km||0);$("in-pace").value=v.pace?mmss(v.pace):"";document.querySelectorAll("#sens button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.s===v.sens)));$("in-esc").value=nf(v.esc||0);$("err").textContent="";
+  $("in-km").value=nf(v.km||0);$("in-pace").value=v.pace?mmss(v.pace):"";$("in-esc").value=nf(v.esc||0);$("err").textContent="";
   $("sheet").classList.add("open");$("scrim").classList.add("open");$("sheet").setAttribute("aria-hidden","false");
   setTimeout(()=>$("tg-inf").focus(),50);
 }
@@ -744,7 +738,7 @@ document.querySelectorAll(".chips").forEach(c=>c.onclick=e=>{const b=e.target.cl
 $("sheet").addEventListener("submit",async e=>{
   e.preventDefault();if(!editing)return;
   const d={inf:$("tg-inf").getAttribute("aria-pressed")==="true",sup:$("tg-sup").getAttribute("aria-pressed")==="true",abd:$("tg-abd").getAttribute("aria-pressed")==="true",km:num("in-km"),esc:num("in-esc"),pace:null};
-  {const pc=parsePace($("in-pace").value);if(Number.isNaN(pc)){$("err").textContent="Pace inválido. Digite só os números, ex.: 745 para 7:45.";return}d.pace=d.km>0?pc:null;const sb_=document.querySelector("#sens button[aria-pressed=true]");d.sens=d.km>0&&sb_?+sb_.dataset.s:null}
+  {const pc=parsePace($("in-pace").value);if(Number.isNaN(pc)){$("err").textContent="Pace inválido. Digite só os números, ex.: 745 para 7:45.";return}d.pace=d.km>0?pc:null}
   const k=editing,was=active(days[k]);
   $("save").disabled=true;
   try{await saveDay(k,d);}catch(err){$("err").textContent="Não salvou. Verifique a conexão e toque em Salvar de novo.";$("save").disabled=false;return;}
