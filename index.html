@@ -176,6 +176,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .it .sk{font-size:13px;font-weight:600;white-space:nowrap;text-align:right}
 .it .sk small{display:block;font-size:10.5px;font-weight:600;color:var(--run)}
 .it.done .px,.it.done .sk,.it.done .ic{opacity:.4}
+.it[data-k]{cursor:pointer}
+.it .ex{display:block;font-style:normal;font-size:11px;font-weight:700;color:#2FA36B}
+.it .ex.neg{color:var(--muted)}
+.it.done .sk:has(.ex){opacity:1}
 .it.big{background:var(--fill);color:var(--fill-ink);border-radius:12px;padding:10px 8px}
 .it.big .px small,.it.big .sk small{color:inherit;opacity:.75}
 .it.rest{grid-template-columns:1fr;font-size:13px;color:var(--muted);padding:2px 0}
@@ -474,6 +478,7 @@ function planWeeks(){
   });
 }
 const PITEMS={};
+function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;return v[it.k]?1:0}
 function renderPlan(){
   const t=today0(),tk=key(t),W=planWeeks(),z=zones();
   if($("pl-zones"))$("pl-zones").innerHTML='<div class="zh">'+(COOPER_KM?"Seus paces pelo Cooper ("+nf(COOPER_KM)+" km)":"Paces estimados · atualizo depois do Cooper de segunda")+'</div>'+
@@ -487,10 +492,11 @@ function renderPlan(){
     let tot=0,done=0;
     const body=w.days.map(({date,items})=>{
       const k=key(date);
-      const its=items.length?items.map(it=>{tot++;const id=k+"-"+it.k,on=checks.has(id);if(on)done++;PITEMS[id]=it;
-        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+'">'+ic(ICK[it.k],"md")+
+      const its=items.length?items.map(it=>{tot++;const id=k+"-"+it.k,lv=logged(k,it),on=checks.has(id)||!!lv;if(on)done++;PITEMS[id]=it;
+        let ex="";if(lv&&it.n&&!it.cooper&&(it.k==="esc"||it.k==="run")){const df=Math.round((lv-it.n)*10)/10;if(Math.abs(df)>=0.1)ex='<em class="ex'+(df<0?' neg':'')+'">'+(df>0?"+":"−")+nf(Math.abs(df))+(it.k==="esc"?" min":" km")+'</em>'}
+        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+'"'+(date<=t||k===tk?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k],"md")+
           '<span class="px"><strong>'+it.t+'</strong>'+(it.d?'<small>'+it.d+'</small>':'')+'</span>'+
-          '<span class="sk">'+(it.v||"")+(it.p?'<small>'+it.p+'</small>':'')+'</span>'+
+          '<span class="sk">'+(it.v||"")+(it.p?'<small>'+it.p+'</small>':'')+ex+'</span>'+
           '<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>'}).join("")
         :'<div class="it rest">Descanso</div>';
       return '<div class="pd'+(k===tk?' today':'')+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
@@ -500,7 +506,7 @@ function renderPlan(){
 $("pl-weeks").addEventListener("click",async e=>{
   const b=e.target.closest("[data-ck]");if(!b||!session)return;
   e.preventDefault();e.stopPropagation();
-  const id=b.dataset.ck,on=checks.has(id);
+  const id=b.dataset.ck,it0=PITEMS[id],on=checks.has(id)||!!(it0&&logged(id.slice(0,10),it0));
   on?checks.delete(id):checks.add(id);renderPlanKeep();
   const r=on?await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",id)
             :await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id});
@@ -509,8 +515,8 @@ $("pl-weeks").addEventListener("click",async e=>{
   const it=PITEMS[id],k=id.slice(0,10);if(!it)return;
   if(it.cooper&&!on){openDay(k);toast("Coloque os km que você fez no Cooper");return}
   const cur=days[k]||{},d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:+cur.km||0,esc:+cur.esc||0};
-  if(it.k==="run")d.km=on?0:(it.n||0);
-  else if(it.k==="esc")d.esc=on?0:(it.n||0);
+  if(it.k==="run")d.km=on?0:(d.km||it.n||0);
+  else if(it.k==="esc")d.esc=on?0:(d.esc||it.n||0);
   else d[it.k]=!on;
   try{await saveDay(k,d)}catch(err){toast("Marcado no plano, mas não atualizou o dia. Verifique a internet.")}
 });
