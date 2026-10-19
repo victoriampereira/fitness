@@ -150,7 +150,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .sum div{text-align:center}
 .chipsum{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .chipsum>span{flex-direction:column;background:none;padding:0;gap:6px;font-size:12px}
-.tabs{width:fit-content;margin:0 auto;grid-template-columns:auto auto auto;gap:2px;padding:3px}
+.tabs{width:fit-content;margin:0 auto;grid-template-columns:auto auto auto auto;gap:2px;padding:3px}
 .tab{padding:6px 18px;font-size:13px;font-weight:500}
 .tab[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .top h1{font-family:"Inter",var(--font);font-style:italic;font-weight:300;text-transform:lowercase;letter-spacing:.4em;margin-left:.4em}
@@ -181,6 +181,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .it .sk small{display:block;font-size:10.5px;font-weight:600;color:var(--run)}
 .it.done .px,.it.done .sk,.it.done .ic{opacity:.4}
 .it[data-k]{cursor:pointer}
+.conv{display:flex;flex-direction:column;gap:6px;background:var(--soft);border-radius:16px;padding:16px}
+.cv{display:grid;grid-template-columns:1fr auto 64px;align-items:center;gap:10px}
+.cv span{font-size:13px;font-weight:600}
+.cv input{width:130px;text-align:right;font:600 34px/1 var(--font);letter-spacing:-.03em;border:none;border-bottom:1.5px solid var(--line);background:transparent;color:var(--ink);padding:6px 2px;font-variant-numeric:tabular-nums}
+.cv input:focus{outline:none;border-bottom-color:var(--run)}
+.cv em{font-style:normal;font-size:12px;color:var(--muted)}
+.cv-eq{text-align:center;color:var(--muted);font-size:16px}
+.cv-list{display:flex;flex-direction:column}
+.cv-list h3{font-size:12px;font-weight:600;color:var(--muted);margin:0 0 4px}
+.cv-row{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:9px 2px;border-bottom:1px solid var(--line);cursor:pointer;font-size:13.5px}
+.cv-row b{font-weight:600}.cv-row span{color:var(--muted);min-width:70px;text-align:right}
 .pl-bar{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
 .pl-bar .note{flex:1 1 100%;text-align:left;margin:0}
 .pl-btn{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:99px;padding:6px 14px;font:500 12px var(--font);cursor:pointer}
@@ -241,6 +252,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <button class="tab" role="tab" id="tab-sem" aria-selected="true" aria-controls="pg-sem">Semana</button>
     <button class="tab" role="tab" id="tab-mes" aria-selected="false" aria-controls="pg-mes">Mês</button>
     <button class="tab" role="tab" id="tab-plano" aria-selected="false" aria-controls="pg-plano">Plano</button>
+    <button class="tab" role="tab" id="tab-conv" aria-selected="false" aria-controls="pg-conv">Conversor</button>
   </div>
 
   <section id="pg-sem" role="tabpanel" aria-labelledby="tab-sem" style="display:flex;flex-direction:column;gap:14px">
@@ -276,6 +288,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste a atividade para outro dia</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
+  </section>
+
+  <section id="pg-conv" role="tabpanel" aria-labelledby="tab-conv" hidden style="flex-direction:column;gap:18px">
+    <div class="ph"><h2>Pace ↔ velocidade</h2></div>
+    <div class="conv">
+      <label class="cv"><span>Pace</span><input id="cv-pace" type="text" inputmode="numeric" autocomplete="off" placeholder="7:30"><em>min/km</em></label>
+      <div class="cv-eq" aria-hidden="true">⇅</div>
+      <label class="cv"><span>Velocidade</span><input id="cv-kmh" type="text" inputmode="decimal" autocomplete="off" placeholder="8,0"><em>km/h</em></label>
+    </div>
+    <p class="note" id="cv-msg">Digite em qualquer um dos campos. O outro é calculado na hora.</p>
+    <div class="cv-list" id="cv-list"></div>
   </section>
 
   <p class="note" id="sync">Carregando seus treinos…</p>
@@ -342,7 +365,7 @@ const SUPABASE_URL="https://ufbmhikchqhstcbhioib.supabase.co";
 const SUPABASE_KEY="sb_publishable_QGj4aoHhWZXbCUBep2tylA_a8NckDy7";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 let session=null,channel=null;
-try{const p=localStorage.getItem("fitness-pagina");if(p==="mes"||p==="plano")page=p}catch(e){}
+try{const p=localStorage.getItem("fitness-pagina");if(p==="mes"||p==="plano"||p==="conv")page=p}catch(e){}
 
 async function reload(){
   if(!session)return;
@@ -388,7 +411,7 @@ function render(){
   const t=today0(),tk=key(t);
   $("hoje").textContent=t.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
   $("tab-sem").setAttribute("aria-selected",String(page==="sem"));$("tab-mes").setAttribute("aria-selected",String(page==="mes"));$("tab-plano").setAttribute("aria-selected",String(page==="plano"));
-  $("pg-sem").hidden=page!=="sem";$("pg-mes").hidden=page!=="mes";$("pg-mes").style.display=page==="mes"?"flex":"";$("pg-plano").hidden=page!=="plano";$("pg-plano").style.display=page==="plano"?"flex":"";renderPlanKeep();
+  $("pg-sem").hidden=page!=="sem";$("pg-mes").hidden=page!=="mes";$("pg-mes").style.display=page==="mes"?"flex":"";$("pg-plano").hidden=page!=="plano";$("pg-plano").style.display=page==="plano"?"flex":"";$("tab-conv").setAttribute("aria-selected",String(page==="conv"));$("pg-conv").hidden=page!=="conv";$("pg-conv").style.display=page==="conv"?"flex":"";renderPlanKeep();
 
   /* semana */
   const wk=[...Array(7)].map((_,i)=>addDays(wStart,i));
@@ -551,6 +574,20 @@ $("pl-weeks").addEventListener("click",async e=>{
   else d[it.k]=!on;
   try{await saveDay(k,d)}catch(err){toast("Marcado no plano, mas não atualizou o dia. Verifique a internet.")}
 });
+/* conversor pace ↔ km/h */
+function cvMsg(t){$("cv-msg").textContent=t||"Digite em qualquer um dos campos. O outro é calculado na hora."}
+$("cv-pace").addEventListener("input",()=>{const v=$("cv-pace").value.trim();if(!v){$("cv-kmh").value="";cvMsg();return}
+  const s=parsePace(v);if(!s||Number.isNaN(s)){cvMsg("Escreva o pace como minutos:segundos, por exemplo 7:30.");return}
+  $("cv-kmh").value=(3600/s).toLocaleString("pt-BR",{maximumFractionDigits:2});cvMsg()});
+$("cv-kmh").addEventListener("input",()=>{const v=parseFloat($("cv-kmh").value.replace(",","."));if(!$("cv-kmh").value.trim()){$("cv-pace").value="";cvMsg();return}
+  if(!(v>=3&&v<=25)){cvMsg("Use uma velocidade entre 3 e 25 km/h.");return}
+  $("cv-pace").value=mmss(3600/v);cvMsg()});
+function renderConv(){CURW=Math.max(0,Math.min(10,Math.floor((today0()-START)/(7*864e5))));
+  const list=[["Leve",paceSec("L")],["Ritmo de prova desta semana",paceSec("R")],["1 km forte desta semana",paceSec("F")],["Tiros desta semana",paceSec("T")],["Meta da prova",390],["Cooper (19/10)",720/(COOPER_KM||COOPER_EST)]];
+  $("cv-list").innerHTML='<h3>Seus paces do plano</h3>'+list.map(([n,s])=>'<button type="button" class="cv-row" data-p="'+Math.round(s)+'"><b>'+n+'</b><span>'+mmss(s)+'/km</span><span>'+(3600/s).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+' km/h</span></button>').join("")}
+$("cv-list").addEventListener("click",e=>{const b=e.target.closest("[data-p]");if(!b)return;const s=+b.dataset.p;$("cv-pace").value=mmss(s);$("cv-kmh").value=(3600/s).toLocaleString("pt-BR",{maximumFractionDigits:2});cvMsg()});
+if(page==="conv")setTimeout(renderConv,0);
+
 /* modo edição: arrastar atividades entre dias */
 function setEdit(on){editMode=on;$("pl-edit").textContent=on?"Concluir":"Editar plano";$("pl-edit").classList.toggle("on",on);$("pl-reset").hidden=!on;$("pl-hint").hidden=!on;renderPlanKeep()}
 $("pl-edit").onclick=()=>setEdit(!editMode);
@@ -597,7 +634,7 @@ function renderPlanKeep(){const open=[...document.querySelectorAll("#pl-weeks de
 
 /* abas e navegação */
 function setPage(p){page=p;try{localStorage.setItem("fitness-pagina",p)}catch(e){}render()}
-$("tab-sem").onclick=()=>setPage("sem");$("tab-mes").onclick=()=>setPage("mes");$("tab-plano").onclick=()=>setPage("plano");
+$("tab-sem").onclick=()=>setPage("sem");$("tab-mes").onclick=()=>setPage("mes");$("tab-plano").onclick=()=>setPage("plano");$("tab-conv").onclick=()=>{setPage("conv");renderConv()};
 $("w-prev").onclick=()=>{wStart=addDays(wStart,-7);render()};
 $("w-next").onclick=()=>{wStart=addDays(wStart,7);render()};
 $("m-prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
