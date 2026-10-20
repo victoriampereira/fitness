@@ -230,6 +230,33 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .ck[aria-pressed="true"]::after{border-color:#fff}
 .it.big .ck{border-color:rgba(255,255,255,.4)}
 .top h1{font-family:"Raleway",var(--font);font-style:normal;font-weight:200;font-size:27px;letter-spacing:.45em;margin-left:.45em;text-transform:lowercase}
+/* computador: barra lateral + plano em colunas */
+@media (min-width:1000px){
+#app{max-width:1440px;display:grid;grid-template-columns:210px minmax(0,1fr);column-gap:48px;align-items:start;min-height:auto;justify-content:stretch;padding-block:48px}
+#app>.top{grid-column:1;grid-row:1;align-items:flex-start;text-align:left}
+#app>.top h1{margin-left:0}
+#app>.tabs{grid-column:1;grid-row:2;display:flex;flex-direction:column;align-items:stretch;width:auto;margin:0;background:none;padding:0;gap:4px;position:sticky;top:24px}
+#app>.tabs .tab{text-align:left;padding:10px 14px;font-size:14px;border-radius:10px}
+#app>.tabs .tab[aria-selected="true"]{background:var(--soft);box-shadow:none}
+#app>section{grid-column:2;grid-row:1 / span 30}
+#app>#sync{grid-column:1;grid-row:3;text-align:left}
+#app>.foot{grid-column:1;grid-row:4;flex-direction:column;align-items:flex-start}
+#pg-sem,#pg-mes,#pg-conv{max-width:760px}
+.grid .tile{min-height:88px}
+.wkd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;padding-bottom:14px}
+.pd{grid-template-columns:1fr;border-top:none;background:var(--soft);border-radius:14px;padding:12px;align-content:start;gap:10px}
+.pd.today{box-shadow:inset 0 0 0 2px var(--run);padding-left:12px}
+.pd.drop{background:var(--line)}
+.pd .sd{display:inline;font-size:20px}.pd .sw{display:inline;margin-left:6px}
+.it{grid-template-columns:22px minmax(0,1fr) 26px;grid-template-rows:auto auto;column-gap:8px;row-gap:2px;align-items:start}
+.it>.ic{grid-column:1;grid-row:1 / span 2}.it .px{grid-column:2;grid-row:1}.it .sk{grid-column:2;grid-row:2;text-align:left}
+.it .ck,.it .hd{grid-column:3;grid-row:1 / span 2;align-self:center}
+.it .px small{display:none}.it.big .px small{display:block}
+.it .ic.md{width:22px;height:22px}
+.it.big{padding:10px}
+.it.rest{grid-template-columns:1fr}
+.editing .it:not(.rest){padding:6px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .auth{display:flex;flex-direction:column;gap:12px}
 .auth input{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:14px;font:500 16px var(--font);min-width:0}
@@ -579,7 +606,7 @@ function renderPlan(){
           (editMode?'<span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
         :'<div class="it rest">Descanso</div>';
       return '<div class="pd'+(k===tk?' today':'')+'" data-day="'+k+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
-    return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+'</span><span>'+done+'/'+tot+' · '+rng+'</span></summary>'+body+'</details>'}).join("");
+    return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+'</span><span>'+done+'/'+tot+' · '+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
   if($("pl-sem"))$("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+W.length:(t<W[0].mon?"começa seg, 19 out":"");
 }
 $("pl-weeks").addEventListener("click",async e=>{
