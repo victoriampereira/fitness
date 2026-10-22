@@ -631,7 +631,6 @@ $("pl-weeks").addEventListener("click",async e=>{
   else if(it.k==="esc")d.esc=on?0:(d.esc||it.n||0);
   else d[it.k]=!on;
   const before={...cur};try{await saveDay(k,d)}catch(err){toast("Marcado no plano, mas não atualizou o dia. Verifique a internet.");return}
-  if(!on)showFeedback(k,before,d);
 });
 /* conversor pace ↔ km/h */
 function cvMsg(t){$("cv-msg").textContent=t||"Digite só os números. Ex.: 745 vira 7:45."}
@@ -789,7 +788,7 @@ $("sheet").addEventListener("submit",async e=>{
   $("save").disabled=true;
   try{await saveDay(k,d);}catch(err){$("err").textContent="Não salvou. Verifique a conexão e toque em Salvar de novo.";$("save").disabled=false;return;}
   $("save").disabled=false;closeDay();
-  if(!showFeedback(k,before,d))toast(active(d)?(was?"Dia atualizado":"Treino registrado"):"Dia limpo");
+  toast(active(d)?(was?"Dia atualizado":"Treino registrado"):"Dia limpo");
 });
 
 /* feedback depois de lançar corrida ou escada */
