@@ -142,6 +142,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .pacel em{font-style:normal;font-size:13px;color:var(--muted)}
 .save{border:none;border-radius:99px;background:var(--fill);color:var(--fill-ink);padding:16px;font-size:15px;font-weight:700;cursor:pointer}
 .err{color:var(--inf);font-size:13px;text-align:center;min-height:1em}
+.fb{position:fixed;z-index:35;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,calc(100% - 40px));background:var(--bg);border-radius:20px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:10px}
+.fb h3{margin:0;font-size:18px;font-weight:700}
+.fb p{margin:0;font-size:14px;line-height:1.45}
+.fb #fb-b{display:flex;flex-direction:column;gap:8px}
+.fb .save{margin-top:6px}
 .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);background:var(--fill);color:var(--fill-ink);border-radius:99px;padding:11px 18px;font-weight:600;font-size:13px;z-index:40;transition:transform .3s cubic-bezier(.2,.9,.3,1.2);max-width:calc(100% - 40px);text-align:center}
 .toast{visibility:hidden}.toast.show{transform:translate(-50%,0);visibility:visible}
 @media (max-width:370px){.sum b{font-size:20px}.km{font-size:8px}}
@@ -373,6 +378,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
   <div class="err" id="err"></div>
   <button type="submit" class="save" id="save">Salvar dia</button>
 </form>
+<div class="fb" id="fb" role="dialog" aria-modal="true" aria-labelledby="fb-t" hidden><h3 id="fb-t">Treino lançado</h3><div id="fb-b"></div><button type="button" class="save" id="fb-ok">Fechar</button></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -624,7 +630,8 @@ $("pl-weeks").addEventListener("click",async e=>{
   if(it.k==="run")d.km=on?0:(d.km||it.n||0);
   else if(it.k==="esc")d.esc=on?0:(d.esc||it.n||0);
   else d[it.k]=!on;
-  try{await saveDay(k,d)}catch(err){toast("Marcado no plano, mas não atualizou o dia. Verifique a internet.")}
+  const before={...cur};try{await saveDay(k,d)}catch(err){toast("Marcado no plano, mas não atualizou o dia. Verifique a internet.");return}
+  if(!on)showFeedback(k,before,d);
 });
 /* conversor pace ↔ km/h */
 function cvMsg(t){$("cv-msg").textContent=t||"Digite só os números. Ex.: 745 vira 7:45."}
@@ -768,7 +775,7 @@ function closeDay(){$("sheet").classList.remove("open");$("scrim").classList.rem
 const num=id=>{const v=parseFloat(String($(id).value).replace(",","."));return isFinite(v)&&v>0?Math.round(v*100)/100:0};
 
 document.addEventListener("click",e=>{const b=e.target.closest("[data-k]");if(b&&!b.disabled)openDay(b.dataset.k)});
-$("scrim").onclick=closeDay;$("close").onclick=closeDay;
+$("scrim").onclick=()=>{if(!$("fb").hidden)closeFb();else closeDay()};$("close").onclick=closeDay;$("fb-ok").onclick=closeFb;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&editing)closeDay()});
 document.querySelectorAll(".tg").forEach(b=>b.onclick=()=>b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true")));
 document.querySelectorAll(".st").forEach(b=>b.onclick=()=>{const id="in-"+b.dataset.f;const v=Math.max(0,Math.round((num(id)+parseFloat(b.dataset.s))*100)/100);$(id).value=nf(v);});
@@ -778,12 +785,50 @@ $("sheet").addEventListener("submit",async e=>{
   e.preventDefault();if(!editing)return;
   const d={inf:$("tg-inf").getAttribute("aria-pressed")==="true",sup:$("tg-sup").getAttribute("aria-pressed")==="true",abd:$("tg-abd").getAttribute("aria-pressed")==="true",km:num("in-km"),esc:num("in-esc"),pace:null};
   {const pc=parsePace($("in-pace").value);if(Number.isNaN(pc)){$("err").textContent="Pace inválido. Digite só os números, ex.: 745 para 7:45.";return}d.pace=d.km>0?pc:null}
-  const k=editing,was=active(days[k]);
+  const k=editing,was=active(days[k]),before={...(days[k]||{})};
   $("save").disabled=true;
   try{await saveDay(k,d);}catch(err){$("err").textContent="Não salvou. Verifique a conexão e toque em Salvar de novo.";$("save").disabled=false;return;}
   $("save").disabled=false;closeDay();
-  toast(active(d)?(was?"Dia atualizado":"Treino registrado"):"Dia limpo");
+  if(!showFeedback(k,before,d))toast(active(d)?(was?"Dia atualizado":"Treino registrado"):"Dia limpo");
 });
+
+/* feedback depois de lançar corrida ou escada */
+function planFor(k,kind){return Object.values(PITEMS).find(x=>x.day===k&&x.k===kind&&!x.cooper)}
+function weekTotals(k){const m=mondayOf(new Date(k+"T12:00:00"));let km=0,esc=0,runs=0;for(let i=0;i<7;i++){const v=days[key(addDays(m,i))]||{};km+=+v.km||0;esc+=+v.esc||0;if(v.km>0)runs++}return{km,esc,runs}}
+function nextRun(k){const t=key(today0()),from=k>t?k:t;const c=Object.values(PITEMS).filter(x=>x.k==="run"&&x.day>from&&!x.cooper).sort((a,b)=>a.day<b.day?-1:1)[0];
+  if(!c)return"";const d=new Date(c.day+"T12:00:00");return"Próxima corrida: "+DW[d.getDay()].toLowerCase()+", "+d.getDate()+"/"+(d.getMonth()+1)+" · "+c.t.replace("Corrida · ","")+" · "+c.v+(c.p?" a "+c.p.replace("média ",""):"")+"."}
+function showFeedback(k,b,a){
+  const L=[];let title="";
+  const runNew=a.km>0&&(a.km!==(+b.km||0)||a.pace!==(b.pace||null));
+  const escNew=a.esc>0&&a.esc!==(+b.esc||0);
+  if(!runNew&&!escNew)return false;
+  if(runNew){const it=planFor(k,"run");title="Corrida lançada";
+    if(it&&it.avg){
+      const dk=Math.round((a.km-it.n)*10)/10;
+      if(a.pace){const df=Math.round(a.pace-it.avg),easy=/Leve|Longão|Corre e caminha/.test(it.t);
+        if(df<=-30&&easy)L.push("Você correu "+mmss(-df)+"/km mais rápido que o previsto. Ótima disposição! Mas treino leve é para ser leve: segurar o ritmo é o que constrói resistência sem machucar.");
+        else if(df<=-10)L.push("Mandou bem! "+mmss(-df)+"/km mais rápido que o previsto ("+mmss(a.pace)+" contra "+mmss(it.avg)+").");
+        else if(df>=15)L.push("Ritmo "+mmss(df)+"/km mais lento que o previsto. Tudo bem: completar o treino é o que mais conta agora.");
+        else L.push("Na mosca! Pace de "+mmss(a.pace)+", bem perto do previsto ("+mmss(it.avg)+").")}
+      else L.push("Lance também o pace médio para eu comparar com o previsto.");
+      if(dk>=0.3)L.push("E ainda fez "+nf(dk)+" km a mais que o plano.");
+      else if(dk<=-0.5)L.push("Faltaram "+nf(-dk)+" km para o previsto ("+it.v+"). No próximo, tente completar.");
+    }else L.push("Treino extra! "+nf(a.km)+" km"+(a.pace?" a "+mmss(a.pace)+"/km":"")+" que não estavam no plano. Cuide para não acumular cansaço.");
+    const w=weekTotals(k);L.push("Na semana: "+nf(Math.round(w.km*10)/10)+" km em "+w.runs+(w.runs===1?" corrida.":" corridas."));
+    const nx=nextRun(k);if(nx)L.push(nx)}
+  if(escNew){const it=planFor(k,"esc");if(!title)title="Escada lançada";else title="Treino lançado";
+    if(it&&it.n){const df=a.esc-it.n;
+      if(df>=2)L.push("Escada: "+nf(a.esc)+" min, "+nf(df)+" a mais que o previsto. Que evolução!");
+      else if(df>0)L.push("Escada: "+nf(a.esc)+" min, um pouco além do previsto. Muito bom!");
+      else if(df===0)L.push("Escada: "+nf(a.esc)+" min, exatamente o previsto. Constância é tudo!");
+      else L.push("Escada: "+nf(a.esc)+" min de "+it.n+" previstos. Cada minuto conta, no próximo você chega lá.")}
+    else L.push("Escada extra: "+nf(a.esc)+" min fora do plano. Ótimo para o fôlego!");
+    const first=Object.keys(days).sort().map(x=>days[x]).find(v=>v.esc>0);
+    if(first&&first.esc<a.esc)L.push("Você começou com "+nf(first.esc)+" min de escada e hoje fez "+nf(a.esc)+".");
+    const w=weekTotals(k);L.push("Escada na semana: "+nf(w.esc)+" min.")}
+  $("fb-t").textContent=title;$("fb-b").innerHTML=L.map(t=>"<p>"+t+"</p>").join("");
+  $("fb").hidden=false;$("scrim").classList.add("open");setTimeout(()=>$("fb-ok").focus(),50);return true}
+function closeFb(){$("fb").hidden=true;$("scrim").classList.remove("open")}
 
 let tt;function toast(s){const t=$("toast");t.textContent=s;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2400);}
 
