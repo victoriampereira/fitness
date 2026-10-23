@@ -263,6 +263,28 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .editing .it:not(.rest){padding:6px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.onb{display:flex;flex-direction:column;gap:18px}
+.onb-h{font-size:20px;font-weight:600;letter-spacing:-.02em}
+.onb fieldset{border:none;margin:0;padding:14px;background:var(--soft);border-radius:16px;display:flex;flex-direction:column;gap:10px}
+.onb legend{font-size:13px;font-weight:700;padding:0;margin-bottom:2px;float:left;width:100%}
+.onb .hint{margin:0;font-size:13px;color:var(--muted)}
+.onb-row{display:flex;align-items:center;gap:10px}
+.onb-row input{flex:0 0 140px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px 12px;font:600 18px var(--font);min-width:0}
+.onb-row input[type=date]{flex:0 0 170px;font-size:15px}
+.onb-row span{font-size:13px;color:var(--muted)}
+.chk{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--fill)}
+.onb-act{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px}
+.onb-act.sub{padding-left:28px}.onb-act.sub .onb-n{font-size:12.5px;color:var(--muted);font-weight:500}
+.onb-n{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer;min-width:0}
+.onb-n input{width:18px;height:18px;accent-color:var(--fill)}
+.onb-x{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
+.onb-x input,.onb-x select{width:56px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:7px 8px;font:600 15px var(--font);text-align:center}
+.onb-act.off .onb-x{opacity:.35;pointer-events:none}
+.onb-goal{display:flex;flex-direction:column;gap:8px;padding-left:28px}
+.onb-goal.off{display:none}
+.pl-goal{font-size:12.5px;color:var(--muted);margin:0;line-height:1.45}
+.pl-goal b{color:var(--ink);font-weight:600}
 .auth{display:flex;flex-direction:column;gap:12px}
 .auth input{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:12px;padding:14px;font:500 16px var(--font);min-width:0}
 .auth .row2{display:flex;gap:10px;flex-wrap:wrap}
@@ -278,12 +300,43 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 
 <div class="wrap" id="auth" hidden>
   <div><div class="lbl">Seu diário de treinos</div><h1 style="font-size:30px;font-weight:700;letter-spacing:-.03em;margin-top:2px">Fitness</h1></div>
-  <p class="msg" style="font-size:14px">Entre com o mesmo e-mail e senha do Casa Nova.</p>
+  <p class="msg" style="font-size:14px">Entre com seu e-mail e senha, ou crie uma conta nova.</p>
   <form class="auth" id="authForm" autocomplete="on">
     <input id="authEmail" type="email" placeholder="Seu e-mail" autocomplete="email" required aria-label="E-mail">
     <input id="authPass" type="password" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password" minlength="6" required aria-label="Senha">
     <div class="row2"><button class="save" type="submit">Entrar</button><button class="ghost" type="button" id="btnSignup">Criar conta</button></div>
     <p class="msg" id="authMsg" role="status"></p>
+  </form>
+</div>
+<div class="wrap" id="onb" hidden>
+  <header class="top"><div><h1>Fitness</h1></div></header>
+  <form class="onb" id="onbForm" novalidate autocomplete="off">
+    <div><h2 class="onb-h">Vamos montar seu plano</h2><p class="note" style="text-align:left;margin:4px 0 0">Responda rápido. Dá para refazer depois.</p></div>
+    <fieldset><legend>1 · Teste de Cooper</legend>
+      <p class="hint">Quantos metros você corre em 12 minutos, no máximo esforço?</p>
+      <div class="onb-row"><input id="onb-cooper" type="text" inputmode="numeric" placeholder="ex.: 1800" aria-label="Metros no teste de Cooper"><span>metros</span></div>
+      <label class="chk"><input type="checkbox" id="onb-nocooper"> Ainda não fiz. Quero fazer o teste na 1ª semana.</label>
+    </fieldset>
+    <fieldset><legend>2 · O que você quer treinar</legend>
+      <div class="onb-act"><span class="onb-n" style="padding-left:26px"><span data-ic="run" data-sz="md"></span>Corrida</span><label class="onb-x"><select id="onb-run" aria-label="Corridas por semana"><option>2</option><option selected>3</option><option>4</option></select>× por semana</label></div>
+      <div class="onb-act"><label class="onb-n"><input type="checkbox" id="onb-inf" checked><span data-ic="inf" data-sz="md"></span>Inferiores</label><label class="onb-x"><input id="onb-infx" type="number" min="1" max="5" value="2" inputmode="numeric" aria-label="Inferiores por semana">× por semana</label></div>
+      <div class="onb-act"><label class="onb-n"><input type="checkbox" id="onb-sup" checked><span data-ic="sup" data-sz="md"></span>Superiores</label><label class="onb-x"><input id="onb-supx" type="number" min="1" max="5" value="2" inputmode="numeric" aria-label="Superiores por semana">× por semana</label></div>
+      <div class="onb-act"><label class="onb-n"><input type="checkbox" id="onb-esc" checked><span data-ic="esc" data-sz="md"></span>Escada</label><label class="onb-x"><input id="onb-escx" type="number" min="1" max="5" value="3" inputmode="numeric" aria-label="Escada por semana">× por semana</label></div>
+      <div class="onb-act sub" id="onb-escmin-row"><span class="onb-n">Quantos minutos de escada você aguenta hoje?</span><label class="onb-x"><input id="onb-escmin" type="number" min="1" max="60" value="5" inputmode="numeric" aria-label="Minutos de escada hoje">min</label></div>
+      <div class="onb-act"><label class="onb-n"><input type="checkbox" id="onb-abd" checked><span data-ic="abd" data-sz="md"></span>Abdômen</label><label class="onb-x"><input id="onb-abdx" type="number" min="1" max="5" value="2" inputmode="numeric" aria-label="Abdômen por semana">× por semana</label></div>
+    </fieldset>
+    <fieldset><legend>3 · Seu objetivo</legend>
+      <label class="chk"><input type="radio" name="onb-obj" value="prova" checked> Uma meta de corrida com data</label>
+      <div class="onb-goal" id="onb-goal">
+        <div class="onb-row"><input id="onb-dist" type="text" inputmode="decimal" placeholder="10" aria-label="Distância da meta"><span>km</span></div>
+        <div class="onb-row"><input id="onb-pace" type="text" inputmode="numeric" placeholder="6:00" aria-label="Pace da meta"><span>min/km (opcional)</span></div>
+        <div class="onb-row"><input id="onb-date" type="date" aria-label="Data da meta"><span>data</span></div>
+      </div>
+      <label class="chk"><input type="radio" name="onb-obj" value="forma"> Sem meta: quero me manter em forma</label>
+    </fieldset>
+    <p class="err" id="onb-msg" role="status"></p>
+    <button type="submit" class="save" id="onb-save">Gerar meu plano</button>
+    <button type="button" class="ghost" id="onb-cancel" hidden>Cancelar</button>
   </form>
 </div>
 <div class="wrap" id="app" hidden>
@@ -328,8 +381,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
   </section>
 
   <section id="pg-plano" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
+    <p class="pl-goal" id="pl-goal" hidden></p>
     <div class="adj" id="pl-adj" hidden></div>
-    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia ou para mudar a ordem no mesmo dia</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
+    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia ou para mudar a ordem no mesmo dia</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
   </section>
@@ -428,9 +482,13 @@ async function reload(){
   if(!ck.error){checks=new Set(ck.data.map(r=>r.item))}
   const aj=await sb.from("fitness_adjust").select("semana,dr,dl,de,msg,desfeito");
   if(!aj.error)adj=aj.data;
+  const pf=await sb.from("fitness_perfil").select("*").maybeSingle();
+  if(!pf.error){PROFILE=pf.data;applyProfile()}
   const mv=await sb.from("fitness_moves").select("item,para,ordem");
   if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]={para:r.para,ordem:r.ordem}})}
-  $("sync").textContent="Toque em um dia para lançar o que você fez.";render();autoAdjust();
+  $("sync").textContent="Toque em um dia para lançar o que você fez.";
+  if(!pf.error&&!PROFILE){showOnb(false);return}
+  $("onb").hidden=true;$("app").hidden=false;render();autoAdjust();
 }
 let rt=null;const reloadSoon=()=>{clearTimeout(rt);rt=setTimeout(reload,250)};
 function subscribe(){
@@ -439,8 +497,8 @@ function subscribe(){
 }
 async function setSession(s){
   const changed=(s?.user?.id)!==(session?.user?.id);session=s;
-  $("auth").hidden=!!session;$("app").hidden=!session;
-  if(!session){if(channel){sb.removeChannel(channel);channel=null}days={};return}
+  $("auth").hidden=!!session;$("app").hidden=!session;if(!session)$("onb").hidden=true;
+  if(!session){if(channel){sb.removeChannel(channel);channel=null}days={};PROFILE=null;return}
   $("who").textContent=session.user.email||"";
   if(changed){render();await reload();subscribe()}
 }
@@ -517,9 +575,9 @@ const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart
 // ritmo de prova sobe aos poucos até a meta de 6:30/km (semana 1 → 11)
 const RW=[420,420,415,410,406,402,398,395,392,390,390];
 let CURW=0;
-let adj=[];
+let adj=[],PROFILE=null,RACEW=10;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function offs(w,f,a,b){if(w>=10)return 0;return clamp(adj.filter(x=>!x.desfeito&&x.semana<=w).reduce((s,x)=>s+(x[f]||0),0),a,b)}
+function offs(w,f,a,b){if(w>=RACEW)return 0;return clamp(adj.filter(x=>!x.desfeito&&x.semana<=w).reduce((s,x)=>s+(x[f]||0),0),a,b)}
 function paceSec(k){const c=capKm(CURW),pc=720/c,R=RW[CURW]+offs(CURW,"dr",-20,20),L=pc+80+offs(CURW,"dl",-20,20);return typeof k==="number"?k:{L:L,T:Math.min(R-20,pc-15),R:R,F:Math.min(R-12,pc),C:R+10,W:600}[k]}
 function zones(){return {L:mmss(paceSec("L")),T:mmss(paceSec("T")),R:mmss(paceSec("R")),F:mmss(paceSec("F")),C:mmss(paceSec("C"))}}
 // corridas de cada semana: [título, detalhe, km, pace]  ({L} leve · {T} tiros · {R} prova · {F} forte)
@@ -563,7 +621,7 @@ function runStats(segs){let km=0,sec=0;const ps=new Set();
 const ESC=[[5,5,6],[6,7,7],[8,8,9],[8,8,8],[10,10,11],[11,12,12],[13,14,15],[12,12,12],[15,16,17],[14,14,14],[8]];
 const WT=["Volta aos treinos","Base","Base","Semana mais leve","Construção","Construção","Construção","Semana mais leve","Pico","Reduzindo","Semana da prova"];
 const LIGHT=[3,7,9,10];
-const START=new Date(2026,9,19);
+let START=new Date(2026,9,19);
 const ICK={run:"run",esc:"esc",inf:"inf",sup:"sup",abd:"abd"};
 function planWeeks(){
   let z,fill;
@@ -585,16 +643,131 @@ function planWeeks(){
     return {t:WT[w],mon,days:D.map((items,i)=>({date:addDays(mon,i),items}))};
   });
 }
+/* ===== plano gerado para novos usuários ===== */
+const r1=x=>Math.round(x*10)/10;
+const isLegacy=()=>!PROFILE||PROFILE.objetivo==="legado";
+function genNW(P){if(P.objetivo==="prova"&&P.data_alvo){const st=new Date(P.inicio+"T00:00:00"),ra=new Date(P.data_alvo+"T00:00:00");return Math.max(2,Math.min(26,Math.floor((ra-st)/(7*864e5))+1))}return 12}
+function applyProfile(){
+  if(isLegacy()){START=new Date(2026,9,19);RACEW=10;return}
+  START=new Date(PROFILE.inicio+"T00:00:00");const nw=genNW(PROFILE);RACEW=PROFILE.objetivo==="prova"?nw-1:nw;
+}
+function getPlanWeeks(){return isLegacy()?planWeeks():genWeeks(PROFILE)}
+function genPaces(P,w,NW){
+  const cop=+P.cooper_km||2,pc=720/cop,goal=P.objetivo==="prova",Dg=goal?+P.dist_km:5;
+  const cur=720*Math.pow(Dg/cop,1.06)/Dg;let R;
+  if(goal){const G=P.pace_alvo||cur-10;R=G<cur?cur+(G-cur)*Math.min(1,w/Math.max(1,NW-2)):G}else R=cur-8*Math.min(1,w/NW);
+  R=Math.round(R+offs(w,"dr",-20,20));const L=Math.round(pc+80+offs(w,"dl",-20,20));
+  return {L,R,T:Math.min(R-20,Math.round(pc-15)),F:Math.min(R-12,Math.round(pc)),W:600,cur,pc}}
+function assignDays(c){
+  const D=[[],[],[],[],[],[],[]],rd={1:[5],2:[1,5],3:[1,3,5],4:[0,1,3,5]}[c.run]||[1,3,5],longD=rd[rd.length-1];
+  rd.forEach((d,i)=>D[d].push({kind:"run",slot:i}));
+  const has=(d,k)=>d>=0&&d<7&&D[d].some(x=>x.kind===k),run=d=>has(d,"run");
+  const place=(k,n,prefs,rules)=>{let c2=0;for(const ok of rules){for(const d of prefs){if(c2>=n)return;if(D[d].length>=3||has(d,k))continue;if(!ok(d))continue;D[d].push({kind:k});c2++}}};
+  place("inf",c.inf,[1,3,0,4,2,5,6],[d=>d!==6&&d!==longD-1&&!has(d-1,"inf")&&!has(d+1,"inf"),d=>d!==6&&d!==longD-1&&!has(d-1,"inf"),d=>d!==6,()=>true]);
+  place("sup",c.sup,[0,4,2,1,3,5,6],[d=>d!==6&&!has(d-1,"sup")&&!has(d+1,"sup"),d=>d!==6,()=>true]);
+  place("esc",c.esc,[0,2,4,1,3,5,6],[d=>d!==6&&!run(d)&&!has(d-1,"esc"),d=>d!==6&&!run(d),d=>d!==6,()=>true]);
+  place("abd",c.abd,[2,5,0,3,1,4,6],[d=>d!==6&&!has(d-1,"abd")&&!has(d+1,"abd"),d=>d!==6,()=>true]);
+  return D}
+function genWeeks(P){
+  const NW=genNW(P),goal=P.objetivo==="prova",cop=+P.cooper_km||2,Dg=goal?+P.dist_km:5;
+  const Ls=Math.max(2.5,Math.min(8,r1(cop*1.6))),peak=Math.max(Ls,goal?Math.min(Dg*1.1,Dg+3):7),ramp=goal?Math.max(1,NW-3):NW-1;
+  const deload=w=>(w+1)%4===0&&!(goal&&w>=NW-2);
+  const out=[];
+  for(let w=0;w<NW;w++){
+    CURW=w;const z=genPaces(P,w,NW),m=x=>mmss(x);
+    const run=(t,d,segs,big)=>{const st=runStats(segs);return {k:"run",t:big?t:"Corrida · "+t,d,avg:st.avg,n:r1(st.km),v:nf(r1(st.km))+" km",p:(st.mixed?"média ":"")+mmss(st.avg)+"/km",big}};
+    let longK=r1(Ls+(peak-Ls)*Math.min(1,w/ramp));if(deload(w))longK=r1(longK*0.8);if(goal&&w===NW-2)longK=r1(peak*0.7);
+    const easyK=Math.max(2.5,r1(longK*0.65));
+    const longRun=()=>run(goal&&w===NW-2?"Leve":"Longão","Tudo no mesmo ritmo",[["k",longK,z.L]]);
+    const easyRun=()=>run("Leve","Ritmo de conversa",[["k",easyK,z.L]]);
+    const qRun=()=>{const typ=deload(w)?"fartlek":["fartlek","tiros","ritmo","prog"][w%4];
+      const cap=Math.max(longK*1.05,4),fit=(nMax,nMin,mk)=>{for(let n=nMax;n>nMin;n--){const r=mk(n);if(r.n<=cap)return r}return mk(nMin)};
+      if(typ==="fartlek")return fit(deload(w)?5:Math.min(10,5+Math.floor(w/2)),3,n=>run("Fartlek","10 min a "+m(z.L)+" + "+n+" × (1 min a "+m(z.T)+" / 2 min a "+m(z.L)+") + 5 min solto",[["m",10,z.L],["m",n,z.T],["m",2*n,z.L],["m",5,z.L]]));
+      if(typ==="tiros")return fit(Math.min(10,4+w),3,n=>run("Tiros de 400 m","10 min a "+m(z.L)+" + "+n+" × 400 m a "+m(z.T)+", com 2 min de trote entre eles + 5 min solto",[["m",10,z.L],["k",n*0.4,z.T],["m",(n-1)*2,z.L],["m",5,z.L]]));
+      if(typ==="ritmo")return fit(Math.min(6,2+Math.floor(w/2)),1,n=>run("Ritmo de prova","10 min a "+m(z.L)+" + "+n+" × 1 km a "+m(z.R)+(n>1?", com 2 min de trote entre eles":"")+" + 5 min solto",[["m",10,z.L],["k",n,z.R],["m",(n-1)*2,z.L],["m",5,z.L]]));
+      if(false){const n=0;return run("Fartlek","10 min a "+m(z.L)+" + "+n+" × (1 min a "+m(z.T)+" / 2 min a "+m(z.L)+") + 5 min solto",[["m",10,z.L],["m",n,z.T],["m",2*n,z.L],["m",5,z.L]])}
+      if(typ==="tiros"){const n=Math.min(10,4+w);return run("Tiros de 400 m","10 min a "+m(z.L)+" + "+n+" × 400 m a "+m(z.T)+", com 2 min de trote entre eles + 5 min solto",[["m",10,z.L],["k",n*0.4,z.T],["m",(n-1)*2,z.L],["m",5,z.L]])}
+      if(typ==="ritmo"){const n=Math.min(6,2+Math.floor(w/2));return run("Ritmo de prova","10 min a "+m(z.L)+" + "+n+" × 1 km a "+m(z.R)+", com 2 min de trote entre eles + 5 min solto",[["m",10,z.L],["k",n,z.R],["m",(n-1)*2,z.L],["m",5,z.L]])}
+      const qk=Math.max(3,r1(longK*0.8)),a=r1(qk*0.6),b=r1(qk-a);return run("Progressivo",nf(a)+" km a "+m(z.L)+" + "+nf(b)+" km a "+m(z.R),[["k",a,z.L],["k",b,z.R]])};
+    const kinds={2:["q","long"],3:["easy","q","long"],4:["easy","q","easy","long"]}[P.corrida_x]||["easy","q","long"];
+    const m0=+P.esc_min||5;let em=Math.min(45,m0+w);if(deload(w))em=Math.max(m0,em-2);em=Math.max(3,em+offs(w,"de",-3,6));
+    let escN=0;const esc=()=>{const v=em+(escN++%2);return {k:"esc",t:"Escada",n:v,v:v+" min"}};
+    const S={inf:()=>({k:"inf",t:"Inferiores"}),sup:()=>({k:"sup",t:"Superiores"}),abd:()=>({k:"abd",t:"Abdômen"}),esc};
+    let days;
+    if(goal&&w===NW-1){
+      const ra=new Date(P.data_alvo+"T00:00:00"),rdw=Math.round((ra-addDays(START,7*w))/864e5);days=[];for(let i=0;i<=rdw;i++)days.push([]);
+      if(rdw>=3){P.sup_x&&days[0].push(S.sup());P.esc_x&&days[0].push({k:"esc",t:"Escada",n:m0,v:m0+" min"})}
+      if(rdw>=4&&P.abd_x)days[1].push(S.abd());
+      if(rdw>=2)days[rdw-2].push(run("Ativação","3 km a "+m(z.L)+" + 3 × 200 m a "+m(z.F),[["k",3,z.L],["k",0.6,z.F]]));
+      const p2=(z.R*Dg-(z.R+10))/(Dg-1);
+      days[rdw].push(run("Prova · "+nf(Dg)+" km","1º km a "+m(z.R+10)+", depois segure "+m(p2)+". Se sobrar, acelere no último km",[["k",1,z.R+10],["k",Dg-1,p2]],true));
+    }else{
+      const A=assignDays({run:P.corrida_x||3,inf:P.inf_x||0,sup:P.sup_x||0,esc:P.esc_x||0,abd:P.abd_x||0});
+      days=A.map(list=>list.map(x=>{if(x.kind==="run"){const kd=kinds[x.slot];
+        if(w===0&&!P.cooper_feito&&x.slot===0)return {k:"run",cooper:true,t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância. Atualize em Refazer plano",v:"12 min",p:"no máximo",big:true};
+        return kd==="long"?longRun():kd==="q"?(w===0?run("Leve + acelerações",nf(easyK)+" km a "+m(z.L)+" e no fim 4 × 80 m acelerando",[["k",easyK,z.L],["k",.32,z.T]]):qRun()):easyRun()}
+        return S[x.kind]()}));
+    }
+    const t=w===0?"Começo":goal&&w===NW-1?"Semana da prova":goal&&w===NW-2?"Reduzindo":deload(w)?"Semana mais leve":"Construção";
+    const mon=addDays(START,7*w);out.push({t,mon,days:days.map((items,i)=>({date:addDays(mon,i),items}))});
+  }
+  return out}
+function renderGoal(){const el=$("pl-goal"),rb=$("pl-redo");if(!el)return;const leg=isLegacy();rb.hidden=leg;
+  if(leg){el.hidden=true;return}const P=PROFILE,goal=P.objetivo==="prova",NW=genNW(P),z=genPaces(P,0,NW);
+  const d=goal&&new Date(P.data_alvo+"T12:00:00");
+  el.innerHTML=goal?'Meta: <b>'+nf(+P.dist_km)+' km'+(P.pace_alvo?' a '+mmss(P.pace_alvo)+'/km':'')+'</b> em '+d.getDate()+'/'+(d.getMonth()+1)+'. Pelo seu Cooper, hoje você faria essa distância a cerca de <b>'+mmss(z.cur)+'/km</b>.'+(P.pace_alvo&&P.pace_alvo<z.cur*0.88?' A meta é bem ambiciosa para o tempo que falta: os ritmos sobem aos poucos e o ajuste de domingo acompanha sua evolução.':'')
+    :'Objetivo: <b>manter a forma</b>. Plano de 12 semanas; no fim, toque em Refazer plano para começar um novo ciclo.';
+  el.hidden=false}
+
+/* formulário de boas-vindas */
+function nextStart(){const t=today0(),dw=(t.getDay()+6)%7;return key(dw===0?t:addDays(t,7-dw))}
+function showOnb(edit){
+  $("app").hidden=true;$("onb").hidden=false;$("onb-cancel").hidden=!edit;$("onb-msg").textContent="";
+  const P=edit&&!isLegacy()?PROFILE:null;
+  if(P){$("onb-cooper").value=P.cooper_feito&&P.cooper_km?Math.round(P.cooper_km*1000):"";$("onb-nocooper").checked=!P.cooper_feito;$("onb-run").value=String(P.corrida_x||3);
+    ["inf","sup","esc","abd"].forEach(k=>{$("onb-"+k).checked=(P[k+"_x"]||0)>0;if(P[k+"_x"])$("onb-"+k+"x").value=P[k+"_x"]});$("onb-escmin").value=P.esc_min||5;
+    document.querySelector('[name="onb-obj"][value="'+(P.objetivo==="prova"?"prova":"forma")+'"]').checked=true;
+    if(P.dist_km)$("onb-dist").value=nf(+P.dist_km);$("onb-pace").value=P.pace_alvo?mmss(P.pace_alvo):"";if(P.data_alvo)$("onb-date").value=P.data_alvo}
+  onbSync();window.scrollTo(0,0)}
+function onbSync(){["inf","sup","esc","abd"].forEach(k=>$("onb-"+k).closest(".onb-act").classList.toggle("off",!$("onb-"+k).checked));
+  $("onb-escmin-row").hidden=!$("onb-esc").checked;$("onb-cooper").disabled=$("onb-nocooper").checked;
+  $("onb-goal").classList.toggle("off",document.querySelector('[name="onb-obj"]:checked').value!=="prova")}
+$("onbForm").addEventListener("change",onbSync);
+maskTime($("onb-pace"),4);
+$("onb-cooper").addEventListener("input",()=>{$("onb-cooper").value=$("onb-cooper").value.replace(/\D/g,"").slice(0,4)});
+$("onb-cancel").onclick=()=>{$("onb").hidden=true;$("app").hidden=false};
+$("pl-redo").onclick=()=>showOnb(true);
+$("onbForm").addEventListener("submit",async e=>{e.preventDefault();const msg=$("onb-msg");msg.textContent="";
+  const no=$("onb-nocooper").checked,cm=parseInt($("onb-cooper").value,10);
+  if(!no&&!(cm>=800&&cm<=4500)){msg.textContent="Coloque a distância do Cooper em metros (entre 800 e 4500) ou marque que ainda não fez.";return}
+  const cnt=k=>$("onb-"+k).checked?Math.max(1,Math.min(5,parseInt($("onb-"+k+"x").value,10)||1)):0;
+  const obj=document.querySelector('[name="onb-obj"]:checked').value,inicio=nextStart();
+  const P={user_id:session.user.id,objetivo:obj,cooper_km:no?2:cm/1000,cooper_feito:!no,corrida_x:+$("onb-run").value,inf_x:cnt("inf"),sup_x:cnt("sup"),esc_x:cnt("esc"),abd_x:cnt("abd"),
+    esc_min:Math.max(1,Math.min(60,parseInt($("onb-escmin").value,10)||5)),dist_km:null,pace_alvo:null,data_alvo:null,inicio,atualizado_em:new Date().toISOString()};
+  if(obj==="prova"){const d=parseFloat($("onb-dist").value.replace(",","."));if(!(d>=1&&d<=42.2)){msg.textContent="Coloque a distância da meta em km, por exemplo 5 ou 10.";return}
+    const pv=$("onb-pace").value.trim(),pc=pv?parsePace(pv):null;if(Number.isNaN(pc)){msg.textContent="Pace inválido. Digite só os números, ex.: 600 para 6:00.";return}
+    const dt=$("onb-date").value;if(!dt){msg.textContent="Escolha a data da meta.";return}
+    const days_=Math.round((new Date(dt+"T00:00:00")-new Date(inicio+"T00:00:00"))/864e5);
+    if(days_<13){msg.textContent="A data precisa ser pelo menos 2 semanas depois do início do plano ("+inicio.split("-").reverse().join("/")+").";return}
+    if(days_>182){msg.textContent="Escolha uma data em até 6 meses.";return}
+    P.dist_km=d;P.pace_alvo=pc;P.data_alvo=dt}
+  $("onb-save").disabled=true;
+  const r=await sb.from("fitness_perfil").upsert(P);
+  if(!r.error&&PROFILE&&!isLegacy()){await sb.from("fitness_moves").delete().eq("user_id",session.user.id);await sb.from("fitness_adjust").delete().eq("user_id",session.user.id);moves={};adj=[]}
+  $("onb-save").disabled=false;
+  if(r.error){msg.textContent="Não salvou. Verifique a internet e tente de novo.";return}
+  PROFILE=P;applyProfile();$("onb").hidden=true;$("app").hidden=false;setPage("plano");toast("Plano criado")});
+
 let moves={},editMode=false;
 const PITEMS={};
-function planWeeksMoved(){const W=planWeeks(),map={};
+function planWeeksMoved(){const W=getPlanWeeks(),map={};
   W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items=d.items.map(x=>({...x}));d.items.forEach((it,i)=>{it.id=dk+"-"+it.k;const mv=moves[it.id],tg=(mv&&mv.para)||dk;it.moved=tg!==dk;
     it.ord=mv&&mv.ordem!=null?mv.ordem:(tg===dk?i:100+i);(map[tg]=map[tg]||[]).push(it)})}));
   const cardio=x=>x.k==="run"||x.k==="esc"?1:0;
   W.forEach(w=>w.days.forEach(d=>{d.items=(map[key(d.date)]||[]).slice().sort((a,b)=>cardio(a)-cardio(b)||a.ord-b.ord)}));return W}
 function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;return v[it.k]?1:0}
 function renderPlan(){
-  renderAdj();
+  renderAdj();renderGoal();
   const t=today0(),tk=key(t),W=planWeeksMoved(),z=zones();
   $("pl-weeks").classList.toggle("editing",editMode);
   if($("pl-zones"))$("pl-zones").innerHTML='<div class="zh">'+(COOPER_KM?"Seus paces pelo Cooper ("+nf(COOPER_KM)+" km)":"Paces estimados · atualizo depois do Cooper de segunda")+'</div>'+
@@ -689,14 +862,14 @@ function evaluateWeek(w){
 let adjusting=false;
 async function autoAdjust(){
   if(!session||adjusting)return;const cw=weekIdx();if(cw<1)return;adjusting=true;
-  try{for(let w=1;w<=Math.min(cw,9);w++){if(adj.some(a=>a.semana===w))continue;
+  try{for(let w=1;w<=Math.min(cw,RACEW-1);w++){if(adj.some(a=>a.semana===w))continue;
     const r=evaluateWeek(w);const {error}=await sb.from("fitness_adjust").insert({user_id:session.user.id,...r});
     if(error){if(String(error.code)==="23505")continue;console.error(error);break}adj.push({...r,desfeito:false})}}
   finally{adjusting=false}
   renderPlanKeep();
 }
 function renderAdj(){const el=$("pl-adj");if(!el)return;const cw=weekIdx(),a=adj.find(x=>x.semana===cw);
-  if(!a||cw<1||cw>9){el.hidden=true;return}
+  if(!a||cw<1||cw>RACEW-1){el.hidden=true;return}
   const changed=a.dr||a.dl||a.de;
   el.hidden=false;el.innerHTML='<h3><span>'+(today0()<addDays(START,7*cw)?'Ajustes da próxima semana':'Ajustes desta semana')+'</span>'+(changed?(a.desfeito?'<button type="button" id="adj-redo">Reaplicar</button>':'<button type="button" id="adj-undo">Desfazer</button>'):'')+'</h3>'+
     a.msg.split("\n").map(t=>'<p'+(a.desfeito?' class="mut"':'')+'>'+t+'</p>').join("")+(a.desfeito?'<p class="mut">Ajuste desfeito. O plano voltou ao previsto.</p>':'')}
