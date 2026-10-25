@@ -383,7 +383,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
   <section id="pg-plano" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
     <p class="pl-goal" id="pl-goal" hidden></p>
     <div class="adj" id="pl-adj" hidden></div>
-    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia ou para mudar a ordem no mesmo dia</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
+    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia, inclusive de outra semana. Para abrir uma semana fechada, pare em cima do título dela por um instante.</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
   </section>
@@ -879,7 +879,8 @@ $("pl-adj").addEventListener("click",async e=>{const b=e.target.closest("#adj-un
   if(error){a.desfeito=!v;renderPlanKeep();toast("Não salvou. Verifique a internet.")}});
 
 /* modo edição: arrastar atividades entre dias */
-function setEdit(on){editMode=on;$("pl-edit").textContent=on?"Concluir":"Editar plano";$("pl-edit").classList.toggle("on",on);$("pl-reset").hidden=!on;$("pl-hint").hidden=!on;renderPlanKeep()}
+function setEdit(on){editMode=on;$("pl-edit").textContent=on?"Concluir":"Editar plano";$("pl-edit").classList.toggle("on",on);$("pl-reset").hidden=!on;$("pl-hint").hidden=!on;renderPlanKeep();
+  if(on){const ds=[...document.querySelectorAll("#pl-weeks details")],i=ds.findIndex(d=>d.classList.contains("cur"));const b=i<0?ds.findIndex(d=>d.open):i;[b,b+1].forEach(j=>{if(ds[j])ds[j].open=true})}}
 $("pl-edit").onclick=()=>setEdit(!editMode);
 let resetArm=false;
 $("pl-reset").onclick=async()=>{
@@ -910,6 +911,8 @@ function dragMove(e){
   if(!drag)return;e.preventDefault();
   drag.g.style.top=(e.clientY-drag.dy)+"px";
   const el=document.elementFromPoint(e.clientX,e.clientY),pd=el&&el.closest(".pd");
+  const sm=el&&el.closest("#pl-weeks summary"),dt=sm&&sm.parentElement;
+  if(dt&&!dt.open){if(drag.hov!==dt){clearTimeout(drag.ht);drag.hov=dt;drag.ht=setTimeout(()=>{dt.open=true},350)}}else if(drag.hov){clearTimeout(drag.ht);drag.hov=null}
   if(drag.over!==pd){drag.over&&drag.over.classList.remove("drop");pd&&pd.classList.add("drop");drag.over=pd}
   document.querySelectorAll(".ins-before,.ins-after").forEach(x=>x.classList.remove("ins-before","ins-after"));drag.idx=0;
   if(pd){const its=[...pd.querySelectorAll(".it[data-id]")].filter(x=>x!==drag.row);let i=its.findIndex(x=>{const b=x.getBoundingClientRect();return e.clientY<b.top+b.height/2});
