@@ -772,7 +772,8 @@ function renderPlan(){
   $("pl-weeks").classList.toggle("editing",editMode);
   if($("pl-zones"))$("pl-zones").innerHTML='<div class="zh">'+(COOPER_KM?"Seus paces pelo Cooper ("+nf(COOPER_KM)+" km)":"Paces estimados · atualizo depois do Cooper de segunda")+'</div>'+
     '<div class="zr"><div><b>'+z.L+'</b><span>leve</span></div><div><b>'+z.R+'</b><span>prova</span></div><div><b>'+z.F+'</b><span>1 km forte</span></div><div><b>'+z.T+'</b><span>tiros 400 m</span></div></div>';
-  let cur=W.findIndex(w=>t>=w.mon&&t<=addDays(w.mon,6));
+  // semana corrente vira a próxima no domingo às 18h, junto com o ajuste
+  const tw=new Date(Date.now()+6*36e5);tw.setHours(0,0,0,0);let cur=W.findIndex(w=>tw>=w.mon&&tw<=addDays(w.mon,6));
   const openIdx=cur>=0?cur:(t<W[0].mon?0:W.length-1);
   $("pl-weeks").innerHTML=W.map((w,i)=>{
     const sun=addDays(w.mon,6),last=w.days[w.days.length-1].date;
