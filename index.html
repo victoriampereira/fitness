@@ -634,9 +634,9 @@ function planWeeks(){
     CURW=w;z=zones();fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F).replace(/\{C\}/g,z.C).replace(/\{W\}/g,mmss(paceSec("W")));
     const E=ESC[w].map(m=>Math.max(3,m+offs(w,"de",-3,6)));let D;
     if(w===0) D=[[{k:"run",cooper:true,t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância",v:"12 min",p:"no máximo",big:true},abd],
-                 [inf(w),esc(E[0])],[sup(w),esc(E[1])],[run(R[0]),abd],[inf(w),esc(E[2])],[run(R[1]),sup(w)],[]];
+                 [inf(w),esc(E[0])],[sup(w),esc(E[1])],[run(R[0]),abd],[inf(w)],[run(R[1]),sup(w)],[]]; // escada de sex 23 virou corrida em 27/10
     // semana 2: inferiores saíram da segunda (domingo anterior já tem pernas)
-    else if(w===1) D=[[sup(w),esc(E[0])],[inf(w),run(R[0])],[abd,esc(E[1])],[inf(w),run(R[1])],[sup(w),esc(E[2])],[abd,run(R[2])],[]];
+    else if(w===1) D=[[sup(w),esc(E[0])],[inf(w),run(R[0]),{...run(["Leve","30 min contínuos, ritmo de conversa",[["m",30,"L"]]]),ik:"run2"}],[abd,esc(E[1])],[inf(w),run(R[1])],[sup(w),esc(E[2])],[abd,run(R[2])],[]];
     else if(w===10) D=[[sup(w),esc(E[0])],[run(R[0]),abd],[],[run(PROVA,true)]];
     else D=[[inf(w),esc(E[0])],[run(R[0]),sup(w)],[esc(E[1]),abd],[run(R[1]),inf(w,"depois da corrida")],[esc(E[2]),sup(w)],[run(R[2]),abd],[]];
     const mon=addDays(START,7*w);
@@ -761,7 +761,7 @@ $("onbForm").addEventListener("submit",async e=>{e.preventDefault();const msg=$(
 let moves={},editMode=false;
 const PITEMS={};
 function planWeeksMoved(){const W=getPlanWeeks(),map={};
-  W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items=d.items.map(x=>({...x}));d.items.forEach((it,i)=>{it.id=dk+"-"+it.k;const mv=moves[it.id],tg=(mv&&mv.para)||dk;it.moved=tg!==dk;
+  W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items=d.items.map(x=>({...x}));d.items.forEach((it,i)=>{it.id=dk+"-"+(it.ik||it.k);const mv=moves[it.id],tg=(mv&&mv.para)||dk;it.moved=tg!==dk;
     it.ord=mv&&mv.ordem!=null?mv.ordem:(tg===dk?i:100+i);(map[tg]=map[tg]||[]).push(it)})}));
   const cardio=x=>x.k==="run"||x.k==="esc"?1:0;
   W.forEach(w=>w.days.forEach(d=>{d.items=(map[key(d.date)]||[]).slice().sort((a,b)=>cardio(a)-cardio(b)||a.ord-b.ord)}));return W}
