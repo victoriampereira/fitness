@@ -178,7 +178,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .wk[open] summary::before{transform:rotate(90deg)}
 .wk summary .wt{flex:1;min-width:0}
 .wk.cur summary .wt{color:var(--run)}
-.wk summary .wt .wkm{display:inline-block;margin-left:7px;font-size:10.5px;font-weight:600;color:var(--ink);background:var(--soft);border-radius:99px;padding:2px 8px}.wk.cur summary .wt .wkm{background:var(--run);color:#fff}
+.wk summary .wt .wkm{display:inline-block;margin-left:7px;font-size:10.5px;font-weight:600;color:var(--ink);background:var(--soft);border-radius:99px;padding:2px 8px}.wk summary .wt .wkm.ok{background:#E3F4EA;color:#1E7B4F}.wk.cur summary .wt .wkm{background:var(--run);color:#fff}
 .pd{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;padding:8px 2px;border-top:1px solid var(--line)}
 .pd.today{box-shadow:inset 3px 0 0 var(--run);padding-left:8px}
 .pd .sd{display:block;font-size:17px;font-weight:600;line-height:1;letter-spacing:-.02em}
@@ -780,7 +780,7 @@ function renderPlan(){
     const sun=addDays(w.mon,6),last=w.days[w.days.length-1].date;
     const mo=d=>d.toLocaleDateString("pt-BR",{month:"short"}).replace(".","");
     const rng=w.mon.getDate()+(w.mon.getMonth()!==last.getMonth()?" "+mo(w.mon):"")+" – "+last.getDate()+" "+mo(last);
-    let tot=0,done=0;const wkm=Math.round(w.days.reduce((a,d)=>a+d.items.filter(x=>x.k==='run'&&!x.cooper).reduce((b,x)=>b+(+x.n||0),0),0)*10)/10;const wkmS=String(wkm).replace('.',',');
+    let tot=0,done=0;const wkm=Math.round(w.days.reduce((a,d)=>a+d.items.filter(x=>x.k==='run'&&!x.cooper).reduce((b,x)=>b+(+x.n||0),0),0)*10)/10;const wkmS=String(wkm).replace('.',',');const wsun=addDays(w.mon,6),past=wsun<new Date(t.getFullYear(),t.getMonth(),t.getDate());let real=0;for(let q=0;q<7;q++){const v=days[key(addDays(w.mon,q))];real+=v?(+v.km||0):0}real=Math.round(real*10)/10;const realS=String(real).replace('.',',');
     const body=w.days.map(({date,items})=>{
       const k=key(date);
       const its=items.length?items.map(it=>{tot++;const id=it.id,lv=logged(k,it),on=checks.has(id)||!!lv;if(on)done++;it.day=k;PITEMS[id]=it;
@@ -793,7 +793,7 @@ function renderPlan(){
           (editMode?'<span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
         :'<div class="it rest">Descanso</div>';
       return '<div class="pd'+(k===tk?' today':'')+'" data-day="'+k+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
-    return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
+    return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(past?'<b class="wkm ok">'+realS+' km</b>':wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
   if($("pl-sem"))$("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+W.length:(t<W[0].mon?"começa seg, 19 out":"");
 }
 $("pl-weeks").addEventListener("click",async e=>{
@@ -870,7 +870,7 @@ async function autoAdjust(){
   finally{adjusting=false}
   renderPlanKeep();
 }
-function renderAdj(){const el=$("pl-adj");if(!el)return;const cw=weekIdx(),a=adj.find(x=>x.semana===cw);
+function renderAdj(){const el=$("pl-adj");if(!el)return;el.hidden=true;el.innerHTML="";return;const cw=weekIdx(),a=adj.find(x=>x.semana===cw);
   if(!a||cw<1||cw>RACEW-1){el.hidden=true;return}
   const changed=a.dr||a.dl||a.de;
   el.hidden=false;el.innerHTML='<h3><span>'+(today0()<addDays(START,7*cw)?'Ajustes da próxima semana':'Ajustes desta semana')+'</span>'+(changed?(a.desfeito?'<button type="button" id="adj-redo">Reaplicar</button>':'<button type="button" id="adj-undo">Desfazer</button>'):'')+'</h3>'+
