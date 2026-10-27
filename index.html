@@ -24,7 +24,7 @@ body{margin:0}
 :root{
   --bg:#FFFFFF; --ink:#141414; --muted:#8A8A8A; --line:#ECECEC; --soft:#F4F4F4;
   --fill:#141414; --fill-ink:#FFFFFF;
-  --inf:#E5484D; --sup:#3E7BFA; --abd:#2FA36B; --run:#F26B1D; --esc:#8B5CF6;
+  --inf:#E5484D; --sup:#3E7BFA; --abd:#2FA36B; --run:#F26B1D; --esc:#8B5CF6;--ciclismo:#0E9AA7;--natacao:#27408B;--yoga:#D6409F;--pilates:#C99A12;--caminhada:#7C8F2A;
   --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
   --label:"Inter","Manrope",system-ui,-apple-system,sans-serif;
   color-scheme:light;
@@ -284,6 +284,18 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .onb-act.off .onb-x{opacity:.35;pointer-events:none}
 .onb-goal{display:flex;flex-direction:column;gap:8px;padding-left:28px}
 .onb-goal.off{display:none}
+.onb-in{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px 12px;font:600 16px var(--font);min-width:0;width:100%}
+.onb-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.onb-f{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg label{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px 8px;font-size:14px;font-weight:600;cursor:pointer}
+.seg input{accent-color:var(--fill)}
+.seg label:has(input:checked){border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.onb-act.xr{display:grid;grid-template-columns:1fr auto;align-items:center;row-gap:4px;padding:8px 0;border-top:1px solid var(--line)}.xctl{grid-column:1 / -1;display:flex;gap:16px;padding-left:34px;flex-wrap:wrap}
+.xdel{border:none;background:none;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:4px 6px}
+.onb-xadd{margin-top:2px}
+#boot:not([hidden]){display:flex;align-items:center;justify-content:center;min-height:60vh;text-align:center}
+.sh-ext{display:contents}
 .pl-goal{font-size:12.5px;color:var(--muted);margin:0;line-height:1.45}
 .pl-goal b{color:var(--ink);font-weight:600}
 .auth{display:flex;flex-direction:column;gap:12px}
@@ -309,31 +321,43 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <p class="msg" id="authMsg" role="status"></p>
   </form>
 </div>
+<div class="wrap" id="boot" hidden><p class="note">Carregando…</p></div>
 <div class="wrap" id="onb" hidden>
   <header class="top"><div><h1>Fitness</h1></div></header>
   <form class="onb" id="onbForm" novalidate autocomplete="off">
     <div><h2 class="onb-h">Vamos montar seu plano</h2><p class="note" style="text-align:left;margin:4px 0 0">Responda rápido. Dá para refazer depois.</p></div>
-    <fieldset><legend>1 · Teste de Cooper</legend>
+    <fieldset><legend>1 · Sobre você</legend>
+      <p class="hint">Opcional. Ajuda a calibrar a intensidade e a progressão do plano.</p>
+      <label class="onb-f">Nome<input class="onb-in" id="onb-nome" type="text" maxlength="30" autocomplete="off" placeholder="Como quer ser chamada(o)"></label>
+      <div class="onb-two"><label class="onb-f">Idade<input class="onb-in" id="onb-idade" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="ex.: 30"></label>
+      <label class="onb-f">Sexo<select class="onb-in" id="onb-sexo"><option value="">Prefiro não informar</option><option value="f">Feminino</option><option value="m">Masculino</option></select></label></div>
+    </fieldset>
+    <fieldset><legend>2 · Teste de Cooper</legend>
       <p class="hint">Quantos metros você corre em 12 minutos, no máximo esforço?</p>
       <div class="onb-row"><input id="onb-cooper" type="text" inputmode="numeric" placeholder="ex.: 1800" aria-label="Metros no teste de Cooper"><span>metros</span></div>
       <label class="chk"><input type="checkbox" id="onb-nocooper"> Ainda não fiz. Quero fazer o teste na 1ª semana.</label>
     </fieldset>
-    <fieldset><legend>2 · O que você quer treinar</legend>
+    <fieldset><legend>3 · O que você quer treinar</legend>
       <div class="onb-act"><span class="onb-n" style="padding-left:26px"><span data-ic="run" data-sz="md"></span>Corrida</span><label class="onb-x"><select id="onb-run" aria-label="Corridas por semana"><option>2</option><option selected>3</option><option>4</option></select>× por semana</label></div>
       <div class="onb-act"><label class="onb-n"><input type="checkbox" id="onb-inf" checked><span data-ic="inf" data-sz="md"></span>Inferiores</label><label class="onb-x"><input id="onb-infx" type="number" min="1" max="5" value="2" inputmode="numeric" aria-label="Inferiores por semana">× por semana</label></div>
       <div class="onb-act"><label class="onb-n"><input type="checkbox" id="onb-sup" checked><span data-ic="sup" data-sz="md"></span>Superiores</label><label class="onb-x"><input id="onb-supx" type="number" min="1" max="5" value="2" inputmode="numeric" aria-label="Superiores por semana">× por semana</label></div>
       <div class="onb-act"><label class="onb-n"><input type="checkbox" id="onb-esc" checked><span data-ic="esc" data-sz="md"></span>Escada</label><label class="onb-x"><input id="onb-escx" type="number" min="1" max="5" value="3" inputmode="numeric" aria-label="Escada por semana">× por semana</label></div>
       <div class="onb-act sub" id="onb-escmin-row"><span class="onb-n">Quantos minutos de escada você aguenta hoje?</span><label class="onb-x"><input id="onb-escmin" type="number" min="1" max="60" value="5" inputmode="numeric" aria-label="Minutos de escada hoje">min</label></div>
       <div class="onb-act"><label class="onb-n"><input type="checkbox" id="onb-abd" checked><span data-ic="abd" data-sz="md"></span>Abdômen</label><label class="onb-x"><input id="onb-abdx" type="number" min="1" max="5" value="2" inputmode="numeric" aria-label="Abdômen por semana">× por semana</label></div>
+      <div id="onb-xlist"></div>
+      <select class="onb-in onb-xadd" id="onb-xadd" aria-label="Adicionar outra atividade"></select>
     </fieldset>
-    <fieldset><legend>3 · Seu objetivo</legend>
+    <fieldset><legend>4 · Seu objetivo</legend>
       <label class="chk"><input type="radio" name="onb-obj" value="prova" checked> Uma meta de corrida com data</label>
       <div class="onb-goal" id="onb-goal">
         <div class="onb-row"><input id="onb-dist" type="text" inputmode="decimal" placeholder="10" aria-label="Distância da meta"><span>km</span></div>
         <div class="onb-row"><input id="onb-pace" type="text" inputmode="numeric" placeholder="6:00" aria-label="Pace da meta"><span>min/km (opcional)</span></div>
-        <div class="onb-row"><input id="onb-date" type="date" aria-label="Data da meta"><span>data</span></div>
+        <p class="hint" id="onb-racehint"></p>
       </div>
       <label class="chk"><input type="radio" name="onb-obj" value="forma"> Sem meta: quero me manter em forma</label>
+    </fieldset>
+    <fieldset><legend>5 · Duração do plano</legend>
+      <div class="seg"><label><input type="radio" name="onb-sem" value="8"> 8 semanas</label><label><input type="radio" name="onb-sem" value="12" checked> 12 semanas</label></div>
     </fieldset>
     <p class="err" id="onb-msg" role="status"></p>
     <button type="submit" class="save" id="onb-save">Gerar meu plano</button>
@@ -361,6 +385,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
       <div><b id="w-esc">0</b><span>escada</span></div>
       <div><b id="w-mus">0</b><span>musculação</span></div>
       <div><b id="w-abd">0</b><span>abdômen</span></div>
+      <div id="w-ext-box" hidden><b id="w-ext">0</b><span>outras</span></div>
     </div>
     <div class="days" id="days"></div>
   </section>
@@ -430,6 +455,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <div class="ctl"><button type="button" class="st" data-f="esc" data-s="-1" aria-label="Menos 1 minuto">−</button><input id="in-esc" type="text" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="Minutos de escada"><em>min</em><button type="button" class="st" data-f="esc" data-s="1" aria-label="Mais 1 minuto">+</button></div>
     <div class="chips" data-f="esc"><button type="button" class="chip zero" data-v="0">Não fiz</button><button type="button" class="chip" data-v="10">10 min</button><button type="button" class="chip" data-v="15">15 min</button><button type="button" class="chip" data-v="20">20 min</button><button type="button" class="chip" data-v="30">30 min</button></div>
   </div>
+  <div class="sh-ext" id="sh-ext"></div>
   <div class="err" id="err"></div>
   <button type="submit" class="save" id="save">Salvar dia</button>
 </form>
@@ -460,12 +486,21 @@ const SVG={
   inf:DUMB, sup:DUMB,
   abd:'<path d="M3 7.5l3-3 3 3 3-3 3 3 3-3 3 3M3 13.5l3-3 3 3 3-3 3 3 3-3 3 3M3 19.5l3-3 3 3 3-3 3 3 3-3 3 3"/>',
   run:'<path d="M3 17.5h16.8c.9 0 1.5-.9 1.1-1.7-.6-1.1-1.6-1.8-2.9-2.1l-3.5-.8-3.2-5.4c-.3-.5-1-.7-1.5-.3l-2 1.4.7 2.1-2.4.6-1.3-2.4-1.9 1.2c-.6.4-.9 1.1-.7 1.8z"/><path d="M3 15h5M11.5 11.2l1.6-.6M12.8 13.3l1.6-.6"/>',
-  esc:'<path d="M3 20h5v-5h5v-5h5V5h3"/>'
+  esc:'<path d="M3 20h5v-5h5v-5h5V5h3"/>',
+  ciclismo:'<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-8h5l3 8M10 8l3 8M9 6h2"/>',
+  natacao:'<circle cx="16" cy="6" r="1.8"/><path d="M5 13l4.5-3 3.5 2 3-2.5M2 17c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M2 21c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5"/>',
+  yoga:'<circle cx="12" cy="5" r="2"/><path d="M12 8v5M5 11l7 2 7-2M7 20l5-7 5 7"/>',
+  pilates:'<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16"/>',
+  caminhada:'<circle cx="13" cy="4.5" r="1.8"/><path d="M12 8l-2 5 3 3v5M10 13l-3 1M12 8l4 3 2-1M13 16l3 5"/>'
 };
 const NAME={inf:"Inferiores",sup:"Superiores",abd:"Abdômen"};
+/* atividades extras que a pessoa pode incluir (ícone e cor próprios) */
+const EXT={ciclismo:{n:"Ciclismo",card:1},natacao:{n:"Natação",card:1},yoga:{n:"Yoga",card:0},pilates:{n:"Pilates",card:0},caminhada:{n:"Caminhada",card:1}};
+const extKeys=()=>{const set=new Set(((typeof PROFILE!=="undefined"&&PROFILE&&PROFILE.extras)||[]).map(e=>e.k).filter(k=>EXT[k]));Object.values(days).forEach(v=>Object.keys(v.ext||{}).forEach(k=>{if(EXT[k]&&v.ext[k]>0)set.add(k)}));return Object.keys(EXT).filter(k=>set.has(k))};
+const extSum=d=>Object.values((d&&d.ext)||{}).reduce((a,v)=>a+(+v||0),0);
 const ic=(t,sz)=>'<span class="ic'+(sz?' '+sz:'')+'" style="--c:var(--'+t+')" aria-hidden="true"><svg viewBox="0 0 24 24">'+SVG[t]+'</svg></span>';
 document.querySelectorAll("[data-ic]").forEach(el=>{el.outerHTML=ic(el.dataset.ic,el.dataset.sz)});
-const active=d=>!!d&&(d.inf||d.sup||d.abd||d.km>0||d.esc>0);
+const active=d=>!!d&&(d.inf||d.sup||d.abd||d.km>0||d.esc>0||extSum(d)>0);
 
 const SUPABASE_URL="https://ufbmhikchqhstcbhioib.supabase.co";
 const SUPABASE_KEY="sb_publishable_QGj4aoHhWZXbCUBep2tylA_a8NckDy7";
@@ -475,9 +510,9 @@ try{const p=localStorage.getItem("fitness-pagina");if(p==="mes"||p==="plano"||p=
 
 async function reload(){
   if(!session)return;
-  const {data,error}=await sb.from("fitness_dias").select("dia,inf,sup,abd,km,esc,pace,sens");
-  if(error){console.error(error);$("sync").textContent="Não foi possível carregar seus treinos. Verifique a internet.";return}
-  const m={};data.forEach(r=>{m[r.dia]={inf:r.inf,sup:r.sup,abd:r.abd,km:Number(r.km)||0,esc:Number(r.esc)||0,pace:r.pace||null,sens:r.sens||null}});
+  const {data,error}=await sb.from("fitness_dias").select("dia,inf,sup,abd,km,esc,pace,sens,ext");
+  if(error){console.error(error);$("sync").textContent="Não foi possível carregar seus treinos. Verifique a internet.";if(!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seus treinos. Verifique a internet e abra o app de novo.</p>'}return}
+  const m={};data.forEach(r=>{m[r.dia]={inf:r.inf,sup:r.sup,abd:r.abd,km:Number(r.km)||0,esc:Number(r.esc)||0,pace:r.pace||null,sens:r.sens||null,ext:r.ext||{}}});
   days=m;
   const ck=await sb.from("fitness_checks").select("item");
   if(!ck.error){checks=new Set(ck.data.map(r=>r.item))}
@@ -488,8 +523,10 @@ async function reload(){
   const mv=await sb.from("fitness_moves").select("item,para,ordem");
   if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]={para:r.para,ordem:r.ordem}})}
   $("sync").textContent="Toque em um dia para lançar o que você fez.";
+  $("who").textContent=(PROFILE&&PROFILE.nome?PROFILE.nome+" · ":"")+(session.user.email||"");
+  if(pf.error&&!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seu plano. Verifique a internet e abra o app de novo.</p>';return}
   if(!pf.error&&!PROFILE){showOnb(false);return}
-  $("onb").hidden=true;$("app").hidden=false;render();autoAdjust();
+  $("boot").hidden=true;$("onb").hidden=true;$("app").hidden=false;render();autoAdjust();
 }
 let rt=null;const reloadSoon=()=>{clearTimeout(rt);rt=setTimeout(reload,250)};
 function subscribe(){
@@ -498,7 +535,7 @@ function subscribe(){
 }
 async function setSession(s){
   const changed=(s?.user?.id)!==(session?.user?.id);session=s;
-  $("auth").hidden=!!session;$("app").hidden=!session;if(!session)$("onb").hidden=true;
+  $("auth").hidden=!!session;if(!session){$("app").hidden=true;$("onb").hidden=true;$("boot").hidden=true}else if(changed){$("app").hidden=true;$("onb").hidden=true;$("boot").hidden=false}
   if(!session){if(channel){sb.removeChannel(channel);channel=null}days={};PROFILE=null;return}
   $("who").textContent=session.user.email||"";
   if(changed){render();await reload();subscribe()}
@@ -516,6 +553,7 @@ function actsHTML(v){
   ["inf","sup","abd"].forEach(k=>{if(v[k])a.push('<span class="act">'+ic(k,"md")+NAME[k]+'</span>')});
   if(v.km>0)a.push('<span class="act">'+ic("run","md")+nf(v.km)+' km'+(v.pace?' <span style="color:var(--muted);font-weight:400">· '+mmss(v.pace)+'/km</span>':'')+'</span>');
   if(v.esc>0)a.push('<span class="act">'+ic("esc","md")+nf(v.esc)+' min</span>');
+  Object.keys(EXT).forEach(k=>{const m=+((v.ext||{})[k])||0;if(m>0)a.push('<span class="act">'+ic(k,"md")+EXT[k].n+' · '+nf(m)+' min</span>')});
   return a.join("");
 }
 
@@ -535,6 +573,7 @@ function render(){
   $("w-esc").innerHTML=nf(W.reduce((a,d)=>a+(+d.esc||0),0))+"<small>min</small>";
   {const n=W.filter(d=>d.inf||d.sup).length;$("w-mus").innerHTML=n+"<small>"+(n===1?"dia":"dias")+"</small>"}
   {const n=W.filter(d=>d.abd).length;$("w-abd").innerHTML=n+"<small>"+(n===1?"dia":"dias")+"</small>"}
+  {const xs=extKeys(),box=$("w-ext-box");box.hidden=!xs.length;box.parentNode.style.gridTemplateColumns=xs.length?"repeat(5,1fr)":"";$("w-ext").innerHTML=nf(W.reduce((a,d)=>a+extSum(d),0))+"<small>min</small>"}
   $("days").innerHTML=wk.filter(d=>d<=t).reverse().map(d=>{const k=key(d),v=days[k]||{};
     const body=active(v)?actsHTML(v):(k===tk?'<span class="add" aria-label="Lançar hoje">+</span>':'<span class="rest">Descanso</span>');
     return '<button type="button" class="day'+(k===tk?' today':'')+'" data-k="'+k+'"><div><div class="dn">'+d.getDate()+'</div><div class="dw">'+(k===tk?"Hoje":DW[d.getDay()])+'</div></div><div class="acts">'+body+'</div></button>'}).join("");
@@ -552,7 +591,8 @@ function render(){
     h+='<button type="button" class="tile'+(fut?' future':'')+(active(v)?' done':'')+(k===tk?' today':'')+'" data-k="'+k+'"'+(fut?' disabled':'')+' aria-label="Dia '+n+'">'+
       '<span class="n">'+n+'</span>'+(marks?'<span class="marks">'+marks+'</span>':'')+'<span class="mt">'+
       (v&&v.km>0?'<span class="val">'+ic("run")+'<span class="km">'+nf(v.km)+'km</span></span>':'')+
-      (v&&v.esc>0?'<span class="val">'+ic("esc")+'<span class="km">'+nf(v.esc)+'min</span></span>':'')+'</span></button>';
+      (v&&v.esc>0?'<span class="val">'+ic("esc")+'<span class="km">'+nf(v.esc)+'min</span></span>':'')+
+      Object.keys(EXT).map(x=>{const m=v&&v.ext?+v.ext[x]||0:0;return m>0?'<span class="val">'+ic(x)+'<span class="km">'+nf(m)+'min</span></span>':''}).join("")+'</span></button>';
   }
   $("grid").innerHTML=h;
   const kmM=M.reduce((a,v)=>a+(+v.km||0),0),escM=M.reduce((a,v)=>a+(+v.esc||0),0);
@@ -560,7 +600,7 @@ function render(){
   $("m-km").innerHTML=nf(kmM)+"<small>km</small>";
   $("m-esc").innerHTML=nf(escM)+"<small>min</small>";
   const c=f=>M.filter(v=>v[f]).length,dl=n=>n+(n===1?" dia":" dias");
-  $("m-chips").innerHTML=[["inf",dl(c("inf"))],["sup",dl(c("sup"))],["abd",dl(c("abd"))],["run",dl(M.filter(v=>v.km>0).length)],["esc",dl(M.filter(v=>v.esc>0).length)]]
+  $("m-chips").innerHTML=[["inf",dl(c("inf"))],["sup",dl(c("sup"))],["abd",dl(c("abd"))],["run",dl(M.filter(v=>v.km>0).length)],["esc",dl(M.filter(v=>v.esc>0).length)]].concat(extKeys().map(x=>[x,dl(M.filter(v=>v.ext&&v.ext[x]>0).length)]))
     .map(([f,l])=>'<span>'+ic(f,"md")+l+'</span>').join("");
 }
 
@@ -647,7 +687,15 @@ function planWeeks(){
 /* ===== plano gerado para novos usuários ===== */
 const r1=x=>Math.round(x*10)/10;
 const isLegacy=()=>!PROFILE||PROFILE.objetivo==="legado";
-function genNW(P){if(P.objetivo==="prova"&&P.data_alvo){const st=new Date(P.inicio+"T00:00:00"),ra=new Date(P.data_alvo+"T00:00:00");return Math.max(2,Math.min(26,Math.floor((ra-st)/(7*864e5))+1))}return 12}
+const escH=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LVN=["muito fraco","fraco","regular","bom","excelente"];
+/* nível pelo Cooper, por idade e sexo (tabela clássica de 12 min) */
+function cooperLevel(P){if(!P.cooper_feito||!(+P.cooper_km>0))return null;const age=+P.idade||30,sh=Math.max(0,Math.floor((Math.min(age,79)-20)/10));
+  const M=[1600,2200,2400,2800].map(x=>x-150*sh),F=[1500,1800,2200,2700].map(x=>x-100*sh),T=P.sexo==="m"?M:P.sexo==="f"?F:M.map((x,i)=>(x+F[i])/2),m=P.cooper_km*1000;
+  return T.filter(x=>m>=x).length}
+function fitFactor(P){const lv=cooperLevel(P),age=+P.idade||0;let f=[0.85,0.92,1,1.06,1.12][lv==null?2:lv];if(age>=50)f*=0.95;if(age>=60)f*=0.95;return f}
+const slowRamp=P=>(+P.idade||0)>=50||(cooperLevel(P)!=null&&cooperLevel(P)<=1);
+function genNW(P){if(+P.semanas)return +P.semanas;if(P.objetivo==="prova"&&P.data_alvo){const st=new Date(P.inicio+"T00:00:00"),ra=new Date(P.data_alvo+"T00:00:00");return Math.max(2,Math.min(26,Math.floor((ra-st)/(7*864e5))+1))}return 12}
 function applyProfile(){
   if(isLegacy()){START=new Date(2026,9,19);RACEW=10;return}
   START=new Date(PROFILE.inicio+"T00:00:00");const nw=genNW(PROFILE);RACEW=PROFILE.objetivo==="prova"?nw-1:nw;
@@ -668,11 +716,14 @@ function assignDays(c){
   place("sup",c.sup,[0,4,2,1,3,5,6],[d=>d!==6&&!has(d-1,"sup")&&!has(d+1,"sup"),d=>d!==6,()=>true]);
   place("esc",c.esc,[0,2,4,1,3,5,6],[d=>d!==6&&!run(d)&&!has(d-1,"esc"),d=>d!==6&&!run(d),d=>d!==6,()=>true]);
   place("abd",c.abd,[2,5,0,3,1,4,6],[d=>d!==6&&!has(d-1,"abd")&&!has(d+1,"abd"),d=>d!==6,()=>true]);
+  (c.x||[]).forEach(e=>{for(let i=0;i<e.x;i++){let best=-1,bs=1e9;for(let d=0;d<7;d++){if(D[d].length>=3||has(d,e.k))continue;
+    const sc=D[d].length*10+(d===6?20:0)+(has(d,"inf")?6:0)+(EXT[e.k].card&&run(d)?3:0)+(EXT[e.k].card&&d===longD-1?5:0)+(has(d-1,e.k)||has(d+1,e.k)?4:0);if(sc<bs){bs=sc;best=d}}
+    if(best>=0)D[best].push({kind:e.k})}});
   return D}
 function genWeeks(P){
   const NW=genNW(P),goal=P.objetivo==="prova",cop=+P.cooper_km||2,Dg=goal?+P.dist_km:5;
-  const Ls=Math.max(2.5,Math.min(8,r1(cop*1.6))),peak=Math.max(Ls,goal?Math.min(Dg*1.1,Dg+3):7),ramp=goal?Math.max(1,NW-3):NW-1;
-  const deload=w=>(w+1)%4===0&&!(goal&&w>=NW-2);
+  const FX=fitFactor(P),Ls=Math.max(2.5,Math.min(8,r1(cop*1.6*FX))),peak=Math.max(Ls,goal?Math.min(Dg*1.1,Dg+3):r1(7*FX)),ramp=goal?Math.max(1,NW-3):NW-1;
+  const DLN=slowRamp(P)?3:4,deload=w=>(w+1)%DLN===0&&!(goal&&w>=NW-2);
   const out=[];
   for(let w=0;w<NW;w++){
     CURW=w;const z=genPaces(P,w,NW),m=x=>mmss(x);
@@ -694,6 +745,7 @@ function genWeeks(P){
     const m0=+P.esc_min||5;let em=Math.min(45,m0+w);if(deload(w))em=Math.max(m0,em-2);em=Math.max(3,em+offs(w,"de",-3,6));
     let escN=0;const esc=()=>{const v=em+(escN++%2);return {k:"esc",t:"Escada",n:v,v:v+" min"}};
     const S={inf:()=>({k:"inf",t:"Inferiores"}),sup:()=>({k:"sup",t:"Superiores"}),abd:()=>({k:"abd",t:"Abdômen"}),esc};
+    (P.extras||[]).forEach(e=>{if(!EXT[e.k])return;S[e.k]=()=>{const base=+e.min||30;let v=Math.min(base*(1+0.04*w),base*1.5);if(deload(w))v*=0.8;v=Math.max(10,Math.round(v/5)*5);return {k:e.k,t:EXT[e.k].n,n:v,v:v+" min"}}});
     let days;
     if(goal&&w===NW-1){
       const ra=new Date(P.data_alvo+"T00:00:00"),rdw=Math.round((ra-addDays(START,7*w))/864e5);days=[];for(let i=0;i<=rdw;i++)days.push([]);
@@ -703,7 +755,7 @@ function genWeeks(P){
       const p2=(z.R*Dg-(z.R+10))/(Dg-1);
       days[rdw].push(run("Prova · "+nf(Dg)+" km","1º km a "+m(z.R+10)+", depois segure "+m(p2)+". Se sobrar, acelere no último km",[["k",1,z.R+10],["k",Dg-1,p2]],true));
     }else{
-      const A=assignDays({run:P.corrida_x||3,inf:P.inf_x||0,sup:P.sup_x||0,esc:P.esc_x||0,abd:P.abd_x||0});
+      const A=assignDays({run:P.corrida_x||3,inf:P.inf_x||0,sup:P.sup_x||0,esc:P.esc_x||0,abd:P.abd_x||0,x:(P.extras||[]).filter(e=>EXT[e.k]).map(e=>({k:e.k,x:Math.max(1,Math.min(5,+e.x||1))}))});
       days=A.map(list=>list.map(x=>{if(x.kind==="run"){const kd=kinds[x.slot];
         if(w===0&&!P.cooper_feito&&x.slot===0)return {k:"run",cooper:true,t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância. Atualize em Refazer plano",v:"12 min",p:"no máximo",big:true};
         return kd==="long"?longRun():kd==="q"?(w===0?run("Leve + acelerações",nf(easyK)+" km a "+m(z.L)+" e no fim 4 × 80 m acelerando",[["k",easyK,z.L],["k",.32,z.T]]):qRun()):easyRun()}
@@ -716,57 +768,73 @@ function genWeeks(P){
 function renderGoal(){const el=$("pl-goal"),rb=$("pl-redo");if(!el)return;const leg=isLegacy();rb.hidden=leg;
   if(leg){el.hidden=true;return}const P=PROFILE,goal=P.objetivo==="prova",NW=genNW(P),z=genPaces(P,0,NW);
   const d=goal&&new Date(P.data_alvo+"T12:00:00");
-  el.innerHTML=goal?'Meta: <b>'+nf(+P.dist_km)+' km'+(P.pace_alvo?' a '+mmss(P.pace_alvo)+'/km':'')+'</b> em '+d.getDate()+'/'+(d.getMonth()+1)+'. Pelo seu Cooper, hoje você faria essa distância a cerca de <b>'+mmss(z.cur)+'/km</b>.'+(P.pace_alvo&&P.pace_alvo<z.cur*0.88?' A meta é bem ambiciosa para o tempo que falta: os ritmos sobem aos poucos e o ajuste de domingo acompanha sua evolução.':'')
-    :'Objetivo: <b>manter a forma</b>. Plano de 12 semanas; no fim, toque em Refazer plano para começar um novo ciclo.';
+  const lv=cooperLevel(P),hd=(P.nome?'<b>'+escH(P.nome)+'</b> · ':'')+'Plano de '+NW+' semanas. ',
+    nv=lv!=null&&(P.idade||P.sexo)?'Pelo Cooper'+(P.idade?', para '+P.idade+' anos':'')+(P.sexo==="f"?' (feminino)':P.sexo==="m"?' (masculino)':'')+', seu nível é <b>'+LVN[lv]+'</b>; volume e progressão foram ajustados. ':'';
+  el.innerHTML=hd+nv+(goal?'Meta: <b>'+nf(+P.dist_km)+' km'+(P.pace_alvo?' a '+mmss(P.pace_alvo)+'/km':'')+'</b> em '+d.getDate()+'/'+(d.getMonth()+1)+'. Pelo seu Cooper, hoje você faria essa distância a cerca de <b>'+mmss(z.cur)+'/km</b>.'+(P.pace_alvo&&P.pace_alvo<z.cur*0.88?' A meta é bem ambiciosa para o tempo que falta: os ritmos sobem aos poucos e o ajuste de domingo acompanha sua evolução.':'')
+    :'Objetivo: <b>manter a forma</b>. No fim, toque em Refazer plano para começar um novo ciclo.');
   el.hidden=false}
 
 /* formulário de boas-vindas */
-function nextStart(){const t=today0(),dw=(t.getDay()+6)%7;return key(dw===0?t:addDays(t,7-dw))}
+function nextStart(){const t=today0(),dw=(t.getDay()+6)%7;return key(dw<=1?addDays(t,-dw):addDays(t,7-dw))}
+let onbX=[];
+function xRows(){$("onb-xlist").innerHTML=onbX.map(e=>'<div class="onb-act xr" data-xk="'+e.k+'"><span class="onb-n" style="padding-left:2px">'+ic(e.k,"md")+EXT[e.k].n+'</span><button type="button" class="xdel" data-xdel="'+e.k+'" aria-label="Remover '+EXT[e.k].n+'">×</button><div class="xctl"><label class="onb-x"><input class="xx" type="number" min="1" max="5" value="'+e.x+'" inputmode="numeric" aria-label="'+EXT[e.k].n+' por semana">× por semana</label><label class="onb-x"><input class="xm" type="number" min="10" max="180" step="5" value="'+e.min+'" inputmode="numeric" aria-label="Minutos de '+EXT[e.k].n+'">min cada</label></div></div>').join("");
+  const left=Object.keys(EXT).filter(k=>!onbX.some(e=>e.k===k));
+  $("onb-xadd").innerHTML='<option value="">+ Adicionar outra atividade…</option>'+left.map(k=>'<option value="'+k+'">'+EXT[k].n+'</option>').join("");$("onb-xadd").hidden=!left.length}
+$("onb-xadd").addEventListener("change",()=>{const k=$("onb-xadd").value;if(EXT[k]&&!onbX.some(e=>e.k===k))onbX.push({k,x:2,min:30});xRows()});
+$("onb-xlist").addEventListener("click",e=>{const b=e.target.closest("[data-xdel]");if(b){onbX=onbX.filter(x=>x.k!==b.dataset.xdel);xRows()}});
+$("onb-xlist").addEventListener("input",e=>{const r=e.target.closest("[data-xk]");if(!r)return;const x=onbX.find(v=>v.k===r.dataset.xk);if(!x)return;
+  if(e.target.classList.contains("xx"))x.x=parseInt(e.target.value,10)||1;if(e.target.classList.contains("xm"))x.min=parseInt(e.target.value,10)||30});
+const semSel=()=>+document.querySelector('[name="onb-sem"]:checked').value;
 function showOnb(edit){
-  $("app").hidden=true;$("onb").hidden=false;$("onb-cancel").hidden=!edit;$("onb-msg").textContent="";
+  $("app").hidden=true;$("boot").hidden=true;$("onb").hidden=false;$("onb-cancel").hidden=!edit;$("onb-msg").textContent="";
   const P=edit&&!isLegacy()?PROFILE:null;
-  if(P){$("onb-cooper").value=P.cooper_feito&&P.cooper_km?Math.round(P.cooper_km*1000):"";$("onb-nocooper").checked=!P.cooper_feito;$("onb-run").value=String(P.corrida_x||3);
+  $("onbForm").reset();onbX=P&&P.extras?P.extras.filter(e=>EXT[e.k]).map(e=>({k:e.k,x:e.x||2,min:e.min||30})):[];
+  if(P){$("onb-nome").value=P.nome||"";$("onb-idade").value=P.idade||"";$("onb-sexo").value=P.sexo||"";
+    $("onb-cooper").value=P.cooper_feito&&P.cooper_km?Math.round(P.cooper_km*1000):"";$("onb-nocooper").checked=!P.cooper_feito;$("onb-run").value=String(P.corrida_x||3);
     ["inf","sup","esc","abd"].forEach(k=>{$("onb-"+k).checked=(P[k+"_x"]||0)>0;if(P[k+"_x"])$("onb-"+k+"x").value=P[k+"_x"]});$("onb-escmin").value=P.esc_min||5;
     document.querySelector('[name="onb-obj"][value="'+(P.objetivo==="prova"?"prova":"forma")+'"]').checked=true;
-    if(P.dist_km)$("onb-dist").value=nf(+P.dist_km);$("onb-pace").value=P.pace_alvo?mmss(P.pace_alvo):"";if(P.data_alvo)$("onb-date").value=P.data_alvo}
-  onbSync();window.scrollTo(0,0)}
+    document.querySelector('[name="onb-sem"][value="'+(genNW(P)===8?8:12)+'"]').checked=true;
+    if(P.dist_km)$("onb-dist").value=nf(+P.dist_km);$("onb-pace").value=P.pace_alvo?mmss(P.pace_alvo):""}
+  xRows();onbSync();window.scrollTo(0,0)}
 function onbSync(){["inf","sup","esc","abd"].forEach(k=>$("onb-"+k).closest(".onb-act").classList.toggle("off",!$("onb-"+k).checked));
   $("onb-escmin-row").hidden=!$("onb-esc").checked;$("onb-cooper").disabled=$("onb-nocooper").checked;
-  $("onb-goal").classList.toggle("off",document.querySelector('[name="onb-obj"]:checked').value!=="prova")}
+  const prova=document.querySelector('[name="onb-obj"]:checked').value==="prova";$("onb-goal").classList.toggle("off",!prova);
+  const end=addDays(new Date(nextStart()+"T00:00:00"),semSel()*7-1);$("onb-racehint").textContent="A prova será no último domingo do plano: "+end.getDate()+"/"+(end.getMonth()+1)+"."}
 $("onbForm").addEventListener("change",onbSync);
 maskTime($("onb-pace"),4);
 $("onb-cooper").addEventListener("input",()=>{$("onb-cooper").value=$("onb-cooper").value.replace(/\D/g,"").slice(0,4)});
+$("onb-idade").addEventListener("input",()=>{$("onb-idade").value=$("onb-idade").value.replace(/\D/g,"").slice(0,2)});
 $("onb-cancel").onclick=()=>{$("onb").hidden=true;$("app").hidden=false};
 $("pl-redo").onclick=()=>showOnb(true);
 $("onbForm").addEventListener("submit",async e=>{e.preventDefault();const msg=$("onb-msg");msg.textContent="";
   const no=$("onb-nocooper").checked,cm=parseInt($("onb-cooper").value,10);
   if(!no&&!(cm>=800&&cm<=4500)){msg.textContent="Coloque a distância do Cooper em metros (entre 800 e 4500) ou marque que ainda não fez.";return}
+  const idade=$("onb-idade").value.trim()?parseInt($("onb-idade").value,10):null;
+  if(idade!==null&&!(idade>=10&&idade<=90)){msg.textContent="Coloque uma idade entre 10 e 90 anos ou deixe em branco.";return}
   const cnt=k=>$("onb-"+k).checked?Math.max(1,Math.min(5,parseInt($("onb-"+k+"x").value,10)||1)):0;
-  const obj=document.querySelector('[name="onb-obj"]:checked').value,inicio=nextStart();
+  const obj=document.querySelector('[name="onb-obj"]:checked').value,inicio=nextStart(),sem=semSel();
+  const extras=onbX.filter(x=>EXT[x.k]).map(x=>({k:x.k,x:Math.max(1,Math.min(5,+x.x||1)),min:Math.max(10,Math.min(180,+x.min||30))}));
   const P={user_id:session.user.id,objetivo:obj,cooper_km:no?2:cm/1000,cooper_feito:!no,corrida_x:+$("onb-run").value,inf_x:cnt("inf"),sup_x:cnt("sup"),esc_x:cnt("esc"),abd_x:cnt("abd"),
-    esc_min:Math.max(1,Math.min(60,parseInt($("onb-escmin").value,10)||5)),dist_km:null,pace_alvo:null,data_alvo:null,inicio,atualizado_em:new Date().toISOString()};
+    esc_min:Math.max(1,Math.min(60,parseInt($("onb-escmin").value,10)||5)),dist_km:null,pace_alvo:null,data_alvo:null,inicio,atualizado_em:new Date().toISOString(),
+    nome:$("onb-nome").value.trim().slice(0,30)||null,idade,sexo:$("onb-sexo").value||null,semanas:sem,extras};
   if(obj==="prova"){const d=parseFloat($("onb-dist").value.replace(",","."));if(!(d>=1&&d<=42.2)){msg.textContent="Coloque a distância da meta em km, por exemplo 5 ou 10.";return}
     const pv=$("onb-pace").value.trim(),pc=pv?parsePace(pv):null;if(Number.isNaN(pc)){msg.textContent="Pace inválido. Digite só os números, ex.: 600 para 6:00.";return}
-    const dt=$("onb-date").value;if(!dt){msg.textContent="Escolha a data da meta.";return}
-    const days_=Math.round((new Date(dt+"T00:00:00")-new Date(inicio+"T00:00:00"))/864e5);
-    if(days_<13){msg.textContent="A data precisa ser pelo menos 2 semanas depois do início do plano ("+inicio.split("-").reverse().join("/")+").";return}
-    if(days_>182){msg.textContent="Escolha uma data em até 6 meses.";return}
-    P.dist_km=d;P.pace_alvo=pc;P.data_alvo=dt}
+    P.dist_km=d;P.pace_alvo=pc;P.data_alvo=key(addDays(new Date(inicio+"T00:00:00"),sem*7-1))}
   $("onb-save").disabled=true;
   const r=await sb.from("fitness_perfil").upsert(P);
   if(!r.error&&PROFILE&&!isLegacy()){await sb.from("fitness_moves").delete().eq("user_id",session.user.id);await sb.from("fitness_adjust").delete().eq("user_id",session.user.id);moves={};adj=[]}
   $("onb-save").disabled=false;
   if(r.error){msg.textContent="Não salvou. Verifique a internet e tente de novo.";return}
-  PROFILE=P;applyProfile();$("onb").hidden=true;$("app").hidden=false;setPage("plano");toast("Plano criado")});
+  PROFILE=P;applyProfile();$("onb").hidden=true;$("app").hidden=false;wStart=mondayOf(today0());$("who").textContent=(P.nome?P.nome+" · ":"")+(session.user.email||"");setPage("plano");toast("Plano criado")});
 
 let moves={},editMode=false;
 const PITEMS={};
 function planWeeksMoved(){const W=getPlanWeeks(),map={};
   W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items=d.items.map(x=>({...x}));d.items.forEach((it,i)=>{it.id=dk+"-"+(it.ik||it.k);const mv=moves[it.id],tg=(mv&&mv.para)||dk;it.moved=tg!==dk;
     it.ord=mv&&mv.ordem!=null?mv.ordem:(tg===dk?i:100+i);(map[tg]=map[tg]||[]).push(it)})}));
-  const cardio=x=>x.k==="run"||x.k==="esc"?1:0;
+  const cardio=x=>x.k==="run"||x.k==="esc"||(EXT[x.k]&&EXT[x.k].card)?1:0;
   W.forEach(w=>w.days.forEach(d=>{d.items=(map[key(d.date)]||[]).slice().sort((a,b)=>cardio(a)-cardio(b)||a.ord-b.ord)}));return W}
-function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;return v[it.k]?1:0}
+function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;if(EXT[it.k])return +((v.ext||{})[it.k])||0;return v[it.k]?1:0}
 function renderPlan(){
   renderAdj();renderGoal();
   const t=today0(),tk=key(t),W=planWeeksMoved(),z=zones();
@@ -786,8 +854,8 @@ function renderPlan(){
       const its=items.length?items.map(it=>{tot++;const id=it.id,lv=logged(k,it),on=checks.has(id)||!!lv;if(on)done++;it.day=k;PITEMS[id]=it;
         let ex="";const rp=it.k==="run"&&days[k]&&days[k].pace;
         if(rp&&it.avg&&!it.cooper){const df=Math.round(rp-it.avg);ex+='<em class="ex'+(df>0?' neg':'')+'">real '+mmss(rp)+(Math.abs(df)>=3?' ('+(df<0?'−':'+')+mmss(Math.abs(df))+')':'')+'</em>'}
-        if(lv&&it.n&&!it.cooper&&(it.k==="esc"||it.k==="run")){const df=Math.round((lv-it.n)*10)/10;if(Math.abs(df)>=0.1)ex+='<em class="ex'+(df<0?' neg':'')+'">'+(df>0?"+":"−")+nf(Math.abs(df))+(it.k==="esc"?" min":" km")+'</em>'}
-        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+(it.moved?' moved':'')+'" data-id="'+id+'"'+(!editMode&&(date<=t||k===tk)?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k],"md")+
+        if(lv&&it.n&&!it.cooper&&(it.k==="esc"||it.k==="run"||EXT[it.k])){const df=Math.round((lv-it.n)*10)/10;if(Math.abs(df)>=0.1)ex+='<em class="ex'+(df<0?' neg':'')+'">'+(df>0?"+":"−")+nf(Math.abs(df))+(it.k==="run"?" km":" min")+'</em>'}
+        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+(it.moved?' moved':'')+'" data-id="'+id+'"'+(!editMode&&(date<=t||k===tk)?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k]||it.k,"md")+
           '<span class="px"><strong>'+it.t+'</strong>'+(it.d?'<small>'+it.d+'</small>':'')+'</span>'+
           '<span class="sk">'+(it.v||"")+(it.p?'<small>'+it.p+'</small>':'')+ex+'</span>'+
           (editMode?'<span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
@@ -807,9 +875,10 @@ $("pl-weeks").addEventListener("click",async e=>{
   // atualiza o dia nas abas Semana e Mês
   const it=PITEMS[id];if(!it)return;const k=it.day;
   if(it.cooper&&!on){openDay(k);toast("Coloque os km que você fez no Cooper");return}
-  const cur=days[k]||{},d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:+cur.km||0,esc:+cur.esc||0,pace:cur.pace||null};if(it.k==="run"&&on)d.pace=null;
+  const cur=days[k]||{},d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:+cur.km||0,esc:+cur.esc||0,pace:cur.pace||null,ext:{...(cur.ext||{})}};if(it.k==="run"&&on)d.pace=null;
   if(it.k==="run")d.km=on?0:(d.km||it.n||0);
   else if(it.k==="esc")d.esc=on?0:(d.esc||it.n||0);
+  else if(EXT[it.k]){if(on)delete d.ext[it.k];else d.ext[it.k]=d.ext[it.k]||it.n||30}
   else d[it.k]=!on;
   const before={...cur};try{await saveDay(k,d)}catch(err){toast("Marcado no plano, mas não atualizou o dia. Verifique a internet.");return}
 });
@@ -934,7 +1003,9 @@ function dragEnd(e){
 }
 document.addEventListener("pointermove",dragMove,{passive:false});
 document.addEventListener("pointerup",dragEnd);document.addEventListener("pointercancel",dragEnd);
-function renderPlanKeep(){const open=[...document.querySelectorAll("#pl-weeks details")].map(d=>d.open);renderPlan();document.querySelectorAll("#pl-weeks details").forEach((d,i)=>{if(open[i]!==undefined)d.open=open[i]})}
+let planSig="";
+function renderPlanKeep(){const sig=isLegacy()?"L":[PROFILE.inicio,PROFILE.semanas,PROFILE.atualizado_em].join("|"),same=sig===planSig;planSig=sig;
+  const open=[...document.querySelectorAll("#pl-weeks details")].map(d=>d.open);renderPlan();if(same)document.querySelectorAll("#pl-weeks details").forEach((d,i)=>{if(open[i]!==undefined)d.open=open[i]})}
 
 /* abas e navegação */
 function setPage(p){page=p;try{localStorage.setItem("fitness-pagina",p)}catch(e){}render()}
@@ -951,6 +1022,7 @@ function openDay(k){
   $("sh-t").textContent=k===tk?"Hoje":k===key(addDays(today0(),-1))?"Ontem":d.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"});
   ["inf","sup","abd"].forEach(f=>$("tg-"+f).setAttribute("aria-pressed",String(!!v[f])));
   $("in-km").value=nf(v.km||0);$("in-pace").value=v.pace?mmss(v.pace):"";$("in-esc").value=nf(v.esc||0);$("err").textContent="";
+  $("sh-ext").innerHTML=extKeys().map(x=>'<div class="meter"><div class="meter-h"><strong>'+ic(x,"md")+EXT[x].n+'</strong><span>0 = não fiz</span></div><div class="ctl"><button type="button" class="st" data-f="x-'+x+'" data-s="-5" aria-label="Menos 5 minutos">−</button><input id="in-x-'+x+'" type="text" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="Minutos de '+EXT[x].n+'" value="'+nf((v.ext||{})[x]||0)+'"><em>min</em><button type="button" class="st" data-f="x-'+x+'" data-s="5" aria-label="Mais 5 minutos">+</button></div><div class="chips" data-f="x-'+x+'"><button type="button" class="chip zero" data-v="0">Não fiz</button>'+[20,30,45,60].map(m=>'<button type="button" class="chip" data-v="'+m+'">'+m+' min</button>').join("")+'</div></div>').join("");
   $("sheet").classList.add("open");$("scrim").classList.add("open");$("sheet").setAttribute("aria-hidden","false");
   setTimeout(()=>$("tg-inf").focus(),50);
 }
@@ -961,12 +1033,13 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-k]");if(b&
 $("scrim").onclick=()=>{if(!$("fb").hidden)closeFb();else closeDay()};$("close").onclick=closeDay;$("fb-ok").onclick=closeFb;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&editing)closeDay()});
 document.querySelectorAll(".tg").forEach(b=>b.onclick=()=>b.setAttribute("aria-pressed",String(b.getAttribute("aria-pressed")!=="true")));
-document.querySelectorAll(".st").forEach(b=>b.onclick=()=>{const id="in-"+b.dataset.f;const v=Math.max(0,Math.round((num(id)+parseFloat(b.dataset.s))*100)/100);$(id).value=nf(v);});
-document.querySelectorAll(".chips").forEach(c=>c.onclick=e=>{const b=e.target.closest(".chip");if(b)$("in-"+c.dataset.f).value=b.dataset.v;});
+$("sheet").addEventListener("click",e=>{const b=e.target.closest(".st");if(b){const id="in-"+b.dataset.f;const v=Math.max(0,Math.round((num(id)+parseFloat(b.dataset.s))*100)/100);$(id).value=nf(v);return}
+  const c=e.target.closest(".chips"),ch=e.target.closest(".chip");if(c&&ch)$("in-"+c.dataset.f).value=ch.dataset.v});
 
 $("sheet").addEventListener("submit",async e=>{
   e.preventDefault();if(!editing)return;
-  const d={inf:$("tg-inf").getAttribute("aria-pressed")==="true",sup:$("tg-sup").getAttribute("aria-pressed")==="true",abd:$("tg-abd").getAttribute("aria-pressed")==="true",km:num("in-km"),esc:num("in-esc"),pace:null};
+  const d={inf:$("tg-inf").getAttribute("aria-pressed")==="true",sup:$("tg-sup").getAttribute("aria-pressed")==="true",abd:$("tg-abd").getAttribute("aria-pressed")==="true",km:num("in-km"),esc:num("in-esc"),pace:null,ext:{}};
+  extKeys().forEach(x=>{const m=num("in-x-"+x);if(m>0)d.ext[x]=m});
   {const pc=parsePace($("in-pace").value);if(Number.isNaN(pc)){$("err").textContent="Pace inválido. Digite só os números, ex.: 745 para 7:45.";return}d.pace=d.km>0?pc:null}
   const k=editing,was=active(days[k]),before={...(days[k]||{})};
   $("save").disabled=true;
