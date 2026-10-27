@@ -213,6 +213,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .pl-btn{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:99px;padding:6px 14px;font:500 12px var(--font);cursor:pointer}
 .pl-btn.on{background:var(--fill);color:var(--fill-ink);border-color:var(--fill)}
 .pl-btn.ghostb{background:none;color:var(--muted)}
+.ed{display:flex;align-items:center;gap:2px}
+.del{width:28px;height:28px;border:none;background:none;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:0;border-radius:99px;white-space:nowrap}
+.del.arm{width:auto;padding:0 10px;background:var(--inf);color:#fff;font:600 12px var(--font)}
+.editing .it:not(.rest){grid-template-columns:24px minmax(0,1fr) auto auto}
 .hd{width:28px;height:28px;display:grid;place-items:center;color:var(--muted);font-size:20px;line-height:1;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .editing{user-select:none;-webkit-user-select:none}
 .editing .it:not(.rest){border:1px dashed var(--line);border-radius:12px;padding:6px 4px 6px 6px}
@@ -257,7 +261,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .pd .sd{display:inline;font-size:20px}.pd .sw{display:inline;margin-left:6px}
 .it{grid-template-columns:22px minmax(0,1fr) 26px;grid-template-rows:auto auto;column-gap:8px;row-gap:2px;align-items:start}
 .it>.ic{grid-column:1;grid-row:1 / span 2}.it .px{grid-column:2;grid-row:1}.it .sk{grid-column:2;grid-row:2;text-align:left}
-.it .ck,.it .hd{grid-column:3;grid-row:1 / span 2;align-self:center}
+.it .ck,.it .hd,.it .ed{grid-column:3;grid-row:1 / span 2;align-self:center}.ed .hd{grid-column:auto}.editing .it:not(.rest){grid-template-columns:22px minmax(0,1fr) auto}
 .it .px small{display:none}.it.big .px small{display:block}
 .it .ic.md{width:22px;height:22px}
 .it.big{padding:10px}
@@ -410,7 +414,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
   <section id="pg-plano" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
     <p class="pl-goal" id="pl-goal" hidden></p>
     <div class="adj" id="pl-adj" hidden></div>
-    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia, inclusive de outra semana. Para abrir uma semana fechada, pare em cima do título dela por um instante.</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
+    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia, inclusive de outra semana. Para abrir uma semana fechada, pare em cima do título dela por um instante. Toque no × para excluir um treino. Restaurar original desfaz trocas e exclusões.</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
   </section>
@@ -521,8 +525,8 @@ async function reload(){
   if(!aj.error)adj=aj.data;
   const pf=await sb.from("fitness_perfil").select("*").maybeSingle();
   if(!pf.error){PROFILE=pf.data;applyProfile()}
-  const mv=await sb.from("fitness_moves").select("item,para,ordem");
-  if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]={para:r.para,ordem:r.ordem}})}
+  const mv=await sb.from("fitness_moves").select("item,para,ordem,excluido");
+  if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]={para:r.para,ordem:r.ordem,del:!!r.excluido}})}
   $("sync").textContent="Toque em um dia para lançar o que você fez.";
   $("who").textContent=(PROFILE&&PROFILE.nome?PROFILE.nome+" · ":"")+(session.user.email||"");
   if(pf.error&&!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seu plano. Verifique a internet e abra o app de novo.</p>';return}
@@ -831,7 +835,7 @@ $("onbForm").addEventListener("submit",async e=>{e.preventDefault();const msg=$(
 let moves={},editMode=false;
 const PITEMS={};
 function planWeeksMoved(){const W=getPlanWeeks(),map={};
-  W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items=d.items.map(x=>({...x}));d.items.forEach((it,i)=>{it.id=dk+"-"+(it.ik||it.k);const mv=moves[it.id],tg=(mv&&mv.para)||dk;it.moved=tg!==dk;
+  W.forEach(w=>w.days.forEach(d=>{const dk=key(d.date);d.items=d.items.map(x=>({...x}));d.items.forEach((it,i)=>{it.id=dk+"-"+(it.ik||it.k);const mv=moves[it.id];if(mv&&mv.del)return;const tg=(mv&&mv.para)||dk;it.moved=tg!==dk;
     it.ord=mv&&mv.ordem!=null?mv.ordem:(tg===dk?i:100+i);(map[tg]=map[tg]||[]).push(it)})}));
   const cardio=x=>x.k==="run"||x.k==="esc"||(EXT[x.k]&&EXT[x.k].card)?1:0;
   W.forEach(w=>w.days.forEach(d=>{d.items=(map[key(d.date)]||[]).slice().sort((a,b)=>cardio(a)-cardio(b)||a.ord-b.ord)}));return W}
@@ -859,13 +863,19 @@ function renderPlan(){
         return '<div class="it'+(it.big?' big':'')+(on?' done':'')+(it.moved?' moved':'')+'" data-id="'+id+'"'+(!editMode&&(date<=t||k===tk)?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k]||it.k,"md")+
           '<span class="px"><strong>'+it.t+'</strong>'+(it.d?'<small>'+it.d+'</small>':'')+'</span>'+
           '<span class="sk">'+(it.v||"")+(it.p?'<small>'+it.p+'</small>':'')+ex+'</span>'+
-          (editMode?'<span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
+          (editMode?'<span class="ed"><button type="button" class="del" data-del="'+id+'" aria-label="Excluir '+it.t+'">×</button><span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
         :'<div class="it rest">Descanso</div>';
       return '<div class="pd'+(k===tk?' today':'')+'" data-day="'+k+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
     return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(past?'<b class="wkm ok">'+realS+' km</b>':wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
   if($("pl-sem"))$("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+W.length:(t<W[0].mon?"começa seg, 19 out":"");
 }
 $("pl-weeks").addEventListener("click",async e=>{
+  const x=e.target.closest("[data-del]");
+  if(x&&editMode&&session){e.preventDefault();e.stopPropagation();
+    if(!x.classList.contains("arm")){x.classList.add("arm");x.textContent="Excluir";setTimeout(()=>{if(x.isConnected){x.classList.remove("arm");x.textContent="×"}},3000);return}
+    const id=x.dataset.del,it=PITEMS[id],old=JSON.parse(JSON.stringify(moves));moves[id]={para:(it&&it.day)||id.slice(0,10),ordem:null,del:true};renderPlanKeep();
+    const r=await sb.from("fitness_moves").upsert({user_id:session.user.id,item:id,para:moves[id].para,ordem:null,excluido:true,updated_at:new Date().toISOString()});
+    if(r.error){moves=old;renderPlanKeep();toast("Não salvou. Verifique a internet.")}else toast("Treino excluído");return}
   const b=e.target.closest("[data-ck]");if(!b||!session)return;
   e.preventDefault();e.stopPropagation();
   const id=b.dataset.ck,it0=PITEMS[id],on=checks.has(id)||!!(it0&&logged(it0.day,it0));
@@ -978,7 +988,7 @@ $("pl-reset").onclick=async()=>{
 };
 async function saveOrder(day,ids){
   const old=JSON.parse(JSON.stringify(moves)),now=new Date().toISOString();
-  const rows=ids.map((id,i)=>({user_id:session.user.id,item:id,para:day,ordem:i,updated_at:now}));
+  const rows=ids.map((id,i)=>({user_id:session.user.id,item:id,para:day,ordem:i,excluido:false,updated_at:now}));
   rows.forEach(r=>{moves[r.item]={para:day,ordem:r.ordem}});renderPlanKeep();
   const r=await sb.from("fitness_moves").upsert(rows);
   if(r.error){moves=old;renderPlanKeep();toast("Não salvou. Verifique a internet.")}
