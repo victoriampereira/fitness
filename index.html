@@ -199,6 +199,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .cv input:focus{outline:none;border-bottom-color:var(--run)}
 .cv em{font-style:normal;font-size:12px;color:var(--muted)}
 .cv-eq{text-align:center;color:var(--muted);font-size:16px}
+.cv input.calc{color:var(--run);border-bottom-color:transparent}
 .cv-res{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:12px;margin-top:6px}
 .cv-res span{font-size:13px;font-weight:600}
 .cv-res b{font-size:34px;font-weight:600;letter-spacing:-.03em;color:var(--run)}
@@ -422,13 +423,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
       <label class="cv"><span>Velocidade</span><input id="cv-kmh" type="text" inputmode="decimal" autocomplete="off" placeholder="8,0"><em>km/h</em></label>
     </div>
     <p class="note" id="cv-msg">Digite só os números. Ex.: 745 vira 7:45.</p>
-    <div class="ph"><h2>Distância e tempo → pace</h2></div>
+    <div class="ph"><h2>Distância, tempo e pace</h2></div>
     <div class="conv">
       <label class="cv"><span>Distância</span><input id="cv-dist" type="text" inputmode="decimal" autocomplete="off" placeholder="5"><em>km</em></label>
       <label class="cv"><span>Tempo</span><input id="cv-time" type="text" inputmode="numeric" autocomplete="off" placeholder="35:00"><em>min:seg</em></label>
-      <div class="cv-res" id="cv-res"><span>Pace</span><b>–</b></div>
+      <label class="cv"><span>Pace</span><input id="cv-pc" type="text" inputmode="numeric" autocomplete="off" placeholder="7:00"><em>min/km</em></label>
     </div>
-    <p class="note" id="cv-msg2">Digite só os números. Ex.: 2500 vira 25:00 e 10530 vira 1:05:30.</p>
+    <p class="note" id="cv-msg2">Preencha dois campos e o terceiro aparece sozinho. Digite só os números: 2500 vira 25:00.</p>
   </section>
 
   <p class="note" id="sync">Carregando seus treinos…</p>
@@ -899,14 +900,28 @@ $("cv-kmh").addEventListener("input",()=>{const v=parseFloat($("cv-kmh").value.r
   $("cv-pace").value=mmss(3600/v);cvMsg()});
 function parseTime(x){x=String(x||"").trim();if(!x)return null;const p=x.split(/[:.,'h]/).map(v=>v.trim());if(p.some(v=>!/^\d+$/.test(v))||p.length>3)return NaN;
   const n=p.map(Number);if(p.length===1)return n[0]*60;if(p.length===2)return n[1]<60?n[0]*60+n[1]:NaN;return n[1]<60&&n[2]<60?n[0]*3600+n[1]*60+n[2]:NaN}
-function calcPace(){const dv=$("cv-dist").value.trim(),tv=$("cv-time").value.trim(),out=$("cv-res").querySelector("b"),msg=$("cv-msg2");
-  msg.textContent="Digite só os números. Ex.: 2500 vira 25:00 e 10530 vira 1:05:30.";
-  if(!dv||!tv){out.innerHTML="–";return}
-  const d=parseFloat(dv.replace(",","."));const t=parseTime(tv);
-  if(!(d>0)){out.innerHTML="–";msg.textContent="Coloque a distância em km, por exemplo 5 ou 7,5.";return}
-  if(!t||Number.isNaN(t)){out.innerHTML="–";msg.textContent="Tempo inválido. Minutos e segundos vão até 59.";return}
-  const p=t/d;out.innerHTML=mmss(p)+'<small>/km · '+(3600/p).toLocaleString("pt-BR",{maximumFractionDigits:1})+' km/h</small>'}
-$("cv-dist").addEventListener("input",calcPace);$("cv-time").addEventListener("input",calcPace);
+/* distância, tempo e pace: preencha dois e o terceiro é calculado */
+const CVF={d:"cv-dist",t:"cv-time",p:"cv-pc"},CVMSG="Preencha dois campos e o terceiro aparece sozinho. Digite só os números: 2500 vira 25:00.";
+let cvOrd=[],cvCalc=null;
+const fmtTime=x=>{x=Math.round(x);const h=Math.floor(x/3600),m=Math.floor(x%3600/60),sec=x%60;return h?h+":"+pad(m)+":"+pad(sec):m+":"+pad(sec)};
+function cvRead(k){const v=$(CVF[k]).value.trim();if(!v)return null;
+  if(k==="d"){const d=parseFloat(v.replace(",","."));return d>0&&d<=500?d:NaN}
+  const t=parseTime(v);if(!t||Number.isNaN(t))return NaN;if(k==="p"&&!(t>=120&&t<=1800))return NaN;return t}
+function cvSolve(src){const msg=$("cv-msg2");
+  if(src){if(cvCalc===src){cvCalc=null;$(CVF[src]).classList.remove("calc")}
+    cvOrd=cvOrd.filter(k=>k!==src);if($(CVF[src]).value.trim())cvOrd.unshift(src)}
+  const given=cvOrd.filter(k=>k!==cvCalc&&$(CVF[k]).value.trim()).slice(0,2);
+  const tgt=given.length===2?["d","t","p"].find(k=>!given.includes(k)):null;
+  if(cvCalc&&cvCalc!==tgt){$(CVF[cvCalc]).value="";$(CVF[cvCalc]).classList.remove("calc");cvCalc=null}
+  msg.textContent=CVMSG;if(!tgt)return;
+  const v={};for(const k of given){v[k]=cvRead(k);if(Number.isNaN(v[k])){msg.textContent=k==="d"?"Coloque a distância em km, por exemplo 5 ou 7,5.":k==="t"?"Tempo inválido. Minutos e segundos vão até 59.":"Pace inválido. Ex.: 700 vira 7:00/km.";if(cvCalc){$(CVF[cvCalc]).value=""}return}
+    if(k==="t"&&$("cv-time").value.replace(/\D/g,"").length<3)return;if(k==="p"&&$("cv-pc").value.replace(/\D/g,"").length<3)return}
+  let out;if(tgt==="p")out=fmtTime(v.t/v.d);else if(tgt==="t")out=fmtTime(v.d*v.p);else out=(v.t/v.p).toLocaleString("pt-BR",{maximumFractionDigits:2});
+  const el=$(CVF[tgt]);el.value=out;el.classList.add("calc");cvCalc=tgt;
+  const pc=tgt==="p"?v.t/v.d:v.p;msg.textContent=(tgt==="p"?"Pace calculado":tgt==="t"?"Tempo calculado":"Distância calculada")+" · "+(3600/pc).toLocaleString("pt-BR",{maximumFractionDigits:1})+" km/h."}
+maskTime($("cv-pc"),4);
+Object.entries(CVF).forEach(([k,id])=>$(id).addEventListener("input",()=>cvSolve(k)));
+Object.entries(CVF).forEach(([k,id])=>$(id).addEventListener("focus",()=>{if(cvCalc===k){$(id).value="";$(id).classList.remove("calc");cvCalc=null;cvOrd=cvOrd.filter(x=>x!==k)}}));
 function renderConv(){}
 
 /* ajuste automático semanal */
