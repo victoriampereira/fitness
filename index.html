@@ -241,6 +241,29 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .ck[aria-pressed="true"]::after{border-color:#fff}
 .it.big .ck{border-color:rgba(255,255,255,.4)}
 .top h1{font-family:"Raleway",var(--font);font-style:normal;font-weight:200;font-size:27px;letter-spacing:.45em;margin-left:.45em;text-transform:lowercase}
+/* tela de trechos (fartlek, tiros) */
+.iv{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;padding:max(16px,env(safe-area-inset-top)) 20px max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+.iv>*{width:100%;max-width:520px;margin-inline:auto}
+.iv-top button{border:none;background:none;font:500 15px var(--font);color:var(--ink);padding:6px 0;cursor:pointer}
+.iv h2{font-size:26px;font-weight:600;letter-spacing:-.03em;margin:0}
+.iv .ivs{font-size:13px;color:var(--muted);margin-top:4px}
+.iv-prog{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.iv-prog i{flex:1;height:5px;border-radius:9px;background:var(--soft);overflow:hidden;display:block}
+.iv-prog i b{display:block;height:100%;background:var(--run);border-radius:9px;transition:width .2s}
+.iv-l{display:flex;flex-direction:column}
+.iv-r{display:grid;grid-template-columns:104px 1fr;align-items:center;gap:12px;padding:8px 12px;border-radius:14px}
+.iv-r.nx{background:var(--soft)}
+.iv-r .lb{font-size:14px;font-weight:600}
+.iv-ds{display:flex;gap:26px}
+.iv-d{all:unset;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);white-space:nowrap;cursor:pointer}
+.iv-d:focus-visible span{outline:2px solid var(--ink);outline-offset:2px}
+.iv-d span{width:40px;height:40px;border-radius:50%;border:2px solid #CFCFCF;display:grid;place-items:center;box-sizing:border-box}
+.iv-d.f span{border-color:var(--run)}
+.iv-d.on span{background:#CFCFCF;border-color:#CFCFCF}.iv-d.f.on span{background:var(--run);border-color:var(--run)}
+.iv-d.on span::after{content:"";width:13px;height:7px;border:solid #fff;border-width:0 0 2.5px 2.5px;transform:rotate(-45deg) translate(1px,-2px)}
+.iv-d div{display:flex;gap:4px}.iv-d b{display:inline;font-weight:600}.iv-d.f b{color:var(--run)}
+.iv-note{font-size:12px;color:var(--muted);text-align:center}
+.it[data-iv]{cursor:pointer}
 /* computador: barra lateral + plano em colunas */
 @media (min-width:1000px){
 #app{max-width:1440px;display:grid;grid-template-columns:210px minmax(0,1fr);column-gap:48px;align-items:start;min-height:auto;justify-content:stretch;padding-block:48px}
@@ -839,6 +862,47 @@ function planWeeksMoved(){const W=getPlanWeeks(),map={};
     it.ord=mv&&mv.ordem!=null?mv.ordem:(tg===dk?i:100+i);(map[tg]=map[tg]||[]).push(it)})}));
   const cardio=x=>x.k==="run"||x.k==="esc"||(EXT[x.k]&&EXT[x.k].card)?1:0;
   W.forEach(w=>w.days.forEach(d=>{d.items=(map[key(d.date)]||[]).slice().sort((a,b)=>cardio(a)-cardio(b)||a.ord-b.ord)}));return W}
+/* treinos com blocos: trechos que dá para ir marcando */
+function ivSteps(d){
+  if(!d||!/×/.test(d))return null;
+  const parts=[];let dep=0,cur="";for(let i=0;i<d.length;i++){const ch=d[i];if(ch==="(")dep++;if(ch===")")dep--;if(dep===0&&d.startsWith(" + ",i)){parts.push(cur.trim());cur="";i+=2;continue}cur+=ch}if(cur.trim())parts.push(cur.trim());
+  const step=t=>{const m=t.match(/(\d+(?:[.,]\d+)?)\s*(min|km|m|s)\b/),p=[...t.matchAll(/a (\d{1,2}:\d\d)/g)].pop();return {lb:m?m[1]+" "+m[2]:t,pc:p?p[1]:"",lv:/trote|solto|caminh|leve/.test(t)}};
+  const G=[];let reps=false,bn=0;
+  parts.forEach((pt,pi)=>{let m;
+    if((m=pt.match(/^(\d+)\s*×\s*\((.+)\)$/))){reps=true;const inner=m[2].split(/ \/ | \+ /).map(step);for(let i=0;i<+m[1];i++)G.push({t:"Bloco "+(++bn),s:inner.map(x=>({...x}))})}
+    else if((m=pt.match(/^(\d+)\s*×\s*(.+?), com (.+?) entre eles$/))){reps=true;const A=step(m[2]),B=step(m[3]);B.lv=true;for(let i=0;i<+m[1];i++)G.push({t:"Bloco "+(++bn),s:i<+m[1]-1?[{...A},{...B}]:[{...A}]})}
+    else if((m=pt.match(/^(\d+)\s*×\s*(.+)$/))){reps=true;const A=step(m[2]);for(let i=0;i<+m[1];i++)G.push({t:"Bloco "+(++bn),s:[{...A}]})}
+    else G.push({t:pi===0?"Aquecimento":"Final",s:[step(pt)]})});
+  if(!reps)return null;
+  const sec=p=>{const m=String(p).match(/(\d+):(\d\d)/);return m?+m[1]*60+ +m[2]:0},base=sec((G[0].s[0]||{}).pc);
+  let n=0;G.forEach(g=>g.s.forEach(x=>{x.n=n++;x.f=!x.lv&&(!base||sec(x.pc)<base-5)}));return G}
+const ivCount=G=>G.reduce((a,g)=>a+g.s.length,0);
+const ivDone=(id,G)=>{let c=0;G.forEach(g=>g.s.forEach(x=>{if(checks.has(id+"#"+x.n))c++}));return c};
+let ivOpen=null;
+function openIv(id){ivOpen=id;renderIv();try{history.pushState({iv:1},"")}catch(_){}}
+function closeIv(){ivOpen=null;const el=$("iv");if(el)el.remove();document.body.style.overflow=""}
+window.addEventListener("popstate",()=>{if(ivOpen)closeIv()});
+function renderIv(){const it=PITEMS[ivOpen];if(!it||!it.iv){closeIv();return}
+  let el=$("iv");if(!el){el=document.createElement("div");el.id="iv";el.className="iv";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");document.body.appendChild(el);
+    el.addEventListener("click",ivClick)}
+  document.body.style.overflow="hidden";
+  const G=it.iv,tot=ivCount(G),dn=ivDone(ivOpen,G),dt=new Date(it.day+"T12:00:00");
+  const nx=G.findIndex(g=>g.s.some(x=>!checks.has(ivOpen+"#"+x.n)));
+  el.innerHTML='<div class="iv-top"><button type="button" data-ivx>‹ Plano</button></div>'+
+    '<div><h2>'+escH(it.t.replace("Corrida · ",""))+'</h2><div class="ivs">'+DW[dt.getDay()]+', '+dt.getDate()+' '+dt.toLocaleDateString("pt-BR",{month:"short"}).replace(".","")+' · '+(it.v||"")+(it.p?' · '+it.p:'')+'</div></div>'+
+    '<div class="iv-prog"><i><b style="width:'+(dn/tot*100)+'%"></b></i>'+dn+' de '+tot+'</div>'+
+    '<div class="iv-l">'+G.map((g,gi)=>'<div class="iv-r'+(gi===nx?' nx':'')+'"><div class="lb">'+g.t+'</div><div class="iv-ds">'+g.s.map(x=>{const on=checks.has(ivOpen+"#"+x.n);
+      return '<button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b>'+(x.pc?' · '+x.pc:'')+'</div></button>'}).join('')+'</div></div>').join('')+'</div>'+
+    '<div class="iv-note">'+(dn===tot?'Treino completo!':'Toque em cada bolinha ao terminar o trecho. Ao marcar a última, a corrida fica feita no plano.')+'</div>'}
+async function ivClick(e){
+  if(e.target.closest("[data-ivx]")){if(history.state&&history.state.iv)history.back();else closeIv();return}
+  const b=e.target.closest("[data-ivd]");if(!b||!session||!ivOpen)return;
+  const id=ivOpen,key_=id+"#"+b.dataset.ivd,on=checks.has(key_),it=PITEMS[id];
+  on?checks.delete(key_):checks.add(key_);renderIv();renderPlanKeep();
+  const r=on?await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",key_)
+            :await sb.from("fitness_checks").upsert({user_id:session.user.id,item:key_});
+  if(r.error){on?checks.add(key_):checks.delete(key_);renderIv();renderPlanKeep();toast("Não salvou. Verifique a internet.");return}
+  if(!on&&it&&ivDone(id,it.iv)===ivCount(it.iv)&&!(checks.has(id)||logged(it.day,it))){await toggleCheck(id);toast("Corrida marcada como feita");if(ivOpen)renderIv()}}
 function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;if(EXT[it.k])return +((v.ext||{})[it.k])||0;return v[it.k]?1:0}
 function renderPlan(){
   renderAdj();renderGoal();
@@ -860,13 +924,15 @@ function renderPlan(){
         let ex="";const rp=it.k==="run"&&days[k]&&days[k].pace;
         if(rp&&it.avg&&!it.cooper){const df=Math.round(rp-it.avg);ex+='<em class="ex'+(df>0?' neg':'')+'">real '+mmss(rp)+(Math.abs(df)>=3?' ('+(df<0?'−':'+')+mmss(Math.abs(df))+')':'')+'</em>'}
         if(lv&&it.n&&!it.cooper&&(it.k==="esc"||it.k==="run"||EXT[it.k])){const df=Math.round((lv-it.n)*10)/10;if(Math.abs(df)>=0.1)ex+='<em class="ex'+(df<0?' neg':'')+'">'+(df>0?"+":"−")+nf(Math.abs(df))+(it.k==="run"?" km":" min")+'</em>'}
-        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+(it.moved?' moved':'')+'" data-id="'+id+'"'+(!editMode&&(date<=t||k===tk)?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k]||it.k,"md")+
+        const IV=it.k==="run"&&!it.cooper?ivSteps(it.d):null;if(IV){it.iv=IV;const nd=ivDone(id,IV);if(nd&&!on)ex+='<em class="ex neg">'+nd+' de '+ivCount(IV)+'</em>'}
+        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+(it.moved?' moved':'')+'" data-id="'+id+'"'+(!editMode&&IV?' data-iv="'+id+'"':!editMode&&(date<=t||k===tk)?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k]||it.k,"md")+
           '<span class="px"><strong>'+it.t+'</strong>'+(it.d?'<small>'+it.d+'</small>':'')+'</span>'+
           '<span class="sk">'+(it.v||"")+(it.p?'<small>'+it.p+'</small>':'')+ex+'</span>'+
           (editMode?'<span class="ed"><button type="button" class="del" data-del="'+id+'" aria-label="Excluir '+it.t+'">×</button><span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
         :'<div class="it rest">Descanso</div>';
       return '<div class="pd'+(k===tk?' today':'')+'" data-day="'+k+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
     return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(past?'<b class="wkm ok">'+realS+' km</b>':wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
+  if(ivOpen&&$("iv"))renderIv();
   if($("pl-sem"))$("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+W.length:(t<W[0].mon?"começa seg, 19 out":"");
 }
 $("pl-weeks").addEventListener("click",async e=>{
@@ -876,9 +942,12 @@ $("pl-weeks").addEventListener("click",async e=>{
     const id=x.dataset.del,it=PITEMS[id],old=JSON.parse(JSON.stringify(moves));moves[id]={para:(it&&it.day)||id.slice(0,10),ordem:null,del:true};renderPlanKeep();
     const r=await sb.from("fitness_moves").upsert({user_id:session.user.id,item:id,para:moves[id].para,ordem:null,excluido:true,updated_at:new Date().toISOString()});
     if(r.error){moves=old;renderPlanKeep();toast("Não salvou. Verifique a internet.")}else toast("Treino excluído");return}
+  const iv=e.target.closest("[data-iv]");if(iv&&!e.target.closest("[data-ck]")&&!editMode){e.preventDefault();e.stopPropagation();openIv(iv.dataset.iv);return}
   const b=e.target.closest("[data-ck]");if(!b||!session)return;
-  e.preventDefault();e.stopPropagation();
-  const id=b.dataset.ck,it0=PITEMS[id],on=checks.has(id)||!!(it0&&logged(it0.day,it0));
+  e.preventDefault();e.stopPropagation();toggleCheck(b.dataset.ck);
+});
+async function toggleCheck(id){
+  const it0=PITEMS[id],on=checks.has(id)||!!(it0&&logged(it0.day,it0));
   on?checks.delete(id):checks.add(id);renderPlanKeep();
   const r=on?await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",id)
             :await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id});
@@ -892,7 +961,7 @@ $("pl-weeks").addEventListener("click",async e=>{
   else if(EXT[it.k]){if(on)delete d.ext[it.k];else d.ext[it.k]=d.ext[it.k]||it.n||30}
   else d[it.k]=!on;
   const before={...cur};try{await saveDay(k,d)}catch(err){toast("Marcado no plano, mas não atualizou o dia. Verifique a internet.");return}
-});
+}
 /* conversor pace ↔ km/h */
 function cvMsg(t){$("cv-msg").textContent=t||"Digite só os números. Ex.: 745 vira 7:45."}
 /* máscara: digita só números e os dois pontos entram sozinhos */
