@@ -256,7 +256,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .fc-m .av{width:34px;height:34px;border-radius:50%;background:var(--run);display:grid;place-items:center}
 .fc-m .av .ic{width:34px;height:34px}.fc-m .av .ic svg{width:20px;height:20px}
 .fc-m b{display:block;font-size:13px;font-weight:600}.fc-m small{font-size:11.5px;color:var(--muted)}
-.fc h3{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 12px}
+.fc h3{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 12px;display:flex;align-items:center;gap:6px;min-height:30px}
+.fc-ed{border:none;background:none;color:#BDBDBD;padding:6px;margin:-6px 0;cursor:pointer;display:grid;place-items:center;border-radius:99px}
+.fc-in{flex:1;min-width:0;border:none;border-bottom:1.5px solid var(--run);background:none;color:var(--ink);font:700 21px var(--font);letter-spacing:-.02em;padding:0 0 2px}
+.fc-in:focus{outline:none}
 .fc-s{display:flex;gap:28px}
 .fc-s span{display:block;font-size:12px;color:var(--muted);margin-bottom:2px}
 .fc-s b{font-size:19px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
@@ -587,6 +590,8 @@ async function reload(){
   if(error){console.error(error);$("sync").textContent="Não foi possível carregar seus treinos. Verifique a internet.";if(!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seus treinos. Verifique a internet e abra o app de novo.</p>'}return}
   const m={};data.forEach(r=>{m[r.dia]={inf:r.inf,sup:r.sup,abd:r.abd,km:Number(r.km)||0,esc:Number(r.esc)||0,pace:r.pace||null,sens:r.sens||null,ext:r.ext||{}}});
   days=m;
+  const nm=await sb.from("fitness_nomes").select("chave,nome");
+  if(!nm.error){NOMES={};nm.data.forEach(r=>{NOMES[r.chave]=r.nome})}
   const ck=await sb.from("fitness_checks").select("item,valor,vel");
   if(!ck.error){checks=new Set(ck.data.map(r=>r.item));ivVal={};ivAj={};ck.data.forEach(r=>{if(/#aj$/.test(r.item)){if(+r.vel>0&&r.valor>0)ivAj[r.item.slice(0,-3)]={km:+r.vel,t:r.valor}}else if(+r.vel>0)ivVal[r.item]=+r.vel;else if(r.valor)ivVal[r.item]=Math.round(36000/r.valor)/10})}
   const aj=await sb.from("fitness_adjust").select("semana,dr,dl,de,msg,desfeito");
@@ -680,19 +685,38 @@ function render(){
 /* feed de corridas, estilo Strava */
 const DWL=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 function fmtDur(t){t=Math.round(t);const h=Math.floor(t/3600),m=Math.floor(t%3600/60),sec=t%60;return h?h+'<small>h</small> '+pad(m)+'<small>min</small>':m+'<small>min</small> '+sec+'<small>s</small>'}
+const PEN='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+function feedItems(){const L=Object.keys(days).filter(k=>+days[k].km>0).map(k=>({key:k,dia:k,km:+days[k].km,pace:days[k].pace||null,o:0}));
+  // teste de Cooper de 19/10 (plano original): 1.760 m em 12 min, separado da corrida do dia
+  if(isLegacy()&&COOPER_KM)L.push({key:"cooper",dia:"2026-10-19",km:COOPER_KM,pace:Math.round(720/COOPER_KM),t:720,cooper:true,o:1});
+  return L.sort((a,b)=>a.dia!==b.dia?(a.dia<b.dia?1:-1):a.o-b.o)}
+function feedTitle(e){if(NOMES[e.key])return NOMES[e.key];if(e.cooper)return "Teste de Cooper";
+  const it=Object.values(PITEMS).find(x=>x.day===e.dia&&x.k==="run"&&!(x.cooper&&isLegacy()));return it?it.t.replace("Corrida · ",""):"Corrida"}
 function renderFeed(){if(page!=="ativ")return;
-  const ks=Object.keys(days).filter(k=>+days[k].km>0).sort().reverse(),tot=ks.reduce((a,k)=>a+(+days[k].km),0);
-  $("fd-tot").textContent=ks.length?ks.length+(ks.length===1?" corrida · ":" corridas · ")+nf(Math.round(tot*10)/10)+" km":"";
+  const L=feedItems(),tot=L.reduce((a,e)=>a+e.km,0);
+  $("fd-tot").textContent=L.length?L.length+(L.length===1?" corrida · ":" corridas · ")+nf(Math.round(tot*10)/10)+" km":"";
   const nome=PROFILE&&PROFILE.nome?escH(PROFILE.nome):"";
-  const tit=k=>{const it=Object.values(PITEMS).find(x=>x.day===k&&x.k==="run");return it?it.t.replace("Corrida · ",""):"Corrida"};
-  $("feed").innerHTML=ks.length?ks.map(k=>{const v=days[k],d=new Date(k+"T12:00:00"),dt=DWL[d.getDay()]+", "+d.getDate()+" de "+MESES[d.getMonth()].toLowerCase(),t=v.pace?v.km*v.pace:0;
-    return '<article class="fc" data-k="'+k+'"><div class="fc-m"><span class="av">'+ic("run")+'</span><div>'+(nome?'<b>'+nome+'</b><small>'+dt+'</small>':'<b>'+dt+'</b>')+'</div></div>'+
-      '<h3>'+escH(tit(k))+'</h3><div class="fc-s"><div><span>Distância</span><b>'+(+v.km).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+' <small>km</small></b></div>'+
-      '<div><span>Ritmo</span><b>'+(v.pace?mmss(v.pace)+' <small>/km</small>':'–')+'</b></div><div><span>Tempo</span><b>'+(t?fmtDur(t):'–')+'</b></div></div></article>'}).join("")
+  $("feed").innerHTML=L.length?L.map(e=>{const d=new Date(e.dia+"T12:00:00"),dt=DWL[d.getDay()]+", "+d.getDate()+" de "+MESES[d.getMonth()].toLowerCase(),t=e.t||(e.pace?e.km*e.pace:0);
+    return '<article class="fc"'+(e.cooper?'':' data-k="'+e.dia+'"')+'><div class="fc-m"><span class="av">'+ic("run")+'</span><div>'+(nome?'<b>'+nome+'</b><small>'+dt+'</small>':'<b>'+dt+'</b>')+'</div></div>'+
+      '<h3><span class="fc-t">'+escH(feedTitle(e))+'</span><button type="button" class="fc-ed" data-ren="'+e.key+'" aria-label="Mudar o nome da corrida">'+PEN+'</button></h3><div class="fc-s"><div><span>Distância</span><b>'+e.km.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+' <small>km</small></b></div>'+
+      '<div><span>Ritmo</span><b>'+(e.pace?mmss(e.pace)+' <small>/km</small>':'–')+'</b></div><div><span>Tempo</span><b>'+(t?fmtDur(t):'–')+'</b></div></div></article>'}).join("")
     :'<p class="note" style="padding:20px">Suas corridas aparecem aqui assim que você lançar a primeira.</p>'}
+$("feed").addEventListener("click",e=>{
+  if(e.target.closest(".fc-in")){e.stopPropagation();return}
+  const b=e.target.closest("[data-ren]");if(!b)return;e.preventDefault();e.stopPropagation();
+  const h=b.closest("h3"),key=b.dataset.ren,cur=h.querySelector(".fc-t").textContent;
+  h.innerHTML='<input class="fc-in" type="text" maxlength="40" value="'+escH(cur)+'" aria-label="Nome da corrida" enterkeyhint="done">';
+  const inp=h.querySelector("input");inp.focus();inp.select();let done=false;
+  const fin=async ok=>{if(done)return;done=true;const v=inp.value.trim(),old=NOMES[key];
+    if(!ok||v===cur){renderFeed();return}
+    if(v)NOMES[key]=v;else delete NOMES[key];renderFeed();if(!session)return;
+    const r=v?await sb.from("fitness_nomes").upsert({user_id:session.user.id,chave:key,nome:v,updated_at:new Date().toISOString()}):await sb.from("fitness_nomes").delete().eq("user_id",session.user.id).eq("chave",key);
+    if(r.error){if(old)NOMES[key]=old;else delete NOMES[key];renderFeed();toast("Não salvou. Verifique a internet.")}else toast(v?"Nome salvo":"Nome original de volta")};
+  inp.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();fin(true)}else if(ev.key==="Escape")fin(false)});
+  inp.addEventListener("blur",()=>fin(true))});
 
 /* ===== plano completo até 31/12 ===== */
-let checks=new Set(),ivVal={},ivAj={};
+let checks=new Set(),ivVal={},ivAj={},NOMES={};
 const COOPER_KM=1.76;          // Cooper de 19/10: 1.760 m em 12 min
 const COOPER_EST=2.2;
 // recalibração de 22/10: 3,51 km a 7:08 (19/10) e 3,67 km a 6:49 (22/10) equivalem a ~1,84 km no Cooper; vale a partir da semana 2
