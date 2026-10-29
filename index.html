@@ -263,6 +263,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .iv-d.on span::after{content:"";width:13px;height:7px;border:solid #fff;border-width:0 0 2.5px 2.5px;transform:rotate(-45deg) translate(1px,-2px)}
 .iv-d div{display:flex;gap:4px}.iv-d b{display:inline;font-weight:600}.iv-d.f b{color:var(--run)}
 .iv-note{font-size:12px;color:var(--muted);text-align:center}
+.iv-c{display:flex;flex-direction:column;align-items:center;gap:5px}
+.iv-in{width:64px;box-sizing:border-box;text-align:center;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 4px;font:600 14px var(--font);font-variant-numeric:tabular-nums}
+.iv-in::placeholder{color:#C7C7C7;font-weight:400}
+.iv-c.f .iv-in:not(:placeholder-shown){color:var(--run)}
+.iv-in:focus{outline:none;border-color:var(--ink)}.iv-in.bad{border-color:var(--inf)}
+.iv-r{padding-block:7px}
+.iv-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:var(--soft);border-radius:14px;padding:14px 10px;text-align:center}
+.iv-sum b{display:block;font-size:22px;font-weight:600;letter-spacing:-.03em}
+.iv-sum span{font-size:11px;color:var(--muted)}
+.iv-sum p{grid-column:1/-1;margin:2px 0 0;font-size:11px;color:var(--muted)}
 .it[data-iv]{cursor:pointer}
 /* computador: barra lateral + plano em colunas */
 @media (min-width:1000px){
@@ -542,8 +552,8 @@ async function reload(){
   if(error){console.error(error);$("sync").textContent="Não foi possível carregar seus treinos. Verifique a internet.";if(!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seus treinos. Verifique a internet e abra o app de novo.</p>'}return}
   const m={};data.forEach(r=>{m[r.dia]={inf:r.inf,sup:r.sup,abd:r.abd,km:Number(r.km)||0,esc:Number(r.esc)||0,pace:r.pace||null,sens:r.sens||null,ext:r.ext||{}}});
   days=m;
-  const ck=await sb.from("fitness_checks").select("item");
-  if(!ck.error){checks=new Set(ck.data.map(r=>r.item))}
+  const ck=await sb.from("fitness_checks").select("item,valor");
+  if(!ck.error){checks=new Set(ck.data.map(r=>r.item));ivVal={};ck.data.forEach(r=>{if(r.valor)ivVal[r.item]=r.valor})}
   const aj=await sb.from("fitness_adjust").select("semana,dr,dl,de,msg,desfeito");
   if(!aj.error)adj=aj.data;
   const pf=await sb.from("fitness_perfil").select("*").maybeSingle();
@@ -634,7 +644,7 @@ function render(){
 
 
 /* ===== plano completo até 31/12 ===== */
-let checks=new Set();
+let checks=new Set(),ivVal={};
 const COOPER_KM=1.76;          // Cooper de 19/10: 1.760 m em 12 min
 const COOPER_EST=2.2;
 // recalibração de 22/10: 3,51 km a 7:08 (19/10) e 3,67 km a 6:49 (22/10) equivalem a ~1,84 km no Cooper; vale a partir da semana 2
@@ -878,6 +888,15 @@ function ivSteps(d){
   let n=0;G.forEach(g=>g.s.forEach(x=>{x.n=n++;x.f=!x.lv&&(!base||sec(x.pc)<base-5)}));return G}
 const ivCount=G=>G.reduce((a,g)=>a+g.s.length,0);
 const ivDone=(id,G)=>{let c=0;G.forEach(g=>g.s.forEach(x=>{if(checks.has(id+"#"+x.n))c++}));return c};
+const ivSec=p=>{const m=String(p||"").match(/(\d+):(\d\d)/);return m?+m[1]*60+ +m[2]:0};
+function ivSum(id,G){let km=0,t=0,n=0,real=0;G.forEach(g=>g.s.forEach(x=>{const k=id+"#"+x.n;if(!checks.has(k))return;
+  const p=ivVal[k]||ivSec(x.pc);if(!p)return;const m=x.lb.match(/^(\d+(?:[.,]\d+)?)\s*(min|km|m|s)$/);if(!m)return;const v=parseFloat(m[1].replace(",","."));
+  if(m[2]==="min"){t+=v*60;km+=v*60/p}else if(m[2]==="s"){t+=v;km+=v/p}else{const d=m[2]==="km"?v:v/1000;km+=d;t+=d*p}n++;if(ivVal[k])real++}));
+  return {km,t,n,real}}
+async function ivFinish(id){const it=PITEMS[id];if(!it||!session)return;const S=ivSum(id,it.iv);if(!(S.km>0))return;const k=it.day,cur=days[k]||{};
+  const d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:Math.round(S.km*100)/100,esc:+cur.esc||0,pace:Math.round(S.t/S.km),ext:{...(cur.ext||{})}};
+  if(!checks.has(id)){checks.add(id);await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id})}
+  try{await saveDay(k,d)}catch(e){toast("Não atualizou o dia. Verifique a internet.")}}
 let ivOpen=null;
 function openIv(id){ivOpen=id;renderIv();try{history.pushState({iv:1},"")}catch(_){}}
 function closeIv(){ivOpen=null;const el=$("iv");if(el)el.remove();document.body.style.overflow=""}
@@ -892,17 +911,35 @@ function renderIv(){const it=PITEMS[ivOpen];if(!it||!it.iv){closeIv();return}
     '<div><h2>'+escH(it.t.replace("Corrida · ",""))+'</h2><div class="ivs">'+DW[dt.getDay()]+', '+dt.getDate()+' '+dt.toLocaleDateString("pt-BR",{month:"short"}).replace(".","")+' · '+(it.v||"")+(it.p?' · '+it.p:'')+'</div></div>'+
     '<div class="iv-prog"><i><b style="width:'+(dn/tot*100)+'%"></b></i>'+dn+' de '+tot+'</div>'+
     '<div class="iv-l">'+G.map((g,gi)=>'<div class="iv-r'+(gi===nx?' nx':'')+'"><div class="lb">'+g.t+'</div><div class="iv-ds">'+g.s.map(x=>{const on=checks.has(ivOpen+"#"+x.n);
-      return '<button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b>'+(x.pc?' · '+x.pc:'')+'</div></button>'}).join('')+'</div></div>').join('')+'</div>'+
-    '<div class="iv-note">'+(dn===tot?'Treino completo!':'Toque em cada bolinha ao terminar o trecho. Ao marcar a última, a corrida fica feita no plano.')+'</div>'}
+      const rv=ivVal[ivOpen+"#"+x.n];
+      return '<div class="iv-c'+(x.f?' f':'')+'"><button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b>'+(x.pc?' · '+x.pc:'')+'</div></button>'+
+        '<input class="iv-in" data-ivp="'+x.n+'" type="text" inputmode="numeric" autocomplete="off" placeholder="real" value="'+(rv?mmss(rv):'')+'" aria-label="Pace real de '+g.t+', '+x.lb+'"></div>'}).join('')+'</div></div>').join('')+'</div>'+
+    '<div class="iv-sum" id="iv-sum"></div>'+
+    '<div class="iv-note">'+(dn===tot?'Treino completo!':'Toque na bolinha ao terminar o trecho e, se quiser, coloque o pace real embaixo. Ao marcar a última, a corrida entra no dia com os km e o pace somados.')+'</div>';
+  el.querySelectorAll(".iv-in").forEach(i=>maskTime(i,4));ivSumRender()}
+function ivSumRender(){const box=$("iv-sum"),it=PITEMS[ivOpen];if(!box||!it)return;const S=ivSum(ivOpen,it.iv);
+  if(!S.n){box.innerHTML='';box.hidden=true;return}box.hidden=false;
+  box.innerHTML='<div><b>'+nf(Math.round(S.km*100)/100)+'</b><span>km</span></div><div><b>'+fmtTime(S.t)+'</b><span>tempo</span></div><div><b>'+mmss(S.t/S.km)+'</b><span>pace médio</span></div>'+
+    '<p>'+S.n+' trecho'+(S.n===1?'':'s')+' feito'+(S.n===1?'':'s')+(S.n>S.real?' · '+(S.n-S.real===S.n?'usando o pace previsto':(S.n-S.real)+' com o pace previsto'):'')+'</p>'}
+document.addEventListener("change",async e=>{const inp=e.target.closest&&e.target.closest(".iv-in");if(!inp||!ivOpen||!session)return;
+  const id=ivOpen,k=id+"#"+inp.dataset.ivp,v=inp.value.trim(),p=v?parsePace(v):null;
+  if(v&&(!p||Number.isNaN(p))){inp.classList.add("bad");toast("Pace inválido. Ex.: 615 vira 6:15.");return}inp.classList.remove("bad");
+  const old=ivVal[k],wasOn=checks.has(k);if(p)ivVal[k]=p;else delete ivVal[k];if(p)checks.add(k);
+  const btn=$("iv").querySelector('[data-ivd="'+inp.dataset.ivp+'"]');if(btn&&checks.has(k)){btn.classList.add("on");btn.setAttribute("aria-pressed","true")}ivSumRender();
+  const r=await sb.from("fitness_checks").upsert({user_id:session.user.id,item:k,valor:p||null});
+  if(r.error){if(old)ivVal[k]=old;else delete ivVal[k];if(!wasOn)checks.delete(k);toast("Não salvou. Verifique a internet.");renderIv();return}
+  const it=PITEMS[id];if(it&&ivDone(id,it.iv)===ivCount(it.iv))await ivFinish(id);
+  if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#iv")))renderIv();else{const nx=$("iv").querySelector(".iv-prog");if(nx){const tot=ivCount(it.iv),dn=ivDone(id,it.iv);nx.innerHTML='<i><b style="width:'+(dn/tot*100)+'%"></b></i>'+dn+' de '+tot}}renderPlanKeep()});
 async function ivClick(e){
   if(e.target.closest("[data-ivx]")){if(history.state&&history.state.iv)history.back();else closeIv();return}
+  if(e.target.closest(".iv-in"))return;
   const b=e.target.closest("[data-ivd]");if(!b||!session||!ivOpen)return;
   const id=ivOpen,key_=id+"#"+b.dataset.ivd,on=checks.has(key_),it=PITEMS[id];
   on?checks.delete(key_):checks.add(key_);renderIv();renderPlanKeep();
   const r=on?await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",key_)
             :await sb.from("fitness_checks").upsert({user_id:session.user.id,item:key_});
   if(r.error){on?checks.add(key_):checks.delete(key_);renderIv();renderPlanKeep();toast("Não salvou. Verifique a internet.");return}
-  if(!on&&it&&ivDone(id,it.iv)===ivCount(it.iv)&&!(checks.has(id)||logged(it.day,it))){await toggleCheck(id);toast("Corrida marcada como feita");if(ivOpen)renderIv()}}
+  if(!on&&it&&ivDone(id,it.iv)===ivCount(it.iv)){await ivFinish(id);toast("Corrida lançada no dia");if(ivOpen)renderIv()}}
 function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;if(EXT[it.k])return +((v.ext||{})[it.k])||0;return v[it.k]?1:0}
 function renderPlan(){
   renderAdj();renderGoal();
@@ -932,7 +969,7 @@ function renderPlan(){
         :'<div class="it rest">Descanso</div>';
       return '<div class="pd'+(k===tk?' today':'')+'" data-day="'+k+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
     return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(past?'<b class="wkm ok">'+realS+' km</b>':wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
-  if(ivOpen&&$("iv"))renderIv();
+  if(ivOpen&&$("iv")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#iv .iv-in")))renderIv();
   if($("pl-sem"))$("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+W.length:(t<W[0].mon?"começa seg, 19 out":"");
 }
 $("pl-weeks").addEventListener("click",async e=>{
