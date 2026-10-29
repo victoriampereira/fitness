@@ -241,6 +241,26 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .ck[aria-pressed="true"]::after{border-color:#fff}
 .it.big .ck{border-color:rgba(255,255,255,.4)}
 .top h1{font-family:"Raleway",var(--font);font-style:normal;font-weight:200;font-size:27px;letter-spacing:.45em;margin-left:.45em;text-transform:lowercase}
+/* menu embaixo, estilo Strava */
+#app>.tabs{position:fixed;left:0;right:0;bottom:0;z-index:29;width:auto;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;background:var(--bg);border-top:1px solid var(--line);border-radius:0;padding:6px 4px calc(8px + env(safe-area-inset-bottom,0px))}
+#app>.tabs .tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px 0;font-size:10.5px;font-weight:600;color:var(--muted);background:none;box-shadow:none;border-radius:0}
+#app>.tabs .tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#app>.tabs .tab[aria-selected="true"]{color:var(--run);background:none;box-shadow:none}
+#app{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+.fd-h{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px}
+.fd-h span{font-size:12px;color:var(--muted)}
+.feed{display:flex;flex-direction:column;margin:0 -20px}
+.fc{padding:16px 20px 18px;border-top:8px solid var(--soft);cursor:pointer}
+.fc-m{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fc-m .av{width:34px;height:34px;border-radius:50%;background:var(--run);display:grid;place-items:center}
+.fc-m .av .ic{width:34px;height:34px}.fc-m .av .ic svg{width:20px;height:20px}
+.fc-m b{display:block;font-size:13px;font-weight:600}.fc-m small{font-size:11.5px;color:var(--muted)}
+.fc h3{font-size:21px;font-weight:700;letter-spacing:-.02em;margin:0 0 12px}
+.fc-s{display:flex;gap:28px}
+.fc-s span{display:block;font-size:12px;color:var(--muted);margin-bottom:2px}
+.fc-s b{font-size:19px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.fc-s b small{font-size:13px;font-weight:600}
 /* tela de trechos (fartlek, tiros) */
 .iv{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;padding:max(16px,env(safe-area-inset-top)) 20px max(28px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
 .iv>*{width:100%;max-width:520px;margin-inline:auto}
@@ -285,8 +305,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 #app{max-width:1440px;display:grid;grid-template-columns:210px minmax(0,1fr);column-gap:48px;align-items:start;min-height:auto;justify-content:stretch;padding-block:48px}
 #app>.top{grid-column:1;grid-row:1;align-items:flex-start;text-align:left}
 #app>.top h1{margin-left:0}
-#app>.tabs{grid-column:1;grid-row:2;display:flex;flex-direction:column;align-items:stretch;width:auto;margin:0;background:none;padding:0;gap:4px;position:sticky;top:24px}
-#app>.tabs .tab{text-align:left;padding:10px 14px;font-size:14px;border-radius:10px}
+#app>.tabs{grid-column:1;grid-row:2;display:flex;flex-direction:column;align-items:stretch;width:auto;margin:0;background:none;padding:0;gap:4px;position:sticky;top:24px;left:auto;right:auto;bottom:auto;border-top:none;z-index:auto}
+#app{padding-bottom:48px}.toast{bottom:calc(22px + env(safe-area-inset-bottom,0px))}
+#app>.tabs .tab{flex-direction:row;gap:10px;font-weight:500;color:var(--muted)}#app>.tabs .tab svg{width:20px;height:20px}#app>.tabs .tab[aria-selected="true"]{color:var(--ink)}
+#pg-ativ{max-width:760px}.feed{margin:0}.fc{border-top-width:1px;border-top-color:var(--line);padding-inline:0}
+#app>.tabs .tab{text-align:left;padding:10px 14px;font-size:14px;border-radius:10px;align-items:center}
 #app>.tabs .tab[aria-selected="true"]{background:var(--soft);box-shadow:none}
 #app>section{grid-column:2;grid-row:1 / span 30}
 #app>#sync{grid-column:1;grid-row:3;text-align:left}
@@ -413,12 +436,13 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <div><div class="lbl" id="hoje" hidden></div><h1>Fitness</h1></div>
   </header>
 
-  <div class="tabs" role="tablist" aria-label="Visão">
-    <button class="tab" role="tab" id="tab-sem" aria-selected="true" aria-controls="pg-sem">Semana</button>
-    <button class="tab" role="tab" id="tab-mes" aria-selected="false" aria-controls="pg-mes">Mês</button>
-    <button class="tab" role="tab" id="tab-plano" aria-selected="false" aria-controls="pg-plano">Plano</button>
-    <button class="tab" role="tab" id="tab-conv" aria-selected="false" aria-controls="pg-conv">Conversor</button>
-  </div>
+  <nav class="tabs" role="tablist" aria-label="Visão">
+    <button class="tab" role="tab" id="tab-sem" aria-selected="true" aria-controls="pg-sem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4z"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>Semana</button>
+    <button class="tab" role="tab" id="tab-mes" aria-selected="false" aria-controls="pg-mes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9.3h16M4 14.6h16M9.3 4v16M14.6 4v16"/></svg>Mês</button>
+    <button class="tab" role="tab" id="tab-plano" aria-selected="false" aria-controls="pg-plano"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.8h6V4M8.5 15v2.5M12 12v5.5M15.5 13.5v4"/></svg>Plano</button>
+    <button class="tab" role="tab" id="tab-ativ" aria-selected="false" aria-controls="pg-ativ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8c2 0 2-3 4.5-3S10 11 12.5 11 15 5 17.5 5 20 8 21 8M3 17c2 0 2-3 4.5-3s2.5 6 5 6 2.5-6 5-6 2.5 3 3.5 3"/></svg>Atividades</button>
+    <button class="tab" role="tab" id="tab-conv" aria-selected="false" aria-controls="pg-conv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16M7 4L4 7M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg>Conversor</button>
+  </nav>
 
   <section id="pg-sem" role="tabpanel" aria-labelledby="tab-sem" style="display:flex;flex-direction:column;gap:14px">
     <div class="ph"><h2 id="sem-t">Esta semana</h2>
@@ -456,6 +480,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
     <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia, inclusive de outra semana. Para abrir uma semana fechada, pare em cima do título dela por um instante. Toque no × para excluir um treino. Restaurar original desfaz trocas e exclusões.</span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
+  </section>
+
+  <section id="pg-ativ" role="tabpanel" aria-labelledby="tab-ativ" hidden style="flex-direction:column;gap:0">
+    <div class="ph fd-h"><h2>Atividades</h2><span id="fd-tot"></span></div>
+    <div class="feed" id="feed"></div>
   </section>
 
   <section id="pg-conv" role="tabpanel" aria-labelledby="tab-conv" hidden style="flex-direction:column;gap:18px">
@@ -550,7 +579,7 @@ const SUPABASE_URL="https://ufbmhikchqhstcbhioib.supabase.co";
 const SUPABASE_KEY="sb_publishable_QGj4aoHhWZXbCUBep2tylA_a8NckDy7";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 let session=null,channel=null;
-try{const p=localStorage.getItem("fitness-pagina");if(p==="mes"||p==="plano"||p==="conv")page=p}catch(e){}
+try{const p=localStorage.getItem("fitness-pagina");if(p==="mes"||p==="plano"||p==="conv"||p==="ativ")page=p}catch(e){}
 
 async function reload(){
   if(!session)return;
@@ -604,8 +633,7 @@ function actsHTML(v){
 function render(){
   const t=today0(),tk=key(t);
   $("hoje").textContent=t.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  $("tab-sem").setAttribute("aria-selected",String(page==="sem"));$("tab-mes").setAttribute("aria-selected",String(page==="mes"));$("tab-plano").setAttribute("aria-selected",String(page==="plano"));
-  $("pg-sem").hidden=page!=="sem";$("pg-mes").hidden=page!=="mes";$("pg-mes").style.display=page==="mes"?"flex":"";$("pg-plano").hidden=page!=="plano";$("pg-plano").style.display=page==="plano"?"flex":"";$("tab-conv").setAttribute("aria-selected",String(page==="conv"));$("pg-conv").hidden=page!=="conv";$("pg-conv").style.display=page==="conv"?"flex":"";renderPlanKeep();
+  ["sem","mes","plano","ativ","conv"].forEach(p=>{$("tab-"+p).setAttribute("aria-selected",String(page===p));const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});renderPlanKeep();renderFeed();
 
   /* semana */
   const wk=[...Array(7)].map((_,i)=>addDays(wStart,i));
@@ -648,6 +676,20 @@ function render(){
     .map(([f,l])=>'<span>'+ic(f,"md")+l+'</span>').join("");
 }
 
+
+/* feed de corridas, estilo Strava */
+const DWL=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+function fmtDur(t){t=Math.round(t);const h=Math.floor(t/3600),m=Math.floor(t%3600/60),sec=t%60;return h?h+'<small>h</small> '+pad(m)+'<small>min</small>':m+'<small>min</small> '+sec+'<small>s</small>'}
+function renderFeed(){if(page!=="ativ")return;
+  const ks=Object.keys(days).filter(k=>+days[k].km>0).sort().reverse(),tot=ks.reduce((a,k)=>a+(+days[k].km),0);
+  $("fd-tot").textContent=ks.length?ks.length+(ks.length===1?" corrida · ":" corridas · ")+nf(Math.round(tot*10)/10)+" km":"";
+  const nome=PROFILE&&PROFILE.nome?escH(PROFILE.nome):"";
+  const tit=k=>{const it=Object.values(PITEMS).find(x=>x.day===k&&x.k==="run");return it?it.t.replace("Corrida · ",""):"Corrida"};
+  $("feed").innerHTML=ks.length?ks.map(k=>{const v=days[k],d=new Date(k+"T12:00:00"),dt=DWL[d.getDay()]+", "+d.getDate()+" de "+MESES[d.getMonth()].toLowerCase(),t=v.pace?v.km*v.pace:0;
+    return '<article class="fc" data-k="'+k+'"><div class="fc-m"><span class="av">'+ic("run")+'</span><div>'+(nome?'<b>'+nome+'</b><small>'+dt+'</small>':'<b>'+dt+'</b>')+'</div></div>'+
+      '<h3>'+escH(tit(k))+'</h3><div class="fc-s"><div><span>Distância</span><b>'+(+v.km).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+' <small>km</small></b></div>'+
+      '<div><span>Ritmo</span><b>'+(v.pace?mmss(v.pace)+' <small>/km</small>':'–')+'</b></div><div><span>Tempo</span><b>'+(t?fmtDur(t):'–')+'</b></div></div></article>'}).join("")
+    :'<p class="note" style="padding:20px">Suas corridas aparecem aqui assim que você lançar a primeira.</p>'}
 
 /* ===== plano completo até 31/12 ===== */
 let checks=new Set(),ivVal={},ivAj={};
@@ -1162,7 +1204,7 @@ function renderPlanKeep(){const sig=isLegacy()?"L":[PROFILE.inicio,PROFILE.seman
 
 /* abas e navegação */
 function setPage(p){page=p;try{localStorage.setItem("fitness-pagina",p)}catch(e){}render()}
-$("tab-sem").onclick=()=>setPage("sem");$("tab-mes").onclick=()=>setPage("mes");$("tab-plano").onclick=()=>setPage("plano");$("tab-conv").onclick=()=>setPage("conv");
+$("tab-sem").onclick=()=>setPage("sem");$("tab-mes").onclick=()=>setPage("mes");$("tab-plano").onclick=()=>setPage("plano");$("tab-conv").onclick=()=>setPage("conv");$("tab-ativ").onclick=()=>setPage("ativ");
 $("w-prev").onclick=()=>{wStart=addDays(wStart,-7);render()};
 $("w-next").onclick=()=>{wStart=addDays(wStart,7);render()};
 $("m-prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
