@@ -264,13 +264,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .iv-d div{display:flex;gap:4px}.iv-d b{display:inline;font-weight:600}.iv-d.f b{color:var(--run)}
 .iv-note{font-size:12px;color:var(--muted);text-align:center}
 .iv-c{display:flex;flex-direction:column;align-items:center;gap:5px}
-.iv-in{width:64px;box-sizing:border-box;text-align:center;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 4px;font:600 14px var(--font);font-variant-numeric:tabular-nums}
+.iv-v{display:flex;align-items:baseline;gap:3px}.iv-v small{font-size:10px;color:var(--muted)}
+.iv-in{width:52px;box-sizing:border-box;text-align:center;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 4px;font:600 14px var(--font);font-variant-numeric:tabular-nums}
 .iv-in::placeholder{color:#C7C7C7;font-weight:400}
 .iv-c.f .iv-in:not(:placeholder-shown){color:var(--run)}
 .iv-in:focus{outline:none;border-color:var(--ink)}.iv-in.bad{border-color:var(--inf)}
 .iv-r{padding-block:7px}
 .iv-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:var(--soft);border-radius:14px;padding:14px 10px;text-align:center}
 .iv-sum b{display:block;font-size:22px;font-weight:600;letter-spacing:-.03em}
+.iv-sum label{display:flex;flex-direction:column;align-items:center}
+.iv-sum input{width:100%;max-width:96px;box-sizing:border-box;text-align:center;border:none;border-bottom:1.5px dashed #CFCFCF;background:none;color:var(--ink);font:600 22px var(--font);letter-spacing:-.03em;padding:0 0 2px;font-variant-numeric:tabular-nums}
+.iv-sum input:focus{outline:none;border-bottom-color:var(--run)}.iv-sum input.bad{border-bottom-color:var(--inf)}
+.iv-sum.aj input{color:var(--run)}
+.iv-sum p button{border:none;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;cursor:pointer}
 .iv-sum span{font-size:11px;color:var(--muted)}
 .iv-sum p{grid-column:1/-1;margin:2px 0 0;font-size:11px;color:var(--muted)}
 .it[data-iv]{cursor:pointer}
@@ -552,8 +558,8 @@ async function reload(){
   if(error){console.error(error);$("sync").textContent="Não foi possível carregar seus treinos. Verifique a internet.";if(!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seus treinos. Verifique a internet e abra o app de novo.</p>'}return}
   const m={};data.forEach(r=>{m[r.dia]={inf:r.inf,sup:r.sup,abd:r.abd,km:Number(r.km)||0,esc:Number(r.esc)||0,pace:r.pace||null,sens:r.sens||null,ext:r.ext||{}}});
   days=m;
-  const ck=await sb.from("fitness_checks").select("item,valor");
-  if(!ck.error){checks=new Set(ck.data.map(r=>r.item));ivVal={};ck.data.forEach(r=>{if(r.valor)ivVal[r.item]=r.valor})}
+  const ck=await sb.from("fitness_checks").select("item,valor,vel");
+  if(!ck.error){checks=new Set(ck.data.map(r=>r.item));ivVal={};ivAj={};ck.data.forEach(r=>{if(/#aj$/.test(r.item)){if(+r.vel>0&&r.valor>0)ivAj[r.item.slice(0,-3)]={km:+r.vel,t:r.valor}}else if(+r.vel>0)ivVal[r.item]=+r.vel;else if(r.valor)ivVal[r.item]=Math.round(36000/r.valor)/10})}
   const aj=await sb.from("fitness_adjust").select("semana,dr,dl,de,msg,desfeito");
   if(!aj.error)adj=aj.data;
   const pf=await sb.from("fitness_perfil").select("*").maybeSingle();
@@ -644,7 +650,7 @@ function render(){
 
 
 /* ===== plano completo até 31/12 ===== */
-let checks=new Set(),ivVal={};
+let checks=new Set(),ivVal={},ivAj={};
 const COOPER_KM=1.76;          // Cooper de 19/10: 1.760 m em 12 min
 const COOPER_EST=2.2;
 // recalibração de 22/10: 3,51 km a 7:08 (19/10) e 3,67 km a 6:49 (22/10) equivalem a ~1,84 km no Cooper; vale a partir da semana 2
@@ -890,10 +896,10 @@ const ivCount=G=>G.reduce((a,g)=>a+g.s.length,0);
 const ivDone=(id,G)=>{let c=0;G.forEach(g=>g.s.forEach(x=>{if(checks.has(id+"#"+x.n))c++}));return c};
 const ivSec=p=>{const m=String(p||"").match(/(\d+):(\d\d)/);return m?+m[1]*60+ +m[2]:0};
 function ivSum(id,G){let km=0,t=0,n=0,real=0;G.forEach(g=>g.s.forEach(x=>{const k=id+"#"+x.n;if(!checks.has(k))return;
-  const p=ivVal[k]||ivSec(x.pc);if(!p)return;const m=x.lb.match(/^(\d+(?:[.,]\d+)?)\s*(min|km|m|s)$/);if(!m)return;const v=parseFloat(m[1].replace(",","."));
+  const p=ivVal[k]?3600/ivVal[k]:ivSec(x.pc);if(!p)return;const m=x.lb.match(/^(\d+(?:[.,]\d+)?)\s*(min|km|m|s)$/);if(!m)return;const v=parseFloat(m[1].replace(",","."));
   if(m[2]==="min"){t+=v*60;km+=v*60/p}else if(m[2]==="s"){t+=v;km+=v/p}else{const d=m[2]==="km"?v:v/1000;km+=d;t+=d*p}n++;if(ivVal[k])real++}));
   return {km,t,n,real}}
-async function ivFinish(id){const it=PITEMS[id];if(!it||!session)return;const S=ivSum(id,it.iv);if(!(S.km>0))return;const k=it.day,cur=days[k]||{};
+async function ivFinish(id){const it=PITEMS[id];if(!it||!session)return;const S0=ivSum(id,it.iv),S=ivAj[id]||S0;if(!(S.km>0))return;const k=it.day,cur=days[k]||{};
   const d={inf:!!cur.inf,sup:!!cur.sup,abd:!!cur.abd,km:Math.round(S.km*100)/100,esc:+cur.esc||0,pace:Math.round(S.t/S.km),ext:{...(cur.ext||{})}};
   if(!checks.has(id)){checks.add(id);await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id})}
   try{await saveDay(k,d)}catch(e){toast("Não atualizou o dia. Verifique a internet.")}}
@@ -911,28 +917,44 @@ function renderIv(){const it=PITEMS[ivOpen];if(!it||!it.iv){closeIv();return}
     '<div><h2>'+escH(it.t.replace("Corrida · ",""))+'</h2><div class="ivs">'+DW[dt.getDay()]+', '+dt.getDate()+' '+dt.toLocaleDateString("pt-BR",{month:"short"}).replace(".","")+' · '+(it.v||"")+(it.p?' · '+it.p:'')+'</div></div>'+
     '<div class="iv-prog"><i><b style="width:'+(dn/tot*100)+'%"></b></i>'+dn+' de '+tot+'</div>'+
     '<div class="iv-l">'+G.map((g,gi)=>'<div class="iv-r'+(gi===nx?' nx':'')+'"><div class="lb">'+g.t+'</div><div class="iv-ds">'+g.s.map(x=>{const on=checks.has(ivOpen+"#"+x.n);
-      const rv=ivVal[ivOpen+"#"+x.n];
+      const rv=ivVal[ivOpen+"#"+x.n],pv=ivSec(x.pc)?(Math.round(36000/ivSec(x.pc))/10).toLocaleString("pt-BR"):"km/h";
       return '<div class="iv-c'+(x.f?' f':'')+'"><button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b>'+(x.pc?' · '+x.pc:'')+'</div></button>'+
-        '<input class="iv-in" data-ivp="'+x.n+'" type="text" inputmode="numeric" autocomplete="off" placeholder="real" value="'+(rv?mmss(rv):'')+'" aria-label="Pace real de '+g.t+', '+x.lb+'"></div>'}).join('')+'</div></div>').join('')+'</div>'+
+        '<label class="iv-v"><input class="iv-in" data-ivp="'+x.n+'" type="text" inputmode="decimal" autocomplete="off" placeholder="'+pv+'" value="'+(rv?nf(rv):'')+'" aria-label="Velocidade real em km/h de '+g.t+', '+x.lb+'"><small>km/h</small></label></div>'}).join('')+'</div></div>').join('')+'</div>'+
     '<div class="iv-sum" id="iv-sum"></div>'+
-    '<div class="iv-note">'+(dn===tot?'Treino completo!':'Toque na bolinha ao terminar o trecho e, se quiser, coloque o pace real embaixo. Ao marcar a última, a corrida entra no dia com os km e o pace somados.')+'</div>';
-  el.querySelectorAll(".iv-in").forEach(i=>maskTime(i,4));ivSumRender()}
-function ivSumRender(){const box=$("iv-sum"),it=PITEMS[ivOpen];if(!box||!it)return;const S=ivSum(ivOpen,it.iv);
-  if(!S.n){box.innerHTML='';box.hidden=true;return}box.hidden=false;
-  box.innerHTML='<div><b>'+nf(Math.round(S.km*100)/100)+'</b><span>km</span></div><div><b>'+fmtTime(S.t)+'</b><span>tempo</span></div><div><b>'+mmss(S.t/S.km)+'</b><span>pace médio</span></div>'+
-    '<p>'+S.n+' trecho'+(S.n===1?'':'s')+' feito'+(S.n===1?'':'s')+(S.n>S.real?' · '+(S.n-S.real===S.n?'usando o pace previsto':(S.n-S.real)+' com o pace previsto'):'')+'</p>'}
-document.addEventListener("change",async e=>{const inp=e.target.closest&&e.target.closest(".iv-in");if(!inp||!ivOpen||!session)return;
-  const id=ivOpen,k=id+"#"+inp.dataset.ivp,v=inp.value.trim(),p=v?parsePace(v):null;
-  if(v&&(!p||Number.isNaN(p))){inp.classList.add("bad");toast("Pace inválido. Ex.: 615 vira 6:15.");return}inp.classList.remove("bad");
-  const old=ivVal[k],wasOn=checks.has(k);if(p)ivVal[k]=p;else delete ivVal[k];if(p)checks.add(k);
+    '<div class="iv-note">'+(dn===tot?'Treino completo!':'Toque na bolinha ao terminar o trecho e coloque a velocidade da esteira embaixo (em cinza está a prevista). No fim, a soma vai para o dia e dá para ajustar com o que a esteira mostrou.')+'</div>';
+  ivSumRender()}
+function ivSumRender(){const box=$("iv-sum"),it=PITEMS[ivOpen];if(!box||!it)return;if(box.contains(document.activeElement))return;const S=ivSum(ivOpen,it.iv),A=ivAj[ivOpen];
+  if(!S.n&&!A){box.innerHTML='';box.hidden=true;return}box.hidden=false;const U=A||S;
+  box.innerHTML='<label><input id="iv-akm" type="text" inputmode="decimal" autocomplete="off" value="'+nf(Math.round(U.km*100)/100)+'" aria-label="Distância total em km"><span>km</span></label>'+
+    '<label><input id="iv-at" type="text" inputmode="numeric" autocomplete="off" value="'+fmtTime(U.t)+'" aria-label="Tempo total"><span>tempo</span></label>'+
+    '<div><b>'+mmss(U.t/U.km)+'</b><span>pace médio</span></div>'+
+    '<p>'+(A?'Ajustado por você · soma dos trechos: '+nf(Math.round(S.km*100)/100)+' km em '+fmtTime(S.t)+' · <button type="button" data-ivreset>usar a soma</button>':
+      S.n+' trecho'+(S.n===1?'':'s')+' somado'+(S.n===1?'':'s')+(S.n>S.real?' · '+(S.n-S.real===S.n?'com a velocidade prevista':(S.n-S.real)+' com a velocidade prevista'):'')+'. Toque nos km ou no tempo para ajustar.')+'</p>';
+  box.classList.toggle("aj",!!A);maskTime($("iv-at"),6)}
+async function ivSaveAj(id,A){const it=PITEMS[id];if(!session)return;const old=ivAj[id];if(A)ivAj[id]=A;else delete ivAj[id];ivSumRender();
+  const r=A?await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id+"#aj",vel:Math.round(A.km*100)/100,valor:Math.round(A.t)}):await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",id+"#aj");
+  if(r.error){if(old)ivAj[id]=old;else delete ivAj[id];ivSumRender();toast("Não salvou. Verifique a internet.");return}
+  if(it&&ivDone(id,it.iv)===ivCount(it.iv)){await ivFinish(id);toast("Dia atualizado")}}
+document.addEventListener("change",async e=>{if(!ivOpen||!session||!e.target.closest)return;const id=ivOpen,it=PITEMS[id];
+  if(e.target.id==="iv-akm"||e.target.id==="iv-at"){const S=ivSum(id,it.iv),U=ivAj[id]||S;
+    const km=parseFloat($("iv-akm").value.replace(",",".")),t=parseTime($("iv-at").value);
+    if(!(km>0&&km<=60)){e.target.classList.add("bad");toast("Coloque a distância em km, ex.: 4,5.");return}
+    if(!t||Number.isNaN(t)){e.target.classList.add("bad");toast("Tempo inválido. Ex.: 3345 vira 33:45.");return}
+    e.target.classList.remove("bad");document.activeElement&&document.activeElement.blur&&document.activeElement.blur();await ivSaveAj(id,{km,t});return}
+  const inp=e.target.closest(".iv-in");if(!inp)return;
+  const k=id+"#"+inp.dataset.ivp,v=inp.value.trim(),vel=v?parseFloat(v.replace(",",".")):null;
+  if(v&&!(vel>=3&&vel<=25)){inp.classList.add("bad");toast("Coloque a velocidade em km/h, ex.: 9,5.");return}inp.classList.remove("bad");
+  const old=ivVal[k],wasOn=checks.has(k);if(vel)ivVal[k]=Math.round(vel*10)/10;else delete ivVal[k];if(vel)checks.add(k);
+  if(vel)inp.value=nf(ivVal[k]);
   const btn=$("iv").querySelector('[data-ivd="'+inp.dataset.ivp+'"]');if(btn&&checks.has(k)){btn.classList.add("on");btn.setAttribute("aria-pressed","true")}ivSumRender();
-  const r=await sb.from("fitness_checks").upsert({user_id:session.user.id,item:k,valor:p||null});
+  const r=await sb.from("fitness_checks").upsert({user_id:session.user.id,item:k,vel:vel?ivVal[k]:null,valor:null});
   if(r.error){if(old)ivVal[k]=old;else delete ivVal[k];if(!wasOn)checks.delete(k);toast("Não salvou. Verifique a internet.");renderIv();return}
-  const it=PITEMS[id];if(it&&ivDone(id,it.iv)===ivCount(it.iv))await ivFinish(id);
+  if(it&&ivDone(id,it.iv)===ivCount(it.iv))await ivFinish(id);
   if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#iv")))renderIv();else{const nx=$("iv").querySelector(".iv-prog");if(nx){const tot=ivCount(it.iv),dn=ivDone(id,it.iv);nx.innerHTML='<i><b style="width:'+(dn/tot*100)+'%"></b></i>'+dn+' de '+tot}}renderPlanKeep()});
 async function ivClick(e){
   if(e.target.closest("[data-ivx]")){if(history.state&&history.state.iv)history.back();else closeIv();return}
-  if(e.target.closest(".iv-in"))return;
+  if(e.target.closest("[data-ivreset]")){ivSaveAj(ivOpen,null);return}
+  if(e.target.closest(".iv-in,.iv-sum input"))return;
   const b=e.target.closest("[data-ivd]");if(!b||!session||!ivOpen)return;
   const id=ivOpen,key_=id+"#"+b.dataset.ivd,on=checks.has(key_),it=PITEMS[id];
   on?checks.delete(key_):checks.add(key_);renderIv();renderPlanKeep();
