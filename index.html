@@ -739,7 +739,7 @@ const RUNS=[
  [["Leve","30 min contínuos, ritmo de conversa",[["m",30,"L"]]],
   ["Fartlek","10 min a {L} + 6 × (1 min a {T} / 2 min a {L}) + 5 min solto a {L}",[["m",10,"L"],["m",6,"T"],["m",12,"L"],["m",5,"L"]]],
   ["Longão","Tudo no mesmo ritmo",[["k",5,"L"]]]],
- [["Leve + acelerações","4 km a {L} e no fim 4 × 80 m acelerando",[["k",4,"L"],["k",.32,"T"]]],
+ [["Leve + acelerações","4 km a {L} + 4 × 100 m acelerando a {T}, com 1 min caminhando a {W} entre eles",[["k",4,"L"],["k",.4,"T"],["m",3,"W"]]],
   ["Tiros de 400 m","10 min a {L} + 6 × 400 m a {T}, com 2 min de trote a {L} entre eles + 5 min solto a {L}",[["m",10,"L"],["k",2.4,"T"],["m",10,"L"],["m",5,"L"]]],
   ["Longão","Tudo no mesmo ritmo",[["k",5.5,"L"]]]],
  [["Leve","Ritmo de conversa",[["k",4,"L"]]],
@@ -757,7 +757,7 @@ const RUNS=[
  [["Leve","Ritmo de conversa",[["k",5,"L"]]],
   ["1 km forte","10 min a {L} + 5 × 1 km a {F}, com 2 min de trote a {L} entre eles + 5 min solto a {L}",[["m",10,"L"],["k",5,"F"],["m",8,"L"],["m",5,"L"]]],
   ["Simulado","3 km a {L} + 3 km a {R}",[["k",3,"L"],["k",3,"R"]]]],
- [["Leve + acelerações","5 km a {L} e no fim 4 × 80 m acelerando",[["k",5,"L"],["k",.32,"T"]]],
+ [["Leve + acelerações","5 km a {L} + 4 × 100 m acelerando a {T}, com 1 min caminhando a {W} entre eles",[["k",5,"L"],["k",.4,"T"],["m",3,"W"]]],
   ["Ritmo de prova","10 min a {L} + 2 × 2,5 km a {R}, com 3 min de trote a {L} entre eles + 5 min solto a {L}",[["m",10,"L"],["k",5,"R"],["m",3,"L"],["m",5,"L"]]],
   ["Longão","O mais longo do plano",[["k",8.5,"L"]]]],
  [["Leve","Ritmo de conversa",[["k",5,"L"]]],
@@ -868,7 +868,7 @@ function genWeeks(P){
       const A=assignDays({run:P.corrida_x||3,inf:P.inf_x||0,sup:P.sup_x||0,esc:P.esc_x||0,abd:P.abd_x||0,x:(P.extras||[]).filter(e=>EXT[e.k]).map(e=>({k:e.k,x:Math.max(1,Math.min(5,+e.x||1))}))});
       days=A.map(list=>list.map(x=>{if(x.kind==="run"){const kd=kinds[x.slot];
         if(w===0&&!P.cooper_feito&&x.slot===0)return {k:"run",cooper:true,t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância. Atualize em Refazer plano",v:"12 min",p:"no máximo",big:true};
-        return kd==="long"?longRun():kd==="q"?(w===0?run("Leve + acelerações",nf(easyK)+" km a "+m(z.L)+" e no fim 4 × 80 m acelerando",[["k",easyK,z.L],["k",.32,z.T]]):qRun()):easyRun()}
+        return kd==="long"?longRun():kd==="q"?(w===0?run("Leve + acelerações",nf(easyK)+" km a "+m(z.L)+" + 4 × 100 m acelerando a "+m(z.T)+", com 1 min caminhando a "+m(z.W)+" entre eles",[["k",easyK,z.L],["k",.4,z.T],["m",3,z.W]]):qRun()):easyRun()}
         return S[x.kind]()}));
     }
     const t=w===0?"Começo":goal&&w===NW-1?"Semana da prova":goal&&w===NW-2?"Reduzindo":deload(w)?"Semana mais leve":"Construção";
@@ -954,7 +954,7 @@ function ivSteps(d){
     if((m=pt.match(/^(\d+)\s*×\s*\((.+)\)$/))){reps=true;const inner=m[2].split(/ \/ | \+ /).map(step);for(let i=0;i<+m[1];i++)G.push({t:"Bloco "+(++bn),s:inner.map(x=>({...x}))})}
     else if((m=pt.match(/^(\d+)\s*×\s*(.+?), com (.+?) entre eles$/))){reps=true;const A=step(m[2]),B=step(m[3]);B.lv=true;for(let i=0;i<+m[1];i++)G.push({t:"Bloco "+(++bn),s:i<+m[1]-1?[{...A},{...B}]:[{...A}]})}
     else if((m=pt.match(/^(\d+)\s*×\s*(.+)$/))){reps=true;const A=step(m[2]);for(let i=0;i<+m[1];i++)G.push({t:"Bloco "+(++bn),s:[{...A}]})}
-    else G.push({t:pi===0?"Aquecimento":"Final",s:[step(pt)]})});
+    else{const st=step(pt),big=/km$/.test(st.lb)&&parseFloat(st.lb.replace(",","."))>=2;G.push({t:pi===0?(big?"Leve":"Aquecimento"):"Final",s:[st]})}});
   if(!reps)return null;
   const sec=p=>{const m=String(p).match(/(\d+):(\d\d)/);return m?+m[1]*60+ +m[2]:0},base=sec((G[0].s[0]||{}).pc);
   let n=0;G.forEach(g=>g.s.forEach(x=>{x.n=n++;x.f=!x.lv&&(!base||sec(x.pc)<base-5)}));return G}
