@@ -604,7 +604,8 @@ async function reload(){
   const nm=await sb.from("fitness_nomes").select("chave,nome");
   if(!nm.error){NOMES={};nm.data.forEach(r=>{NOMES[r.chave]=r.nome})}
   const ck=await sb.from("fitness_checks").select("item,valor,vel,km,seg");
-  if(!ck.error){checks=new Set(ck.data.map(r=>r.item));ivVal={};ivAj={};ivKm={};ivSeg={};ck.data.forEach(r=>{if(+r.km>0)ivKm[r.item]=+r.km;if(r.seg>0)ivSeg[r.item]=r.seg;if(/#aj$/.test(r.item)){if(+r.vel>0&&r.valor>0)ivAj[r.item.slice(0,-3)]={km:+r.vel,t:r.valor}}else if(+r.vel>0)ivVal[r.item]=+r.vel;else if(r.valor)ivVal[r.item]=Math.round(36000/r.valor)/10})}
+  if(!ck.error){checks=new Set(ck.data.map(r=>r.item));const pend={...ivPend};ivVal={};ivAj={};ivKm={};ivSeg={};ck.data.forEach(r=>{if(+r.km>0)ivKm[r.item]=+r.km;if(r.seg>0)ivSeg[r.item]=r.seg;if(/#aj$/.test(r.item)){if(+r.vel>0&&r.valor>0)ivAj[r.item.slice(0,-3)]={km:+r.vel,t:r.valor}}else if(+r.vel>0)ivVal[r.item]=+r.vel;else if(r.valor)ivVal[r.item]=Math.round(36000/r.valor)/10});
+    Object.entries(pend).forEach(([k,p])=>{if(Date.now()-p.t>15000)return;if(p.km!=null)ivKm[k]=p.km;if(p.seg!=null)ivSeg[k]=p.seg;checks.add(k)})}
   const aj=await sb.from("fitness_adjust").select("semana,dr,dl,de,msg,desfeito");
   if(!aj.error)adj=aj.data;
   const pf=await sb.from("fitness_perfil").select("*").maybeSingle();
@@ -727,7 +728,7 @@ $("feed").addEventListener("click",e=>{
   inp.addEventListener("blur",()=>fin(true))});
 
 /* ===== plano completo até 31/12 ===== */
-let checks=new Set(),ivVal={},ivAj={},NOMES={},ivKm={},ivSeg={};
+let checks=new Set(),ivVal={},ivAj={},NOMES={},ivKm={},ivSeg={},ivJust=null,ivPend={};
 const COOPER_KM=1.76;          // Cooper de 19/10: 1.760 m em 12 min
 const COOPER_EST=2.2;
 // recalibração de 22/10: 3,51 km a 7:08 (19/10) e 3,67 km a 6:49 (22/10) equivalem a ~1,84 km no Cooper; vale a partir da semana 2
@@ -1059,10 +1060,11 @@ document.addEventListener("change",async e=>{if(!ivOpen||!session||!e.target.clo
     else{val=parseTime(v);if(!val||Number.isNaN(val)||val<5||val>7200){inp.classList.add("bad");toast("Tempo inválido. Ex.: 215 vira 2:15.");return}}}
   inp.classList.remove("bad");
   const old={km:ivKm[k],seg:ivSeg[k],vel:ivVal[k]},wasOn=checks.has(k);delete ivVal[k];
-  if(isKm){if(val)ivKm[k]=val;else delete ivKm[k]}else{if(val)ivSeg[k]=val;else delete ivSeg[k]}if(val)checks.add(k);
+  if(isKm){if(val)ivKm[k]=val;else delete ivKm[k]}else{if(val)ivSeg[k]=val;else delete ivSeg[k]}if(val){ivJust={k,t:Date.now()};checks.add(k)}
   if(val)inp.value=isKm?nf(val):mmss(val);
   const btn=$("iv").querySelector('[data-ivd="'+inp.dataset.ivp+'"]');if(btn&&checks.has(k)){btn.classList.add("on");btn.setAttribute("aria-pressed","true")}ivSumRender();
-  const r=await sb.from("fitness_checks").upsert({user_id:session.user.id,item:k,vel:null,valor:null,km:isKm?val:null,seg:isKm?null:val});
+  if(val)ivPend[k]={km:isKm?val:null,seg:isKm?null:val,t:Date.now()};
+  const r=await sb.from("fitness_checks").upsert({user_id:session.user.id,item:k,vel:null,valor:null,km:isKm?val:null,seg:isKm?null:val});delete ivPend[k];
   if(r.error){if(old.km!=null)ivKm[k]=old.km;else delete ivKm[k];if(old.seg!=null)ivSeg[k]=old.seg;else delete ivSeg[k];if(old.vel)ivVal[k]=old.vel;if(!wasOn)checks.delete(k);toast("Não salvou. Verifique a internet.");renderIv();return}
   if(it&&ivDone(id,it.iv)===ivCount(it.iv))await ivFinish(id);
   if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#iv")))renderIv();else{const nx=$("iv").querySelector(".iv-prog");if(nx){const tot=ivCount(it.iv),dn=ivDone(id,it.iv);nx.innerHTML='<i><b style="width:'+(dn/tot*100)+'%"></b></i>'+dn+' de '+tot}}renderPlanKeep()});
@@ -1074,9 +1076,11 @@ async function ivClick(e){
   if(e.target.closest(".iv-in,.iv-sum input"))return;
   const b=e.target.closest("[data-ivd]");if(!b||!session||!ivOpen)return;
   const id=ivOpen,key_=id+"#"+b.dataset.ivd,on=checks.has(key_),it=PITEMS[id];
+  // o toque na bolinha logo depois de digitar no campo não desmarca o que o campo acabou de marcar
+  if(ivJust&&ivJust.k===key_&&Date.now()-ivJust.t<1500){ivJust=null;return}
   on?checks.delete(key_):checks.add(key_);renderIv();renderPlanKeep();
   const r=on?await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",key_)
-            :await sb.from("fitness_checks").upsert({user_id:session.user.id,item:key_});
+            :await sb.from("fitness_checks").upsert({user_id:session.user.id,item:key_,km:ivKm[key_]!=null?ivKm[key_]:null,seg:ivSeg[key_]!=null?ivSeg[key_]:null,vel:ivVal[key_]||null});
   if(r.error){on?checks.add(key_):checks.delete(key_);renderIv();renderPlanKeep();toast("Não salvou. Verifique a internet.");return}
   if(!on&&it&&ivDone(id,it.iv)===ivCount(it.iv)){await ivFinish(id);toast("Corrida lançada no dia");if(ivOpen)renderIv()}}
 function logged(k,it){const v=days[k];if(!v)return 0;if(it.k==='run')return +v.km||0;if(it.k==='esc')return +v.esc||0;if(EXT[it.k])return +((v.ext||{})[it.k])||0;return v[it.k]?1:0}
