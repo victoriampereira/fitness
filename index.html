@@ -274,10 +274,10 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .iv-prog i{flex:1;height:5px;border-radius:9px;background:var(--soft);overflow:hidden;display:block}
 .iv-prog i b{display:block;height:100%;background:var(--run);border-radius:9px;transition:width .2s}
 .iv-l{display:flex;flex-direction:column}
-.iv-r{display:grid;grid-template-columns:104px 1fr;align-items:center;gap:12px;padding:8px 12px;border-radius:14px}
+.iv-r{display:grid;grid-template-columns:96px 1fr;align-items:center;gap:12px;padding:8px 12px;border-radius:14px}
 .iv-r.nx{background:var(--soft)}
 .iv-r .lb{font-size:14px;font-weight:600}
-.iv-ds{display:flex;gap:26px}
+.iv-ds{display:flex;gap:20px}
 .iv-d{all:unset;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);white-space:nowrap;cursor:pointer}
 .iv-d:focus-visible span{outline:2px solid var(--ink);outline-offset:2px}
 .iv-d span{width:40px;height:40px;border-radius:50%;border:2px solid #CFCFCF;display:grid;place-items:center;box-sizing:border-box}
@@ -298,7 +298,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .tbar button svg{width:14px;height:14px;fill:#fff}
 .tbar .tok{font-weight:700;color:var(--run)}
 .iv-c{display:flex;flex-direction:column;align-items:center;gap:5px}
-.iv-v{display:flex;align-items:baseline;gap:3px}.iv-v small{font-size:10px;color:var(--muted)}
+.iv-v{display:flex;align-items:baseline;gap:3px}.iv-pk{font-style:normal;font-size:10.5px;color:var(--muted);white-space:nowrap}.iv-d.f .iv-pk{color:var(--run);opacity:.8}.iv-v small{font-size:10px;color:var(--muted)}
 .iv-in{width:52px;box-sizing:border-box;text-align:center;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 4px;font:600 14px var(--font);font-variant-numeric:tabular-nums}
 .iv-in::placeholder{color:#C7C7C7;font-weight:400}
 .iv-c.f .iv-in:not(:placeholder-shown){color:var(--run)}
@@ -603,8 +603,8 @@ async function reload(){
   days=m;
   const nm=await sb.from("fitness_nomes").select("chave,nome");
   if(!nm.error){NOMES={};nm.data.forEach(r=>{NOMES[r.chave]=r.nome})}
-  const ck=await sb.from("fitness_checks").select("item,valor,vel");
-  if(!ck.error){checks=new Set(ck.data.map(r=>r.item));ivVal={};ivAj={};ck.data.forEach(r=>{if(/#aj$/.test(r.item)){if(+r.vel>0&&r.valor>0)ivAj[r.item.slice(0,-3)]={km:+r.vel,t:r.valor}}else if(+r.vel>0)ivVal[r.item]=+r.vel;else if(r.valor)ivVal[r.item]=Math.round(36000/r.valor)/10})}
+  const ck=await sb.from("fitness_checks").select("item,valor,vel,km,seg");
+  if(!ck.error){checks=new Set(ck.data.map(r=>r.item));ivVal={};ivAj={};ivKm={};ivSeg={};ck.data.forEach(r=>{if(+r.km>0)ivKm[r.item]=+r.km;if(r.seg>0)ivSeg[r.item]=r.seg;if(/#aj$/.test(r.item)){if(+r.vel>0&&r.valor>0)ivAj[r.item.slice(0,-3)]={km:+r.vel,t:r.valor}}else if(+r.vel>0)ivVal[r.item]=+r.vel;else if(r.valor)ivVal[r.item]=Math.round(36000/r.valor)/10})}
   const aj=await sb.from("fitness_adjust").select("semana,dr,dl,de,msg,desfeito");
   if(!aj.error)adj=aj.data;
   const pf=await sb.from("fitness_perfil").select("*").maybeSingle();
@@ -727,7 +727,7 @@ $("feed").addEventListener("click",e=>{
   inp.addEventListener("blur",()=>fin(true))});
 
 /* ===== plano completo até 31/12 ===== */
-let checks=new Set(),ivVal={},ivAj={},NOMES={};
+let checks=new Set(),ivVal={},ivAj={},NOMES={},ivKm={},ivSeg={};
 const COOPER_KM=1.76;          // Cooper de 19/10: 1.760 m em 12 min
 const COOPER_EST=2.2;
 // recalibração de 22/10: 3,51 km a 7:08 (19/10) e 3,67 km a 6:49 (22/10) equivalem a ~1,84 km no Cooper; vale a partir da semana 2
@@ -972,10 +972,13 @@ function ivSteps(d){
 const ivCount=G=>G.reduce((a,g)=>a+g.s.length,0);
 const ivDone=(id,G)=>{let c=0;G.forEach(g=>g.s.forEach(x=>{if(checks.has(id+"#"+x.n))c++}));return c};
 const ivSec=p=>{const m=String(p||"").match(/(\d+):(\d\d)/);return m?+m[1]*60+ +m[2]:0};
-function ivSum(id,G){let km=0,t=0,n=0,real=0,rk=0,rt=0;G.forEach(g=>g.s.forEach(x=>{const k=id+"#"+x.n;if(!checks.has(k))return;
-  const p=ivVal[k]?3600/ivVal[k]:ivSec(x.pc);if(!p)return;const m=x.lb.match(/^(\d+(?:[.,]\d+)?)\s*(min|km|m|s)$/);if(!m)return;const v=parseFloat(m[1].replace(",","."));
-  let dk,dt;if(m[2]==="min"){dt=v*60;dk=dt/p}else if(m[2]==="s"){dt=v;dk=v/p}else{dk=m[2]==="km"?v:v/1000;dt=dk*p}km+=dk;t+=dt;if(x.rest){rk+=dk;rt+=dt}n++;if(ivVal[k])real++}));
-  return {km,t,n,real,rk,rt}}
+const ivParse=x=>{const m=x.lb.match(/^(\d+(?:[.,]\d+)?)\s*(min|km|m|s)$/);if(!m)return null;const v=parseFloat(m[1].replace(",","."));return m[2]==="min"?{t:v*60}:m[2]==="s"?{t:v}:{d:m[2]==="km"?v:v/1000}};
+function ivReal(id,x){const k=id+"#"+x.n,P=ivParse(x),p=ivSec(x.pc);if(!P)return null;
+  if(P.t!=null){const dk=ivKm[k]!=null?ivKm[k]:ivVal[k]?ivVal[k]*P.t/3600:(p?P.t/p:0);return {dk,dt:P.t,real:ivKm[k]!=null||!!ivVal[k],time:true}}
+  const dt=ivSeg[k]!=null?ivSeg[k]:ivVal[k]?P.d*3600/ivVal[k]:P.d*p;return {dk:P.d,dt,real:ivSeg[k]!=null||!!ivVal[k],time:false}}
+function ivSum(id,G){let km=0,t=0,n=0,real=0,rk=0,rt=0,plan=0;G.forEach(g=>g.s.forEach(x=>{const k=id+"#"+x.n;if(!checks.has(k))return;
+  const R=ivReal(id,x);if(!R||!(R.dk>0)||!(R.dt>0))return;km+=R.dk;t+=R.dt;if(x.rest){rk+=R.dk;rt+=R.dt}n++;if(R.real)real++;else if(!x.rest)plan++}));
+  return {km,t,n,real,rk,rt,plan}}
 /* pace médio sem os descansos entre os tiros */
 const ivPace=(U,S)=>{const k=U.km-(S.rk||0),t=U.t-(S.rt||0);return k>0.05&&t>0?t/k:U.t/U.km};
 async function ivFinish(id){const it=PITEMS[id];if(!it||!session)return;const S0=ivSum(id,it.iv),S=ivAj[id]||S0;if(!(S.km>0))return;const k=it.day,cur=days[k]||{};
@@ -1023,20 +1026,22 @@ function renderIv(){const it=PITEMS[ivOpen];if(!it||!it.iv){closeIv();return}
     '<div><h2>'+escH(it.t.replace("Corrida · ",""))+'</h2><div class="ivs">'+DW[dt.getDay()]+', '+dt.getDate()+' '+dt.toLocaleDateString("pt-BR",{month:"short"}).replace(".","")+' · '+(it.v||"")+(it.p?' · '+it.p:'')+'</div></div>'+
     '<div class="iv-prog"><i><b style="width:'+(dn/tot*100)+'%"></b></i>'+dn+' de '+tot+'</div>'+
     '<div class="iv-l">'+G.map((g,gi)=>'<div class="iv-r'+(gi===nx?' nx':'')+'"><div class="lb">'+g.t+'</div><div class="iv-ds">'+g.s.map(x=>{const on=checks.has(ivOpen+"#"+x.n);
-      const rv=ivVal[ivOpen+"#"+x.n],pv=ivSec(x.pc)?(Math.round(36000/ivSec(x.pc))/10).toLocaleString("pt-BR"):"km/h";
-      return '<div class="iv-c'+(x.f?' f':'')+'"><button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b>'+(x.pc?' · '+x.pc:'')+'</div></button>'+
+      const k_=ivOpen+"#"+x.n,P=ivParse(x)||{},ps=ivSec(x.pc),kmh=ps?(Math.round(36000/ps)/10).toLocaleString("pt-BR"):"";
+      const R=ivReal(ivOpen,x),isT=P.t!=null,cur=isT?(ivKm[k_]!=null||ivVal[k_]?nf(Math.round(R.dk*100)/100):""):(ivSeg[k_]!=null||ivVal[k_]?mmss(R.dt):""),
+        ph=isT?(ps?nf(Math.round(P.t/ps*100)/100):"km"):(ps?mmss(P.d*ps):"tempo");
+      return '<div class="iv-c'+(x.f?' f':'')+'"><button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b></div>'+(x.pc?'<em class="iv-pk">'+x.pc+(kmh?' · '+kmh+' km/h':'')+'</em>':'')+'</button>'+
         (ivDur(x)?'<button type="button" class="tmb" data-tm="'+x.n+'" aria-label="Cronômetro de '+x.lb+'">'+TPLAY+'</button>':'')+
-        '<label class="iv-v"><input class="iv-in" data-ivp="'+x.n+'" type="text" inputmode="decimal" autocomplete="off" placeholder="'+pv+'" value="'+(rv?nf(rv):'')+'" aria-label="Velocidade real em km/h de '+g.t+', '+x.lb+'"><small>km/h</small></label></div>'}).join('')+'</div></div>').join('')+'</div>'+
+        (x.rest?'':'<label class="iv-v"><input class="iv-in" data-ivp="'+x.n+'" data-kind="'+(isT?'km':'t')+'" type="text" inputmode="'+(isT?'decimal':'numeric')+'" autocomplete="off" placeholder="'+ph+'" value="'+cur+'" aria-label="'+(isT?'Distância feita em km':'Tempo feito')+' em '+g.t+', '+x.lb+'"><small>'+(isT?'km':'min')+'</small></label>')+'</div>'}).join('')+'</div></div>').join('')+'</div>'+
     '<div class="iv-sum" id="iv-sum"></div>'+
-    '<div class="iv-note">'+(dn===tot?'Treino completo!':'Toque na bolinha ao terminar o trecho e coloque a velocidade da esteira embaixo (em cinza está a prevista). No fim, a soma vai para o dia e dá para ajustar com o que a esteira mostrou.')+'</div>';
-  ivSumRender();tmRender()}
+    '<div class="iv-note">'+(dn===tot?'Treino completo!':'Toque na bolinha ao terminar o trecho. Nos trechos de tempo, coloque a distância que você fez; nos de distância, o tempo. Em cinza está o previsto. Nos descansos, use só o cronômetro.')+'</div>';
+  el.querySelectorAll('.iv-in[data-kind="t"]').forEach(i=>maskTime(i,4));ivSumRender();tmRender()}
 function ivSumRender(){const box=$("iv-sum"),it=PITEMS[ivOpen];if(!box||!it)return;if(box.contains(document.activeElement))return;const S=ivSum(ivOpen,it.iv),A=ivAj[ivOpen];
   if(!S.n&&!A){box.innerHTML='';box.hidden=true;return}box.hidden=false;const U=A||S;
   box.innerHTML='<label><input id="iv-akm" type="text" inputmode="decimal" autocomplete="off" value="'+nf(Math.round(U.km*100)/100)+'" aria-label="Distância total em km"><span>km</span></label>'+
     '<label><input id="iv-at" type="text" inputmode="numeric" autocomplete="off" value="'+fmtTime(U.t)+'" aria-label="Tempo total"><span>tempo</span></label>'+
     '<div><b>'+mmss(ivPace(U,S))+'</b><span>pace médio'+(S.rk?'<br>sem descansos':'')+'</span></div>'+
     '<p>'+(A?'Ajustado por você · soma dos trechos: '+nf(Math.round(S.km*100)/100)+' km em '+fmtTime(S.t)+' · <button type="button" data-ivreset>usar a soma</button>':
-      S.n+' trecho'+(S.n===1?'':'s')+' somado'+(S.n===1?'':'s')+(S.n>S.real?' · '+(S.n-S.real===S.n?'com a velocidade prevista':(S.n-S.real)+' com a velocidade prevista'):'')+'. Toque nos km ou no tempo para ajustar.')+'</p>';
+      S.n+' trecho'+(S.n===1?'':'s')+' somado'+(S.n===1?'':'s')+(S.plan?' · '+S.plan+' sem dado, usando o previsto':'')+'. Toque nos km ou no tempo para ajustar.')+'</p>';
   box.classList.toggle("aj",!!A);maskTime($("iv-at"),6)}
 async function ivSaveAj(id,A){const it=PITEMS[id];if(!session)return;const old=ivAj[id];if(A)ivAj[id]=A;else delete ivAj[id];ivSumRender();
   const r=A?await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id+"#aj",vel:Math.round(A.km*100)/100,valor:Math.round(A.t)}):await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",id+"#aj");
@@ -1049,13 +1054,16 @@ document.addEventListener("change",async e=>{if(!ivOpen||!session||!e.target.clo
     if(!t||Number.isNaN(t)){e.target.classList.add("bad");toast("Tempo inválido. Ex.: 3345 vira 33:45.");return}
     e.target.classList.remove("bad");document.activeElement&&document.activeElement.blur&&document.activeElement.blur();await ivSaveAj(id,{km,t});return}
   const inp=e.target.closest(".iv-in");if(!inp)return;
-  const k=id+"#"+inp.dataset.ivp,v=inp.value.trim(),vel=v?parseFloat(v.replace(",",".")):null;
-  if(v&&!(vel>=3&&vel<=25)){inp.classList.add("bad");toast("Coloque a velocidade em km/h, ex.: 9,5.");return}inp.classList.remove("bad");
-  const old=ivVal[k],wasOn=checks.has(k);if(vel)ivVal[k]=Math.round(vel*10)/10;else delete ivVal[k];if(vel)checks.add(k);
-  if(vel)inp.value=nf(ivVal[k]);
+  const k=id+"#"+inp.dataset.ivp,v=inp.value.trim(),isKm=inp.dataset.kind==="km";let val=null;
+  if(v){if(isKm){val=parseFloat(v.replace(",","."));if(!(val>0&&val<=30)){inp.classList.add("bad");toast("Coloque a distância em km, ex.: 1,35.");return}val=Math.round(val*100)/100}
+    else{val=parseTime(v);if(!val||Number.isNaN(val)||val<5||val>7200){inp.classList.add("bad");toast("Tempo inválido. Ex.: 215 vira 2:15.");return}}}
+  inp.classList.remove("bad");
+  const old={km:ivKm[k],seg:ivSeg[k],vel:ivVal[k]},wasOn=checks.has(k);delete ivVal[k];
+  if(isKm){if(val)ivKm[k]=val;else delete ivKm[k]}else{if(val)ivSeg[k]=val;else delete ivSeg[k]}if(val)checks.add(k);
+  if(val)inp.value=isKm?nf(val):mmss(val);
   const btn=$("iv").querySelector('[data-ivd="'+inp.dataset.ivp+'"]');if(btn&&checks.has(k)){btn.classList.add("on");btn.setAttribute("aria-pressed","true")}ivSumRender();
-  const r=await sb.from("fitness_checks").upsert({user_id:session.user.id,item:k,vel:vel?ivVal[k]:null,valor:null});
-  if(r.error){if(old)ivVal[k]=old;else delete ivVal[k];if(!wasOn)checks.delete(k);toast("Não salvou. Verifique a internet.");renderIv();return}
+  const r=await sb.from("fitness_checks").upsert({user_id:session.user.id,item:k,vel:null,valor:null,km:isKm?val:null,seg:isKm?null:val});
+  if(r.error){if(old.km!=null)ivKm[k]=old.km;else delete ivKm[k];if(old.seg!=null)ivSeg[k]=old.seg;else delete ivSeg[k];if(old.vel)ivVal[k]=old.vel;if(!wasOn)checks.delete(k);toast("Não salvou. Verifique a internet.");renderIv();return}
   if(it&&ivDone(id,it.iv)===ivCount(it.iv))await ivFinish(id);
   if(!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#iv")))renderIv();else{const nx=$("iv").querySelector(".iv-prog");if(nx){const tot=ivCount(it.iv),dn=ivDone(id,it.iv);nx.innerHTML='<i><b style="width:'+(dn/tot*100)+'%"></b></i>'+dn+' de '+tot}}renderPlanKeep()});
 async function ivClick(e){
