@@ -250,6 +250,23 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .toast{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
 .fd-h{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px}
 .fd-h span{font-size:12px;color:var(--muted)}
+.fd-top{display:flex;flex-direction:column;gap:14px;padding-bottom:18px}
+.fd-wk h3{font-size:19px;font-weight:700;letter-spacing:-.02em;margin:0 0 10px}
+.fd-ch{display:flex;flex-direction:column;gap:6px}
+.fd-cap{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink)}
+.fd-leg{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.fd-leg i{display:inline-block;width:14px;height:0;border-top:2px solid var(--run)}.fd-leg i.lf{border-top-style:dashed;opacity:.7;margin-left:6px}
+.fd-tip{font-size:12px;color:var(--muted);min-height:16px}
+.fd-ch svg{width:100%;height:auto;display:block;overflow:visible;touch-action:pan-y}
+.fd-ch .gr{stroke:var(--line);stroke-width:1}
+.fd-ch .ax{font:500 10px var(--font);fill:var(--muted)}
+.fd-ch .ar{fill:var(--run);opacity:.16}.fd-ch .af{fill:var(--run);opacity:.06}
+.fd-ch .lnr{fill:none;stroke:var(--run);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.fd-ch .lnf{fill:none;stroke:var(--run);stroke-width:2;stroke-dasharray:4 4;opacity:.7}
+.fd-ch .now{stroke:var(--ink);stroke-width:1.5}
+.fd-ch circle{stroke:var(--run);stroke-width:2;fill:var(--bg)}
+.fd-ch circle.pf{stroke-opacity:.6}
+.fd-ch circle.pc,.fd-ch circle.hv{fill:var(--run);stroke:var(--bg);stroke-width:2}
 .feed{display:flex;flex-direction:column;margin:0 -20px}
 .fc{padding:16px 20px 18px;border-top:8px solid var(--soft);cursor:pointer}
 .fc-m{display:flex;align-items:center;gap:10px;margin-bottom:10px}
@@ -498,6 +515,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 
   <section id="pg-ativ" role="tabpanel" aria-labelledby="tab-ativ" hidden style="flex-direction:column;gap:0">
     <div class="ph fd-h"><h2>Atividades</h2><span id="fd-tot"></span></div>
+    <div class="fd-top" id="fd-top"></div>
     <div class="feed" id="feed"></div>
   </section>
 
@@ -704,7 +722,39 @@ function feedItems(){const L=Object.keys(days).filter(k=>+days[k].km>0).map(k=>(
   return L.sort((a,b)=>a.dia!==b.dia?(a.dia<b.dia?1:-1):a.o-b.o)}
 function feedTitle(e){if(NOMES[e.key])return NOMES[e.key];if(e.cooper)return "Teste de Cooper";
   const it=Object.values(PITEMS).find(x=>x.day===e.dia&&x.k==="run"&&!(x.cooper&&isLegacy()));return it?it.t.replace("Corrida · ",""):"Corrida"}
-function renderFeed(){if(page!=="ativ")return;
+/* gráfico de km por semana: feito até esta semana, previsto depois */
+function weekRunKm(){const W=planWeeksMoved(),t=today0();return W.map((w,i)=>{let real=0,sec=0,n=0,plan=0;
+  for(let q=0;q<7;q++){const v=days[key(addDays(w.mon,q))];if(v&&+v.km>0){real+=+v.km;n++;if(v.pace)sec+=v.km*v.pace}}
+  w.days.forEach(d=>d.items.forEach(it=>{if(it.k==="run"&&!it.cooper)plan+=+it.n||0}));
+  const end=addDays(w.mon,6),cur=t>=w.mon&&t<=end,past=end<t;return {i,mon:w.mon,real:r1(real),plan:r1(plan),sec,n,cur,past,fut:!cur&&!past}})}
+function renderFeedTop(){const el=$("fd-top");if(!el)return;const S=weekRunKm();if(!S.length){el.innerHTML="";return}
+  let ci=S.findIndex(x=>x.cur);if(ci<0)ci=S[0].fut?-1:S.length-1;const C=ci>=0?S[ci]:null;
+  const val=x=>x.fut?x.plan:x.real,mx=Math.max(4,...S.map(val)),top=Math.ceil(mx/4)*4;
+  const Wd=320,H=150,pl=8,pr=40,pt=12,pb=26,cw=Wd-pl-pr,ch=H-pt-pb,X=i=>pl+(S.length<2?cw/2:i*cw/(S.length-1)),Y=v=>pt+ch-(v/top)*ch;
+  const P=S.map(x=>[X(x.i),Y(val(x))]),split=Math.max(0,ci);
+  const pts=a=>a.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+  const solid=P.slice(0,split+1),dash=P.slice(split);
+  const area=a=>a.length<2?"":"M"+a[0][0].toFixed(1)+","+(pt+ch)+" L"+pts(a).replace(/ /g," L")+" L"+a[a.length-1][0].toFixed(1)+","+(pt+ch)+" Z";
+  let mo=-1,lab="";S.forEach(x=>{const mm=x.mon.getMonth();if(mm!==mo){mo=mm;lab+='<text x="'+X(x.i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" class="ax">'+MESES[mm].slice(0,3).toUpperCase()+'</text>'}});
+  const grid=[0,top/2,top].map(v=>'<line x1="'+pl+'" x2="'+(pl+cw)+'" y1="'+Y(v).toFixed(1)+'" y2="'+Y(v).toFixed(1)+'" class="gr"/><text x="'+(pl+cw+6)+'" y="'+(Y(v)+4).toFixed(1)+'" class="ax">'+nf(v)+' km</text>').join("");
+  const dots=S.map((x,i)=>'<circle cx="'+P[i][0].toFixed(1)+'" cy="'+P[i][1].toFixed(1)+'" r="'+(i===ci?5.5:4)+'" class="'+(x.fut?"pf":"pr")+(i===ci?" pc":"")+'"/>').join("");
+  const hits=S.map((x,i)=>'<rect x="'+(P[i][0]-cw/(2*Math.max(1,S.length-1))).toFixed(1)+'" y="0" width="'+(cw/Math.max(1,S.length-1)).toFixed(1)+'" height="'+H+'" fill="transparent" data-wk="'+i+'"/>').join("");
+  const desc=S.map(x=>"Semana "+(x.i+1)+": "+nf(val(x))+" km"+(x.fut?" previstos":"")).join("; ");
+  const tsec=C?C.sec:0;
+  el.innerHTML='<div class="fd-wk"><h3>Esta semana</h3><div class="fc-s"><div><span>Distância</span><b>'+(C?C.real.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}):"0,00")+' <small>km</small></b></div>'+
+    '<div><span>Tempo</span><b>'+(tsec>=3600?Math.floor(tsec/3600)+'<small>h</small> '+Math.round(tsec%3600/60)+'<small>min</small>':Math.round(tsec/60)+'<small>min</small>')+'</b></div>'+
+    '<div><span>Previsto</span><b>'+(C?nf(C.plan):"–")+' <small>km</small></b></div></div></div>'+
+    '<div class="fd-ch"><div class="fd-cap"><span>Km por semana</span><span class="fd-leg"><i class="lr"></i>feito <i class="lf"></i>previsto</span></div>'+
+    '<div class="fd-tip" id="fd-tip" aria-live="polite"></div>'+
+    '<svg viewBox="0 0 '+Wd+' '+H+'" role="img" aria-label="Km por semana. '+desc+'">'+grid+
+    '<path d="'+area(solid)+'" class="ar"/><path d="'+area(dash)+'" class="af"/>'+
+    (solid.length>1?'<polyline points="'+pts(solid)+'" class="lnr"/>':'')+(dash.length>1?'<polyline points="'+pts(dash)+'" class="lnf"/>':'')+
+    (ci>=0?'<line x1="'+P[ci][0].toFixed(1)+'" x2="'+P[ci][0].toFixed(1)+'" y1="'+pt+'" y2="'+(pt+ch)+'" class="now"/>':'')+dots+lab+hits+'</svg></div>';
+  const tip=$("fd-tip"),show=i=>{const x=S[i];tip.textContent="Semana "+(i+1)+" · "+nf(val(x))+" km "+(x.fut?"previstos":x.cur?"até agora (previsto "+nf(x.plan)+")":"feitos (previsto "+nf(x.plan)+")");
+    el.querySelectorAll("circle").forEach((c,j)=>c.classList.toggle("hv",j===i))};
+  show(ci>=0?ci:0);el.querySelector("svg").addEventListener("pointerover",e=>{const r=e.target.closest("[data-wk]");if(r)show(+r.dataset.wk)});
+  el.querySelector("svg").addEventListener("click",e=>{const r=e.target.closest("[data-wk]");if(r)show(+r.dataset.wk)})}
+function renderFeed(){if(page!=="ativ")return;renderFeedTop();
   const L=feedItems(),tot=L.reduce((a,e)=>a+e.km,0);
   $("fd-tot").textContent=L.length?L.length+(L.length===1?" corrida · ":" corridas · ")+nf(Math.round(tot*10)/10)+" km":"";
   const nome=PROFILE&&PROFILE.nome?escH(PROFILE.nome):"";
@@ -735,13 +785,17 @@ const COOPER_EST=2.2;
 const CAP_KM=[[1,1.84]];
 function capKm(w){let c=COOPER_KM||COOPER_EST;CAP_KM.forEach(([ws,km])=>{if(w>=ws)c=km});return c}
 const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
-// ritmo de prova sobe aos poucos até a meta de 6:30/km (semana 1 → 11)
+// ritmo de prova sobe aos poucos até a meta de 6:30/km (semana 1 → 3); da semana 4 em diante vale NEWP
 const RW=[420,420,415,410,406,402,398,395,392,390,390];
 let CURW=0;
 let adj=[],PROFILE=null,RACEW=10;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function offs(w,f,a,b){if(w>=RACEW)return 0;return clamp(adj.filter(x=>!x.desfeito&&x.semana<=w).reduce((s,x)=>s+(x[f]||0),0),a,b)}
-function paceSec(k){const c=capKm(CURW),pc=720/c,R=RW[CURW]+offs(CURW,"dr",-20,20),L=pc+80+offs(CURW,"dl",-20,20);return typeof k==="number"?k:{L:L,T:Math.min(R-20,pc-15),R:R,F:Math.min(R-12,pc),C:R+10,W:600}[k]}
+function offs(w,f,a,b){if(w>=RACEW)return 0;const rc=isLegacy()&&w>=3;return clamp(adj.filter(x=>!x.desfeito&&x.semana<=w&&(!rc||x.semana>=3)).reduce((s,x)=>s+(x[f]||0),0),a,b)}
+/* replanejado em 07/11 com as semanas 1 a 3 (15,1 km na semana 3; tiros de 400 m em ~2:02; leves de 6:24 a 6:58).
+   Ritmos por semana, da 4 à 11: [leve, tiros 400 m, ritmo de prova, 1 km forte, contínuo] em s/km. Meta da prova: 5:50/km (43:45). */
+const NEWP=[[418,311,365,332,375],[414,308,362,330,372],[411,305,360,327,370],[407,303,358,324,368],[404,300,355,321,365],[401,298,352,319,362],[398,295,350,316,360],[398,295,350,316,360]];
+function paceSec(k){if(typeof k!=="number"&&isLegacy()&&CURW>=3&&NEWP[CURW-3]){const P=NEWP[CURW-3],dl=offs(CURW,"dl",-20,20),dr=offs(CURW,"dr",-20,20);return {L:P[0]+dl,T:P[1]+dr,R:P[2]+dr,F:P[3]+dr,C:P[4]+dr,W:600}[k]}
+  const c=capKm(CURW),pc=720/c,R=RW[CURW]+offs(CURW,"dr",-20,20),L=pc+80+offs(CURW,"dl",-20,20);return typeof k==="number"?k:{L:L,T:Math.min(R-20,pc-15),R:R,F:Math.min(R-12,pc),C:R+10,W:600}[k]}
 function zones(){return {L:mmss(paceSec("L")),T:mmss(paceSec("T")),R:mmss(paceSec("R")),F:mmss(paceSec("F")),C:mmss(paceSec("C"))}}
 // corridas de cada semana: [título, detalhe, km, pace]  ({L} leve · {T} tiros · {R} prova · {F} forte)
 // corridas: [título, detalhe, trechos]; trecho = ["k",km,pace] ou ["m",minutos,pace]; pace: L leve · T tiros · R prova · F forte · W caminhada · ou segundos/km
@@ -754,36 +808,36 @@ const RUNS=[
  [["Leve + acelerações","4 km a {L} + 4 × 100 m acelerando a {T}, com 1 min caminhando a {W} entre eles",[["k",4,"L"],["k",.4,"T"],["m",3,"W","r"]]],
   ["Tiros de 400 m","10 min a {L} + 6 × 400 m a {T}, com 2 min parado entre eles + 5 min solto a {L}",[["m",10,"L"],["k",2.4,"T"],["m",5,"L"]]],
   ["Longão","Tudo no mesmo ritmo",[["k",5.5,"L"]]]],
- [["Leve","Ritmo de conversa",[["k",4,"L"]]],
-  ["Ritmo de prova","10 min a {L} + 3 × 1 km a {R}, com 2 min de trote a {L} entre eles",[["m",10,"L"],["k",3,"R"],["m",4,"L","r"]]],
-  ["Longão","Tudo no mesmo ritmo",[["k",5,"L"]]]],
  [["Leve","Ritmo de conversa",[["k",5,"L"]]],
+  ["Ritmo de prova","10 min a {L} + 3 × 1 km a {R}, com 2 min parado entre eles + 5 min solto a {L}",[["m",10,"L"],["k",3,"R"],["m",5,"L"]]],
+  ["Longão","Tudo no mesmo ritmo",[["k",6.2,"L"]]]],
+ [["Leve","Ritmo de conversa",[["k",5.5,"L"]]],
   ["Tiros de 400 m","10 min a {L} + 8 × 400 m a {T}, com 90 s parado entre eles + 5 min solto a {L}",[["m",10,"L"],["k",3.2,"T"],["m",5,"L"]]],
-  ["Longão","Tudo no mesmo ritmo",[["k",6.5,"L"]]]],
- [["Progressivo","3 km a {L} + 2 km a {R}",[["k",3,"L"],["k",2,"R"]]],
-  ["1 km forte","10 min a {L} + 4 × 1 km a {F}, com 2 min de trote a {L} entre eles + 5 min solto a {L}",[["m",10,"L"],["k",4,"F"],["m",6,"L","r"],["m",5,"L"]]],
-  ["Longão","Tudo no mesmo ritmo",[["k",7,"L"]]]],
- [["Leve","Ritmo de conversa",[["k",5,"L"]]],
-  ["Contínuo","1,5 km a {L} + 3 km a {C} + 1 km solto a {L}",[["k",1.5,"L"],["k",3,"C"],["k",1,"L"]]],
-  ["Longão","Tudo no mesmo ritmo",[["k",8,"L"]]]],
- [["Leve","Ritmo de conversa",[["k",5,"L"]]],
-  ["1 km forte","10 min a {L} + 5 × 1 km a {F}, com 2 min de trote a {L} entre eles + 5 min solto a {L}",[["m",10,"L"],["k",5,"F"],["m",8,"L","r"],["m",5,"L"]]],
-  ["Simulado","3 km a {L} + 3 km a {R}",[["k",3,"L"],["k",3,"R"]]]],
- [["Leve + acelerações","5 km a {L} + 4 × 100 m acelerando a {T}, com 1 min caminhando a {W} entre eles",[["k",5,"L"],["k",.4,"T"],["m",3,"W","r"]]],
-  ["Ritmo de prova","10 min a {L} + 2 × 2,5 km a {R}, com 3 min de trote a {L} entre eles + 5 min solto a {L}",[["m",10,"L"],["k",5,"R"],["m",3,"L","r"],["m",5,"L"]]],
-  ["Longão","O mais longo do plano",[["k",8.5,"L"]]]],
- [["Leve","Ritmo de conversa",[["k",5,"L"]]],
-  ["Contínuo","1 km a {L} + 4 km a {R} + 1 km solto a {L}",[["k",1,"L"],["k",4,"R"],["k",1,"L"]]],
-  ["Leve","Tudo no mesmo ritmo",[["k",6,"L"]]]],
- [["Ativação","3 km a {L} + 3 × 200 m a {F}",[["k",3,"L"],["k",.6,"F"]]]]
+  ["Longão","Tudo no mesmo ritmo",[["k",6.8,"L"]]]],
+ [["Progressivo","3,5 km a {L} + 2,5 km a {R}",[["k",3.5,"L"],["k",2.5,"R"]]],
+  ["1 km forte","10 min a {L} + 4 × 1 km a {F}, com 2 min parado entre eles + 5 min solto a {L}",[["m",10,"L"],["k",4,"F"],["m",5,"L"]]],
+  ["Longão","Tudo no mesmo ritmo",[["k",7.3,"L"]]]],
+ [["Leve","Ritmo de conversa",[["k",6.5,"L"]]],
+  ["Contínuo","1,5 km a {L} + 4 km a {C} + 1 km solto a {L}",[["k",1.5,"L"],["k",4,"C"],["k",1,"L"]]],
+  ["Longão","Tudo no mesmo ritmo",[["k",7.8,"L"]]]],
+ [["Leve","Ritmo de conversa",[["k",6.5,"L"]]],
+  ["1 km forte","10 min a {L} + 5 × 1 km a {F}, com 2 min parado entre eles + 5 min solto a {L}",[["m",10,"L"],["k",5,"F"],["m",5,"L"]]],
+  ["Longão","Tudo no mesmo ritmo",[["k",8.3,"L"]]]],
+ [["Leve + acelerações","6,5 km a {L} + 4 × 100 m acelerando a {T}, com 1 min parado entre eles",[["k",6.5,"L"],["k",.4,"T"]]],
+  ["Ritmo de prova","10 min a {L} + 2 × 2,5 km a {R}, com 3 min parado entre eles + 5 min solto a {L}",[["m",10,"L"],["k",5,"R"],["m",5,"L"]]],
+  ["Longão","Tudo no mesmo ritmo",[["k",8.8,"L"]]]],
+ [["Leve","Ritmo de conversa",[["k",7,"L"]]],
+  ["Simulado","2 km a {L} + 4 km a {R} + 1 km solto a {L}",[["k",2,"L"],["k",4,"R"],["k",1,"L"]]],
+  ["Longão","O mais longo do plano",[["k",9.5,"L"]]]],
+ [["Ativação","3 km a {L} + 3 × 200 m a {F}, com 1 min parado entre eles",[["k",3,"L"],["k",.6,"F"]]]]
 ];
-const PROVA=["Prova · 7,5 km","1º km a 6:40, depois segure 6:28. Se sobrar, acelere no último km",[["k",1,400],["k",6.5,388]]];
+const PROVA=["Prova · 7,5 km","1º km a 6:00, depois segure 5:48. Se sobrar, acelere no último km",[["k",1,360],["k",6.5,348]]];
 function runStats(segs){let km=0,sec=0,ak=0,as=0;const ps=new Set();
   segs.forEach(([u,v,pk,r])=>{const p=paceSec(pk);if(r!=="r")ps.add(Math.round(p));const dk=u==="k"?v:v*60/p,ds=u==="k"?v*p:v*60;km+=dk;sec+=ds;if(r!=="r"){ak+=dk;as+=ds}});
   return {km,avg:ak?as/ak:sec/km,mixed:ps.size>1,rest:ak<km}}
 const ESC=[[5,5,6],[6,7,7],[8,8,9],[8,8,8],[10,10,11],[11,12,12],[13,14,15],[12,12,12],[15,16,17],[14,14,14],[8]];
-const WT=["Volta aos treinos","Base","Base","Semana mais leve","Construção","Construção","Construção","Semana mais leve","Pico","Reduzindo","Semana da prova"];
-const LIGHT=[3,7,9,10];
+const WT=["Volta aos treinos","Base","Base","Construção","Construção","Construção","Construção","Construção","Pico","Pico","Semana da prova"];
+const LIGHT=[];
 let START=new Date(2026,9,19);
 const ICK={run:"run",esc:"esc",inf:"inf",sup:"sup",abd:"abd"};
 function planWeeks(){
