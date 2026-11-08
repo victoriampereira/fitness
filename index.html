@@ -1156,7 +1156,7 @@ function renderPlan(){
     '<div class="zr"><div><b>'+z.L+'</b><span>leve</span></div><div><b>'+z.R+'</b><span>prova</span></div><div><b>'+z.F+'</b><span>1 km forte</span></div><div><b>'+z.T+'</b><span>tiros 400 m</span></div></div>';
   // semana corrente vira a próxima no domingo às 18h, junto com o ajuste
   const tw=new Date(Date.now()+6*36e5);tw.setHours(0,0,0,0);let cur=W.findIndex(w=>tw>=w.mon&&tw<=addDays(w.mon,6));
-  const openIdx=cur>=0?cur:(t<W[0].mon?0:W.length-1);
+  const openIdx=cur>=0?cur:(t<W[0].mon?0:W.length-1),savedOpen=wkOpenLoad();
   $("pl-weeks").innerHTML=W.map((w,i)=>{
     const sun=addDays(w.mon,6),last=w.days[w.days.length-1].date;
     const mo=d=>d.toLocaleDateString("pt-BR",{month:"short"}).replace(".","");
@@ -1175,7 +1175,7 @@ function renderPlan(){
           (editMode?'<span class="ed"><button type="button" class="del" data-del="'+id+'" aria-label="Excluir '+it.t+'">×</button><span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
         :'<div class="it rest">Descanso</div>';
       return '<div class="pd'+(k===tk?' today':'')+'" data-day="'+k+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
-    return '<details class="wk'+(i===cur?' cur':'')+'"'+(i===openIdx?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(past?'<b class="wkm ok">'+realS+' km</b>':wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
+    return '<details class="wk'+(i===cur?' cur':'')+'"'+((savedOpen?savedOpen.includes(i):i===openIdx)?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(past?'<b class="wkm ok">'+realS+' km</b>':wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
   if(ivOpen&&$("iv")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#iv .iv-in")))renderIv();
   if($("pl-sem"))$("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+W.length:(t<W[0].mon?"começa seg, 19 out":"");
 }
@@ -1342,6 +1342,11 @@ function dragEnd(e){
 document.addEventListener("pointermove",dragMove,{passive:false});
 document.addEventListener("pointerup",dragEnd);document.addEventListener("pointercancel",dragEnd);
 let planSig="";
+/* lembra quais semanas ficaram abertas no plano (por pessoa e por plano) */
+const wkOpenKey=()=>"fitness-semanas-abertas:"+(session&&session.user?session.user.id:"")+":"+(isLegacy()?"L":[PROFILE.inicio,PROFILE.semanas,PROFILE.atualizado_em].join("|"));
+function wkOpenLoad(){try{const v=JSON.parse(localStorage.getItem(wkOpenKey()));return Array.isArray(v)?v:null}catch(_){return null}}
+function wkOpenSave(){try{localStorage.setItem(wkOpenKey(),JSON.stringify([...document.querySelectorAll("#pl-weeks details")].map((d,i)=>d.open?i:-1).filter(i=>i>=0)))}catch(_){}}
+$("pl-weeks").addEventListener("click",e=>{if(e.target.closest("#pl-weeks summary"))setTimeout(wkOpenSave,0)});
 function renderPlanKeep(){const sig=isLegacy()?"L":[PROFILE.inicio,PROFILE.semanas,PROFILE.atualizado_em].join("|"),same=sig===planSig;planSig=sig;
   const open=[...document.querySelectorAll("#pl-weeks details")].map(d=>d.open);renderPlan();if(same)document.querySelectorAll("#pl-weeks details").forEach((d,i)=>{if(open[i]!==undefined)d.open=open[i]})}
 
