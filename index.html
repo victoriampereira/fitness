@@ -844,7 +844,8 @@ const PROVA=["Prova · 7,5 km","1º km a 6:00, depois segure 5:48. Se sobrar, ac
 function runStats(segs){let km=0,sec=0,ak=0,as=0;const ps=new Set();
   segs.forEach(([u,v,pk,r])=>{const p=paceSec(pk);if(r!=="r")ps.add(Math.round(p));const dk=u==="k"?v:v*60/p,ds=u==="k"?v*p:v*60;km+=dk;sec+=ds;if(r!=="r"){ak+=dk;as+=ds}});
   return {km,avg:ak?as/ak:sec/km,mixed:ps.size>1,rest:ak<km}}
-const ESC=[[5,5,6],[6,7,7],[8,8,9],[8,8,8],[10,10,11],[11,12,12],[13,14,15],[12,12,12],[15,16,17],[14,14,14],[8]];
+// semanas 4 em diante recalibradas em 09/11 pelo que foi feito (10, 15, 10 e 21 min nas últimas sessões); sempre crescendo
+const ESC=[[5,5,6],[6,7,7],[8,8,9],[12,12,13],[13,13,14],[14,14,15],[15,15,16],[16,16,17],[17,17,18],[18,18,19],[10]];
 const WT=["Volta aos treinos","Base","Base","Construção","Construção","Construção","Construção","Construção","Pico","Pico","Semana da prova"];
 const LIGHT=[];
 let START=new Date(2026,9,19);
