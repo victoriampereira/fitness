@@ -724,21 +724,22 @@ function feedTitle(e){if(NOMES[e.key])return NOMES[e.key];if(e.cooper)return "Te
 /* gráfico de km por semana: feito até esta semana, previsto depois */
 function weekRunKm(){const W=planWeeksMoved(),t=today0();return W.map((w,i)=>{let real=0,sec=0,n=0,plan=0,psec=0;
   for(let q=0;q<7;q++){const v=days[key(addDays(w.mon,q))];if(v&&+v.km>0){real+=+v.km;n++;if(v.pace)sec+=v.km*v.pace}}
-  w.days.forEach(d=>d.items.forEach(it=>{if(it.k==="run"&&!it.cooper){plan+=+it.n||0;if(it.avg)psec+=(+it.n||0)*it.avg}}));
+  w.days.forEach(d=>d.items.forEach(it=>{if(it.k==="run"){plan+=runPlanKm(it);if(it.avg&&!it.cooper)psec+=(+it.n||0)*it.avg;if(it.cooper)psec+=720}}));
+  const ck=cooperRealKm(w.mon);if(ck){real+=ck;sec+=720;n++}
   const end=addDays(w.mon,6),cur=t>=w.mon&&t<=end,past=end<t;return {i,mon:w.mon,real:r1(real),plan:r1(plan),sec,psec,n,cur,past,fut:!cur&&!past}})}
 let fdSel=null;
 function renderFeedTop(){const el=$("fd-top");if(!el)return;const S=weekRunKm();if(!S.length){el.innerHTML="";return}
   let ci=S.findIndex(x=>x.cur);if(ci<0)ci=S[0].fut?-1:S.length-1;
   if(fdSel==null||fdSel>=S.length)fdSel=Math.max(0,ci);
-  const val=x=>x.fut?x.plan:x.real,mx=Math.max(4,...S.map(val)),top=Math.ceil(mx/4)*4;
+  const val=x=>x.fut||x.cur?Math.max(x.plan,x.real):x.real,mx=Math.max(4,...S.map(val),...S.map(x=>x.real)),top=Math.ceil(mx/4)*4;
   const Wd=320,H=150,pl=8,pr=40,pt=12,pb=26,cw=Wd-pl-pr,ch=H-pt-pb,X=i=>pl+(S.length<2?cw/2:i*cw/(S.length-1)),Y=v=>pt+ch-(v/top)*ch;
-  const P=S.map(x=>[X(x.i),Y(val(x))]),split=Math.max(0,ci);
+  const P=S.map(x=>[X(x.i),Y(val(x))]),split=Math.max(0,ci-1);
   const pts=a=>a.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
   const solid=P.slice(0,split+1),dash=P.slice(split);
   const area=a=>a.length<2?"":"M"+a[0][0].toFixed(1)+","+(pt+ch)+" L"+pts(a).replace(/ /g," L")+" L"+a[a.length-1][0].toFixed(1)+","+(pt+ch)+" Z";
   let mo=-1,lab="";S.forEach(x=>{const mm=x.mon.getMonth();if(mm!==mo){mo=mm;lab+='<text x="'+X(x.i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" class="ax">'+MESES[mm].slice(0,3).toUpperCase()+'</text>'}});
   const grid=[0,top/2,top].map(v=>'<line x1="'+pl+'" x2="'+(pl+cw)+'" y1="'+Y(v).toFixed(1)+'" y2="'+Y(v).toFixed(1)+'" class="gr"/><text x="'+(pl+cw+6)+'" y="'+(Y(v)+4).toFixed(1)+'" class="ax">'+nf(v)+' km</text>').join("");
-  const dots=S.map((x,i)=>'<circle cx="'+P[i][0].toFixed(1)+'" cy="'+P[i][1].toFixed(1)+'" r="4" class="'+(x.fut?"pf":"pr")+'" data-dot="'+i+'"/>').join("");
+  const dots=S.map((x,i)=>'<circle cx="'+P[i][0].toFixed(1)+'" cy="'+P[i][1].toFixed(1)+'" r="4" class="'+(x.fut||x.cur?"pf":"pr")+'" data-dot="'+i+'"/>'+(x.cur&&x.real>0&&x.real<val(x)?'<circle cx="'+P[i][0].toFixed(1)+'" cy="'+Y(x.real).toFixed(1)+'" r="4" class="pr pnow"/>':'')).join("");
   const desc=S.map(x=>"Semana "+(x.i+1)+": "+nf(val(x))+" km"+(x.fut?" previstos":"")).join("; ");
   el.innerHTML='<div class="fd-wk"><h3 id="fd-wt"></h3><div class="fc-s"><div><span>Distância</span><b id="fd-d"></b></div><div><span>Tempo</span><b id="fd-t"></b></div><div><span>Previsto</span><b id="fd-p"></b></div></div></div>'+
     '<div class="fd-ch"><div class="fd-cap"><span>Km por semana</span><span class="fd-leg"><i class="lr"></i>feito <i class="lf"></i>previsto</span></div>'+
@@ -789,6 +790,8 @@ $("feed").addEventListener("click",e=>{
 /* ===== plano completo até 31/12 ===== */
 let checks=new Set(),ivVal={},ivAj={},NOMES={},ivKm={},ivSeg={},ivJust=null,ivPend={};
 const COOPER_KM=1.76;          // Cooper de 19/10: 1.760 m em 12 min
+const runPlanKm=it=>it.k!=="run"?0:it.cooper?(isLegacy()?COOPER_KM:(PROFILE&&PROFILE.cooper_feito?+PROFILE.cooper_km||0:0)):(+it.n||0);
+const cooperRealKm=(mon)=>{if(!isLegacy()||!COOPER_KM)return 0;const c=new Date("2026-10-19T12:00:00");return c>=mon&&c<=addDays(mon,6.9)?COOPER_KM:0};
 const COOPER_EST=2.2;
 // recalibração de 22/10: 3,51 km a 7:08 (19/10) e 3,67 km a 6:49 (22/10) equivalem a ~1,84 km no Cooper; vale a partir da semana 2
 const CAP_KM=[[1,1.84]];
@@ -1162,7 +1165,7 @@ function renderPlan(){
     const sun=addDays(w.mon,6),last=w.days[w.days.length-1].date;
     const mo=d=>d.toLocaleDateString("pt-BR",{month:"short"}).replace(".","");
     const rng=w.mon.getDate()+(w.mon.getMonth()!==last.getMonth()?" "+mo(w.mon):"")+" – "+last.getDate()+" "+mo(last);
-    let tot=0,done=0;const wkm=Math.round(w.days.reduce((a,d)=>a+d.items.filter(x=>x.k==='run'&&!x.cooper).reduce((b,x)=>b+(+x.n||0),0),0)*10)/10;const wkmS=String(wkm).replace('.',',');const wsun=addDays(w.mon,6),past=wsun<new Date(t.getFullYear(),t.getMonth(),t.getDate());let real=0;for(let q=0;q<7;q++){const v=days[key(addDays(w.mon,q))];real+=v?(+v.km||0):0}real=Math.round(real*10)/10;const realS=String(real).replace('.',',');
+    let tot=0,done=0;const wkm=Math.round(w.days.reduce((a,d)=>a+d.items.reduce((b,x)=>b+runPlanKm(x),0),0)*10)/10;const wkmS=String(wkm).replace('.',',');const wsun=addDays(w.mon,6),past=wsun<new Date(t.getFullYear(),t.getMonth(),t.getDate());let real=0;for(let q=0;q<7;q++){const v=days[key(addDays(w.mon,q))];real+=v?(+v.km||0):0}real+=cooperRealKm(w.mon);real=Math.round(real*10)/10;const realS=String(real).replace('.',',');
     const body=w.days.map(({date,items})=>{
       const k=key(date);
       const its=items.length?items.map(it=>{tot++;const id=it.id,lv=logged(k,it),on=checks.has(id)||!!lv;if(on)done++;it.day=k;PITEMS[id]=it;
