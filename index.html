@@ -737,9 +737,9 @@ function renderFeedTop(){const el=$("fd-top");if(!el)return;const S=weekRunKm();
   const pts=a=>a.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
   const solid=P.slice(0,split+1),dash=P.slice(split);
   const area=a=>a.length<2?"":"M"+a[0][0].toFixed(1)+","+(pt+ch)+" L"+pts(a).replace(/ /g," L")+" L"+a[a.length-1][0].toFixed(1)+","+(pt+ch)+" Z";
-  let mo=-1,lab="";S.forEach(x=>{const mm=x.mon.getMonth();if(mm!==mo){mo=mm;lab+='<text x="'+X(x.i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" class="ax">'+MESES[mm].slice(0,3).toUpperCase()+'</text>'}});
+  let mo=-1,lab="",lx=-99;S.forEach(x=>{const mm=x.mon.getMonth();if(mm!==mo&&X(x.i)-lx>=26){mo=mm;lx=X(x.i);lab+='<text x="'+X(x.i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" class="ax">'+MESES[mm].slice(0,3).toUpperCase()+'</text>'}});
   const grid=[0,top/2,top].map(v=>'<line x1="'+pl+'" x2="'+(pl+cw)+'" y1="'+Y(v).toFixed(1)+'" y2="'+Y(v).toFixed(1)+'" class="gr"/><text x="'+(pl+cw+6)+'" y="'+(Y(v)+4).toFixed(1)+'" class="ax">'+nf(v)+' km</text>').join("");
-  const dots=S.map((x,i)=>'<circle cx="'+P[i][0].toFixed(1)+'" cy="'+P[i][1].toFixed(1)+'" r="4" class="'+(x.fut||x.cur?"pf":"pr")+'" data-dot="'+i+'"/>'+(x.cur&&x.real>0&&x.real<val(x)?'<circle cx="'+P[i][0].toFixed(1)+'" cy="'+Y(x.real).toFixed(1)+'" r="4" class="pr pnow"/>':'')).join("");
+  const DR=S.length>16?2.6:4,dots=S.map((x,i)=>'<circle cx="'+P[i][0].toFixed(1)+'" cy="'+P[i][1].toFixed(1)+'" r="'+DR+'" class="'+(x.fut||x.cur?"pf":"pr")+'" data-dot="'+i+'"/>'+(x.cur&&x.real>0&&x.real<val(x)?'<circle cx="'+P[i][0].toFixed(1)+'" cy="'+Y(x.real).toFixed(1)+'" r="'+DR+'" class="pr pnow"/>':'')).join("");
   const desc=S.map(x=>"Semana "+(x.i+1)+": "+nf(val(x))+" km"+(x.fut?" previstos":"")).join("; ");
   el.innerHTML='<div class="fd-wk"><h3 id="fd-wt"></h3><div class="fc-s"><div><span>Distância</span><b id="fd-d"></b></div><div><span>Tempo</span><b id="fd-t"></b></div><div><span>Previsto</span><b id="fd-p"></b></div></div></div>'+
     '<div class="fd-ch"><div class="fd-cap"><span>Km por semana</span><span class="fd-leg"><i class="lr"></i>feito <i class="lf"></i>previsto</span></div>'+
@@ -752,7 +752,7 @@ function renderFeedTop(){const el=$("fd-top");if(!el)return;const S=weekRunKm();
   const tm=sec=>sec>=3600?Math.floor(sec/3600)+'<small>h</small> '+Math.round(sec%3600/60)+'<small>min</small>':Math.round(sec/60)+'<small>min</small>';
   const set=i=>{i=clamp(i,0,S.length-1);fdSel=i;const x=S[i],end=addDays(x.mon,6);
     g.setAttribute("transform","translate("+P[i][0].toFixed(1)+",0)");
-    el.querySelectorAll("[data-dot]").forEach((c,j)=>{c.classList.toggle("pc",j===i);c.setAttribute("r",j===i?5.5:4)});
+    el.querySelectorAll("[data-dot]").forEach((c,j)=>{c.classList.toggle("pc",j===i);c.setAttribute("r",j===i?(S.length>16?4:5.5):(S.length>16?2.6:4))});
     $("fd-wt").textContent=x.cur?"Esta semana":"Semana "+(i+1)+" · "+x.mon.getDate()+(x.mon.getMonth()!==end.getMonth()?" "+MESES[x.mon.getMonth()].slice(0,3).toLowerCase():"")+" – "+end.getDate()+" "+MESES[end.getMonth()].slice(0,3).toLowerCase();
     $("fd-d").innerHTML=x.fut?'–':x.real.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+' <small>km</small>';
     $("fd-t").innerHTML=x.fut?(x.psec?'~'+tm(x.psec):'–'):tm(x.sec);
@@ -787,7 +787,7 @@ $("feed").addEventListener("click",e=>{
   inp.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();fin(true)}else if(ev.key==="Escape")fin(false)});
   inp.addEventListener("blur",()=>fin(true))});
 
-/* ===== plano completo até 31/12 ===== */
+/* ===== plano completo: 7,5 km em 31/12/2026 e meia maratona (21,1 km) em 29/05/2027 ===== */
 let checks=new Set(),ivVal={},ivAj={},NOMES={},ivKm={},ivSeg={},ivJust=null,ivPend={};
 const COOPER_KM=1.76;          // Cooper de 19/10: 1.760 m em 12 min
 const runPlanKm=it=>it.k!=="run"?0:it.cooper?(isLegacy()?COOPER_KM:(PROFILE&&PROFILE.cooper_feito?+PROFILE.cooper_km||0:0)):(+it.n||0);
@@ -800,13 +800,16 @@ const mmss=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart
 // ritmo de prova sobe aos poucos até a meta de 6:30/km (semana 1 → 3); da semana 4 em diante vale NEWP
 const RW=[420,420,415,410,406,402,398,395,392,390,390];
 let CURW=0;
-let adj=[],PROFILE=null,RACEW=10;
+let adj=[],PROFILE=null,RACEW=31;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function offs(w,f,a,b){if(w>=RACEW)return 0;const rc=isLegacy()&&w>=3;return clamp(adj.filter(x=>!x.desfeito&&x.semana<=w&&(!rc||x.semana>=3)).reduce((s,x)=>s+(x[f]||0),0),a,b)}
 /* replanejado em 07/11 com as semanas 1 a 3 (15,1 km na semana 3; tiros de 400 m em ~2:02; leves de 6:24 a 6:58).
    Ritmos por semana, da 4 à 11: [leve, tiros 400 m, ritmo de prova, 1 km forte, contínuo] em s/km. Meta da prova: 5:50/km (43:45). */
 const NEWP=[[418,311,365,332,375],[414,308,362,330,372],[411,305,360,327,370],[407,303,358,324,368],[404,300,355,321,365],[401,298,352,319,362],[398,295,350,316,360],[398,295,350,316,360]];
-function paceSec(k){if(typeof k!=="number"&&isLegacy()&&CURW>=3&&NEWP[CURW-3]){const P=NEWP[CURW-3],dl=offs(CURW,"dl",-20,20),dr=offs(CURW,"dr",-20,20);return {L:P[0]+dl,T:P[1]+dr,R:P[2]+dr,F:P[3]+dr,C:P[4]+dr,W:600}[k]}
+/* meia maratona (10/11): meta 2h15 = 6:24/km. Da semana 12 em diante os ritmos seguem melhorando devagar. */
+const HM_PACE=384;
+function legP(w){if(w<=10)return NEWP[w-3];const k=Math.min(w-11,20),f=k/20,lerp=(a,b)=>Math.round(a+(b-a)*f);return [lerp(398,390),lerp(296,284),HM_PACE,lerp(317,305),lerp(362,350)]}
+function paceSec(k){if(k==="H"&&isLegacy())return HM_PACE+offs(CURW,"dr",-20,20);if(typeof k!=="number"&&isLegacy()&&CURW>=3&&legP(CURW)){const P=legP(CURW),dl=offs(CURW,"dl",-20,20),dr=offs(CURW,"dr",-20,20);return {L:P[0]+dl,T:P[1]+dr,R:P[2]+dr,F:P[3]+dr,C:P[4]+dr,W:600}[k]}
   const c=capKm(CURW),pc=720/c,R=RW[CURW]+offs(CURW,"dr",-20,20),L=pc+80+offs(CURW,"dl",-20,20);return typeof k==="number"?k:{L:L,T:Math.min(R-20,pc-15),R:R,F:Math.min(R-12,pc),C:R+10,W:600}[k]}
 function zones(){return {L:mmss(paceSec("L")),T:mmss(paceSec("T")),R:mmss(paceSec("R")),F:mmss(paceSec("F")),C:mmss(paceSec("C"))}}
 // corridas de cada semana: [título, detalhe, km, pace]  ({L} leve · {T} tiros · {R} prova · {F} forte)
@@ -843,13 +846,31 @@ const RUNS=[
   ["Longão","O mais longo do plano",[["k",9.5,"L"]]]],
  [["Ativação","3 km a {L} + 3 × 200 m a {F}, com 1 min parado entre eles",[["k",3,"L"],["k",.6,"F"]]]]
 ];
+// semanas 12 a 32 (índices 11 a 31): rumo aos 21 km em 29/05/2027; total da semana sempre crescendo até a semana 30
+function halfRuns(w){const k=w-11;
+  if(w===30)return [["Leve","Ritmo de conversa",[["k",7,"L"]]],["Ritmo de meia","10 min a {L} + 2 × 2 km a {H}, com 2 min parado entre eles + 5 min solto a {L}",[["m",10,"L"],["k",4,"H"],["m",5,"L"]]],["Longão","Polimento: mais curto para chegar descansada",[["k",12,"L"]]]];
+  if(w===31)return [["Leve","Ritmo de conversa",[["k",5,"L"]]],["Ativação","3 km a {L} + 4 × 200 m a {H}, com 1 min parado entre eles",[["k",3,"L"],["k",.8,"H"]]]];
+  const lng=Math.min(19,10+0.5*k),q=k%4;let Q;
+  if(q===0){const n=Math.min(12,8+Math.floor(k/4));Q=["Tiros de 400 m","15 min a {L} + "+n+" × 400 m a {T}, com 90 s parado entre eles + 10 min solto a {L}",[["m",15,"L"],["k",n*.4,"T"],["m",10,"L"]]]}
+  else if(q===1){const n=k<9?2:3;Q=["Ritmo de meia","10 min a {L} + "+n+" × 3 km a {H}, com 2 min parado entre eles + 5 min solto a {L}",[["m",10,"L"],["k",3*n,"H"],["m",5,"L"]]]}
+  else if(q===2){const n=Math.min(7,5+Math.floor(k/6));Q=["1 km forte","15 min a {L} + "+n+" × 1 km a {F}, com 2 min parado entre eles + 10 min solto a {L}",[["m",15,"L"],["k",n,"F"],["m",10,"L"]]]}
+  else{const c=Math.min(8,4+Math.round(k/4));Q=["Contínuo","1,5 km a {L} + "+nf(c)+" km a {C} + 1 km solto a {L}",[["k",1.5,"L"],["k",c,"C"],["k",1,"L"]]]}
+  const L=lng>=12&&k%3===2?["Longão com final forte",nf(lng-3)+" km a {L} + 3 km a {H}",[["k",lng-3,"L"],["k",3,"H"]]]:["Longão",lng===19?"O mais longo do plano":"Tudo no mesmo ritmo",[["k",lng,"L"]]];
+  const acc=k%3===1,target=24+0.8*k,qk=runStats(Q[2]).km,ek=Math.max(5,Math.min(12,Math.round((target-lng-qk-(acc?.4:0))*10)/10));
+  const E=acc?["Leve + acelerações",nf(ek)+" km a {L} + 4 × 100 m acelerando a {T}, com 1 min parado entre eles",[["k",ek,"L"],["k",.4,"T"]]]:["Leve","Ritmo de conversa",[["k",ek,"L"]]];
+  return [E,Q,L]}
+const PROVA21=["Prova · 21 km","3 primeiros km a 6:35, depois segure 6:22. Se sobrar, acelere nos últimos 3 km",[["k",3,395],["k",18.1,382]]];
 const PROVA=["Prova · 7,5 km","1º km a 6:00, depois segure 5:48. Se sobrar, acelere no último km",[["k",1,360],["k",6.5,348]]];
 function runStats(segs){let km=0,sec=0,ak=0,as=0;const ps=new Set();
   segs.forEach(([u,v,pk,r])=>{const p=paceSec(pk);if(r!=="r")ps.add(Math.round(p));const dk=u==="k"?v:v*60/p,ds=u==="k"?v*p:v*60;km+=dk;sec+=ds;if(r!=="r"){ak+=dk;as+=ds}});
   return {km,avg:ak?as/ak:sec/km,mixed:ps.size>1,rest:ak<km}}
+for(let w=11;w<=31;w++)RUNS.push(null); // preenchidas por halfRuns() já com os ritmos da semana
 // semanas 4 em diante recalibradas em 09/11 pelo que foi feito (10, 15, 10 e 21 min nas últimas sessões); sempre crescendo
 const ESC=[[5,5,6],[6,7,7],[8,8,9],[12,12,13],[13,13,14],[14,14,15],[15,15,16],[16,16,17],[17,17,18],[18,18,19],[10]];
-const WT=["Volta aos treinos","Base","Base","Construção","Construção","Construção","Construção","Construção","Pico","Pico","Semana da prova"];
+// semanas 12+: +1 min por semana até 30 min por sessão; polimento e semana da meia mais leves
+for(let w=11;w<=31;w++){const b=Math.min(30,19+(w-11));ESC.push(w===31?[10]:w===30?[15,15]:[b,b,Math.min(30,b+1)])}
+const WT=["Volta aos treinos","Base","Base","Construção","Construção","Construção","Construção","Construção","Pico","Pico","Prova de 7,5 km"];
+for(let w=11;w<=31;w++)WT.push(w<=14?"Base da meia":w<=21?"Construção":w<=28?"Específico":w===29?"Pico":w===30?"Polimento":"Semana da meia");
 const LIGHT=[];
 let START=new Date(2026,9,19);
 const ICK={run:"run",esc:"esc",inf:"inf",sup:"sup",abd:"abd"};
@@ -860,14 +881,16 @@ function planWeeks(){
   const inf=(w,extra)=>({k:"inf",t:"Inferiores"});
   const sup=w=>({k:"sup",t:"Superiores"});
   const abd={k:"abd",t:"Abdômen"};
-  return RUNS.map((R,w)=>{
-    CURW=w;z=zones();fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F).replace(/\{C\}/g,z.C).replace(/\{W\}/g,mmss(paceSec("W")));
+  return RUNS.map((R0,w)=>{
+    CURW=w;z=zones();const R=R0||halfRuns(w);fill=x=>x.replace(/\{L\}/g,z.L).replace(/\{T\}/g,z.T).replace(/\{R\}/g,z.R).replace(/\{F\}/g,z.F).replace(/\{C\}/g,z.C).replace(/\{H\}/g,mmss(paceSec("H"))).replace(/\{W\}/g,mmss(paceSec("W")));
     const E=ESC[w].map(m=>Math.max(3,m+offs(w,"de",-3,6)));let D;
     if(w===0) D=[[{k:"run",cooper:true,t:"Teste de Cooper",d:"Aqueça 10 min trotando. Depois corra o máximo que conseguir em 12 min e anote a distância",v:"12 min",p:"no máximo",big:true},abd],
                  [inf(w),esc(E[0])],[sup(w),esc(E[1])],[run(R[0]),abd],[inf(w)],[run(R[1]),sup(w)],[]]; // escada de sex 23 virou corrida em 27/10
     // semana 2: inferiores saíram da segunda (domingo anterior já tem pernas)
     else if(w===1) D=[[sup(w),esc(E[0])],[inf(w),run(R[0]),{...run(["Leve","30 min contínuos, ritmo de conversa",[["m",30,"L"]]]),ik:"run2"}],[abd,esc(E[1])],[inf(w),run(R[1])],[sup(w),esc(E[2])],[abd,run(R[2])],[]];
-    else if(w===10) D=[[sup(w),esc(E[0])],[run(R[0]),abd],[],[run(PROVA,true)]];
+    else if(w===10) D=[[sup(w),esc(E[0])],[run(R[0]),abd],[],[run(PROVA,true)],[],[],[]];
+    else if(w===30) D=[[inf(w),esc(E[0])],[run(R[0]),sup(w)],[abd],[run(R[1])],[esc(E[1]),sup(w)],[run(R[2]),abd],[]];
+    else if(w===31) D=[[sup(w),esc(E[0])],[run(R[0]),abd],[],[run(R[1])],[],[run(PROVA21,true)],[]];
     else D=[[inf(w),esc(E[0])],[run(R[0]),sup(w)],[esc(E[1]),abd],[run(R[1]),inf(w,"depois da corrida")],[esc(E[2]),sup(w)],[run(R[2]),abd],[]];
     const mon=addDays(START,7*w);
     return {t:WT[w],mon,days:D.map((items,i)=>({date:addDays(mon,i),items}))};
@@ -886,7 +909,7 @@ function fitFactor(P){const lv=cooperLevel(P),age=+P.idade||0;let f=[0.85,0.92,1
 const slowRamp=P=>(+P.idade||0)>=50||(cooperLevel(P)!=null&&cooperLevel(P)<=1);
 function genNW(P){if(+P.semanas)return +P.semanas;if(P.objetivo==="prova"&&P.data_alvo){const st=new Date(P.inicio+"T00:00:00"),ra=new Date(P.data_alvo+"T00:00:00");return Math.max(2,Math.min(26,Math.floor((ra-st)/(7*864e5))+1))}return 12}
 function applyProfile(){
-  if(isLegacy()){START=new Date(2026,9,19);RACEW=10;return}
+  if(isLegacy()){START=new Date(2026,9,19);RACEW=31;return}
   START=new Date(PROFILE.inicio+"T00:00:00");const nw=genNW(PROFILE);RACEW=PROFILE.objetivo==="prova"?nw-1:nw;
 }
 function getPlanWeeks(){return isLegacy()?planWeeks():genWeeks(PROFILE)}
@@ -955,7 +978,7 @@ function genWeeks(P){
   }
   return out}
 function renderGoal(){const el=$("pl-goal"),rb=$("pl-redo");if(!el)return;const leg=isLegacy();rb.hidden=leg;
-  if(leg){el.hidden=true;return}const P=PROFILE,goal=P.objetivo==="prova",NW=genNW(P),z=genPaces(P,0,NW);
+  if(leg){el.hidden=false;el.innerHTML='Meta: <b>21 km em 29/05/2027</b> em 2h15 (6:24/km). No caminho, a <b>prova de 7,5 km em 31/12</b> (meta 5:50/km).';return}const P=PROFILE,goal=P.objetivo==="prova",NW=genNW(P),z=genPaces(P,0,NW);
   const d=goal&&new Date(P.data_alvo+"T12:00:00");
   const lv=cooperLevel(P),hd=(P.nome?'<b>'+escH(P.nome)+'</b> · ':'')+'Plano de '+NW+' semanas. ',
     nv=lv!=null&&(P.idade||P.sexo)?'Pelo Cooper'+(P.idade?', para '+P.idade+' anos':'')+(P.sexo==="f"?' (feminino)':P.sexo==="m"?' (masculino)':'')+', seu nível é <b>'+LVN[lv]+'</b>; volume e progressão foram ajustados. ':'';
