@@ -4,3 +4,5 @@ Diário de treinos: musculação (inferiores e superiores), abdômen, corrida (k
 
 - Hospedado no GitHub Pages.
 - Dados e login no Supabase (mesmo projeto do Casa Nova), tabela `fitness_dias` criada por `fitness-supabase.sql`.
+
+Anotações do projeto (plano, metas, regras e decisões): ver `NOTAS.md`.
