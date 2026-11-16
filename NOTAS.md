@@ -1,9 +1,9 @@
-# Fitness: anotações do projeto
+# Saúde (antigo Fitness): anotações do projeto
 
 Resumo do que já foi combinado sobre o app, para retomar o trabalho em qualquer conversa nova.
 **Para o Claude:** leia este arquivo antes de mexer no app e atualize-o sempre que uma decisão nova for tomada.
 
-Última atualização: 16/11/2026
+Última atualização: 16/11/2026 (app virou "Saúde")
 
 ## Onde as coisas ficam
 
@@ -16,20 +16,38 @@ Resumo do que já foi combinado sobre o app, para retomar o trabalho em qualquer
   - `fitness_moves`: treinos arrastados de dia, reordenados ou excluídos
   - `fitness_nomes`: nomes editados das corridas
   - `fitness_perfil`: cadastro dos outros usuários
+  - `saude_registros`: peso, isotretinoína e VO2 (campo `tipo`)
+  - `saude_tacf`: semestres do TACF
+  - `saude_metas`: metas de peso, VO2 e TACF; a linha `remedio` liga o lembrete (valor = intervalo em dias)
 - **Commits:** autor "Victoria Pereira". Cada mensagem descreve a mudança em português.
 
-## Abas
+## Abas (desde 16/11/2026)
 
-- **Semana / Mês:** diário com bolinhas coloridas. As cores são: inferiores em vermelho, superiores em azul, abdômen em verde, corrida em laranja e escada em roxo.
-- **Plano:** agenda semanal com checks, modo de edição (arrastar entre dias, reordenar, excluir), total de km previsto por semana e semanas concluídas em verde com o km real. A semana corrente abre sozinha.
-- **Tela de trechos:** uma bolinha por trecho para fartlek, tiros e ritmo. Mostra o pace e a velocidade (km/h) previstos e reais. Tem cronômetro regressivo nos trechos de tempo. Os descansos ficam parados e fora da soma e do pace médio.
-- **Atividades:** feed de corridas no estilo Strava, com o teste de Cooper separado e o nome da corrida editável. Tem um gráfico de km por semana com marcador arrastável.
-- **Conversor:** preencha dois entre distância, tempo e pace, e o terceiro é calculado. Também converte pace em km/h.
-- **Menu:** embaixo no celular. No computador (a partir de 1000 px) vira uma barra lateral, com o plano em colunas.
+Menu de baixo: **Hoje · Planos · Mês · Peso · Estatísticas**. O endereço continua o mesmo (/fitness/).
+
+- **Hoje:** data e "semana N do plano", seguidas de três quadros um embaixo do outro:
+  - **Peso:** último peso, variação desde o início (média de 7 dias) e "%" da meta com barra. Mostra só "40%", sem "do caminho". Tocar abre a aba Peso.
+  - **Isotretinoína (Lembrete):** fundo preto, título "Lembrete" e só um círculo de check. Aparece só no dia da dose: 1 cápsula a cada 3 dias, contados a partir da última marcada. Se não marcar, continua aparecendo nos dias seguintes. Depois de marcado, fica visível (rosa) só naquele dia. Não aparece no Mês, por decisão da Victoria. Só aparece para quem tem a linha `remedio` em `saude_metas`.
+  - **Treinos de hoje:** itens do Plano do dia com check. O check usa o mesmo `toggleCheck` do Plano. Sem texto ao lado do título.
+- **Planos:** o plano de sempre. No topo ficam os botões "Conversor de pace" e "Atividades", que abrem essas telas, cada uma com "‹ Planos" para voltar. As antigas abas Semana, Atividades e Conversor saíram do menu.
+- **Mês:** igual ao que já era. Não inclui a isotretinoína.
+- **Peso (opção B):**
+  - Cartão da meta: meta, prazo, início, barra com "% do caminho", kg desde o início, kg para a meta, kg por semana (regressão linear dos últimos 28 dias) e "No ritmo atual, você chega à meta por volta de…".
+  - Lançamento com − e + de 0,1 kg e botão "Salvar" delicado (só contorno). "outro dia" permite lançar ou corrigir dias passados.
+  - Gráfico de 30 dias com pontos, média de 7 dias, linha tracejada da meta e projeção.
+  - Lista das últimas pesagens.
+- **Estatísticas:** só VO2 máx e TACF, sem textos laterais além de "meta X".
+  - **VO2:** a Victoria lança hoje e atualiza todo mês ("próxima: dd/mm"). Tem meta, "faltam X" e gráfico em degraus, que aparece a partir do 2º lançamento.
+  - **TACF:** última pontuação, conceito, barras por semestre com a linha da meta e "ver tudo ›".
+- **TACF (tela):** "‹", título e um "+" pequeno e delicado. Embaixo, a meta (pts e corrida) e quanto falta. Não tem o resumo melhor/último.
+  - Cada semestre mostra a corrida em destaque; abaixo, flexões, abdominais, cintura e peso.
+  - Tocar abre a pontuação por prova e "editar este semestre".
+  - O histórico de 1/23 a 2/26 veio da planilha da Evolução Corporal.
 
 ## Visual
 
-- Minimalista, fundo branco e texto quase preto.
+- Minimalista, fundo branco e texto quase preto. Prévias de layout: imagem PNG com as opções lado a lado (Opção A/B/C).
+- O título agora é "saúde". O ícone continua o "fit".
 - O título "fitness" fica em minúsculas, na fonte Raleway extra fina, com letras bem espaçadas. Os textos usam Manrope e Inter.
 - O ícone é "fit" escrito em Raleway.
 - Não mostrar contagens nem textos repetidos. As mensagens de feedback e o "Como foi?" foram removidos de propósito.
