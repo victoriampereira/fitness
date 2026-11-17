@@ -151,3 +151,4 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - O "+" abre o lançamento, com seletor 5 km | 10 km | 21 km | Mais longa, tempo (28:15 ou 1:14:30) e data. Tocar numa marca permite editar ou apagar.
   - Dados na tabela `saude_recordes`.
   - Marcas iniciais: 5 km em 28:15 (5:39/km, 11/10/2025); 10 km em 57:57 (5:48/km, 05/10/2026); mais longa, 11,5 km em 1:14:30 (6:29/km, 08/11/2025).
+  - "Mais longa" é calculada sozinha: mostra a maior distância entre os recordes (5 km, 10 km, 21 km, mais longa) e as corridas lançadas no app com pace. Ao lançar os 21 km, eles viram a mais longa até aparecer algo maior. Se a mais longa vier de uma corrida do app, tocar nela abre o lançamento daquele dia.

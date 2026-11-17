@@ -1911,10 +1911,14 @@ $("pg-tacf").addEventListener("click",e=>{const ed=e.target.closest("[data-tfe]"
 const PROVAS=[["5k","5 km",5],["10k","10 km",10],["21k","21 km",21.1],["longa","Mais longa",null]];
 const hms=t=>{t=Math.round(t);const h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60;return h?h+":"+pad(m)+":"+pad(x):m+":"+pad(x)};
 const dmY=k=>{const d=kDate(k);return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()};
-function recCard(){const L=PROVAS.map(p=>[p,REC.find(r=>r.prova===p[0])]).filter(x=>x[1]);
+/* corrida mais longa: a maior distância entre os recordes lançados e as corridas lançadas no app (com pace) */
+function maisLonga(){const c=REC.map(r=>({prova:r.prova,km:r.km,s:r.s,dia:r.dia}));
+  Object.entries(days).forEach(([k,v])=>{if(+v.km>0&&v.pace)c.push({prova:"dia",km:+v.km,s:Math.round(+v.km*v.pace),dia:k})});
+  return c.sort((a,b)=>b.km-a.km||a.s-b.s)[0]||null}
+function recCard(){const ML=maisLonga(),L=PROVAS.map(p=>[p,p[0]==="longa"?ML:REC.find(r=>r.prova===p[0])]).filter(x=>x[1]);
   let h='<div class="s-st"><div class="s-t">'+'<span class="s-dot" style="--c:#C9A227" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8"/></svg></span>Recordes<span style="margin-left:auto"></span><button type="button" class="s-plus" data-rec="" aria-label="Lançar recorde">+</button></div>';
   if(!L.length)h+='<p class="s-empty">Toque no + para lançar suas melhores marcas.</p>';
-  else h+='<div class="rc-l">'+L.map(([p,r])=>'<button type="button" class="rc-r" data-rec="'+p[0]+'"><span class="rc-d">'+(p[0]==="longa"?'Mais longa · '+nf(r.km)+' km':p[1])+'<small>'+(r.dia?dmY(r.dia):'')+'</small></span><span class="rc-t">'+hms(r.s)+'<small>'+mmss(r.s/r.km)+'/km</small></span></button>').join("")+'</div>';
+  else h+='<div class="rc-l">'+L.map(([p,r])=>'<button type="button" class="rc-r" '+(r.prova==="dia"?'data-k="'+r.dia+'"':'data-rec="'+r.prova+'"')+'><span class="rc-d">'+(p[0]==="longa"?'Mais longa · '+nf(r.km)+' km':p[1])+'<small>'+(r.dia?dmY(r.dia):'')+'</small></span><span class="rc-t">'+hms(r.s)+'<small>'+mmss(r.s/r.km)+'/km</small></span></button>').join("")+'</div>';
   return h+'</div>'}
 function parseHMS(x){x=String(x||"").trim().replace(/[hm]/g,":").replace(/s/g,"");const p=x.split(":").map(v=>v.trim()).filter(v=>v!=="");if(!p.length||p.some(v=>!/^\d+$/.test(v)))return null;let t=0;p.forEach(v=>{t=t*60+ +v});return t>0?t:null}
 function recDlg(prova){const r=REC.find(x=>x.prova===prova)||{},tk=key(today0());
