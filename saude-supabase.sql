@@ -30,3 +30,13 @@ create table if not exists public.saude_metas (
   primary key (user_id, chave)
 );
 -- RLS: cada pessoa só lê e altera as próprias linhas (políticas "dono le/cria/altera/apaga" nas três tabelas)
+-- recordes de corrida: prova '5k', '10k', '21k' ou 'longa' (corrida mais longa)
+create table if not exists public.saude_recordes (
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  prova text not null,
+  distancia_km numeric not null,
+  tempo_s int not null,
+  dia date,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, prova)
+);

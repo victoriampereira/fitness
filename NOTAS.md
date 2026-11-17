@@ -147,3 +147,7 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - Hoje: o cartão "Treinos de hoje" passou a se chamar "Treinos".
 - Treinos feitos no Hoje (opção D): ficam em cinza, sem risco, com um ✓ verde fino à direita.
 - O rodapé com e-mail e "Sair" foi removido de todas as abas, a pedido da Victoria; não há botão de sair.
+- **Recordes (opção A)** em Estatísticas, entre o VO2 e o TACF, com ícone de troféu dourado. É uma lista: à esquerda a prova e a data; à direita o tempo grande e o pace em cinza.
+  - O "+" abre o lançamento, com seletor 5 km | 10 km | 21 km | Mais longa, tempo (28:15 ou 1:14:30) e data. Tocar numa marca permite editar ou apagar.
+  - Dados na tabela `saude_recordes`.
+  - Marcas iniciais: 5 km em 28:15 (5:39/km, 11/10/2025); 10 km em 57:57 (5:48/km, 05/10/2026); mais longa, 11,5 km em 1:14:30 (6:29/km, 08/11/2025).
