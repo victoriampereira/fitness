@@ -28,7 +28,7 @@ Menu de baixo: **Hoje · Planos · Mês · Peso · Estatísticas**. O endereço 
 - **Hoje:** data e "semana N do plano", seguidas de três quadros um embaixo do outro:
   - **Peso:** último peso, variação desde o início (média de 7 dias) e "%" da meta com barra. Mostra só "40%", sem "do caminho". Tocar abre a aba Peso.
   - **Isotretinoína (Lembrete):** fundo preto, título "Lembrete" e só um círculo de check. Aparece só no dia da dose: 1 cápsula a cada 3 dias, contados a partir da última marcada. Se não marcar, continua aparecendo nos dias seguintes. Depois de marcado, fica visível (rosa) só naquele dia. Não aparece no Mês, por decisão da Victoria. Só aparece para quem tem a linha `remedio` em `saude_metas`.
-  - **Treinos de hoje:** itens do Plano do dia com check. O check usa o mesmo `toggleCheck` do Plano. Sem texto ao lado do título.
+  - **Treinos de hoje:** itens do Plano do dia, sem bolinhas. Quando marcados na aba Planos (ou lançados), ficam riscados no meio. Mostram os minutos da escada e os km da corrida: o real, se lançado; senão, o previsto. Tocar abre Planos. Sem texto ao lado do título.
 - **Planos:** o plano de sempre. No topo ficam os botões "Conversor de pace" e "Atividades", que abrem essas telas, cada uma com "‹ Planos" para voltar. As antigas abas Semana, Atividades e Conversor saíram do menu.
 - **Mês:** igual ao que já era. Não inclui a isotretinoína.
 - **Peso (opção B):**
@@ -37,8 +37,8 @@ Menu de baixo: **Hoje · Planos · Mês · Peso · Estatísticas**. O endereço 
   - Gráfico de 30 dias com pontos, média de 7 dias, linha tracejada da meta e projeção.
   - Lista das últimas pesagens.
 - **Estatísticas:** só VO2 máx e TACF, sem textos laterais além de "meta X".
-  - **VO2:** a Victoria lança hoje e atualiza todo mês ("próxima: dd/mm"). Tem meta, "faltam X" e gráfico em degraus, que aparece a partir do 2º lançamento.
-  - **TACF:** última pontuação, conceito, barras por semestre com a linha da meta e "ver tudo ›".
+  - **VO2:** a Victoria lança hoje e atualiza todo mês. Mostra o valor, a data (só "16/11") e "próxima: dd/mm". Sem "faltam X" e sem "Atualizar todo mês". Tem meta e gráfico em degraus, que aparece a partir do 2º lançamento.
+  - **TACF:** última pontuação, conceito, barras por semestre com a linha da meta e "ver tudo ›". Sem "definir meta" no cartão: a meta é definida na tela do TACF. O formulário de lançamento é compacto, em duas colunas, com os pontos por prova em uma linha.
 - **TACF (tela):** "‹", título e um "+" pequeno e delicado. Embaixo, a meta (pts e corrida) e quanto falta. Não tem o resumo melhor/último.
   - Cada semestre mostra a corrida em destaque; abaixo, flexões, abdominais, cintura e peso.
   - Tocar abre a pontuação por prova e "editar este semestre".

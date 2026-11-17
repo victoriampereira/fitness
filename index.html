@@ -383,11 +383,11 @@ button.s-hz{cursor:pointer}
 .ck.s-rk::after{width:13px;height:7px;border-width:0 0 2.5px 2.5px}
 .ck.s-rk[aria-pressed="true"]{background:var(--s-rem);border-color:var(--s-rem)}
 .s-list{grid-column:1/-1;list-style:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:9px}
-.s-list li{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;font-size:14px;font-weight:600}
+.s-list{cursor:pointer}.s-list li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:baseline;font-size:14px;font-weight:500}
 .s-list li[data-iv]{cursor:pointer}
 .s-list li small{display:block;font-size:11.5px;font-weight:500;color:var(--muted);margin-top:1px}
 .s-list li .s-r{font-size:13px;text-align:right;white-space:nowrap}
-.s-list li.done>span{opacity:.45}
+.s-list li.done>span{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1px}
 .s-rest{grid-column:1/-1;margin:0;font-size:13px;color:var(--muted)}
 /* peso */
 .s-card{all:unset;box-sizing:border-box;width:100%;background:var(--soft);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;font-family:var(--font);color:var(--ink)}
@@ -464,13 +464,16 @@ svg.s-ch{display:block;width:100%;height:auto}
 .pl-btn.s-dk{background:var(--fill);color:var(--fill-ink);border-color:var(--fill)}
 .s-backl{align-self:flex-start;border:none;background:none;color:var(--muted);font:500 13px var(--font);cursor:pointer;padding:0 0 8px}
 /* janela de formulário */
-.s-dlg{gap:12px;z-index:36}
+.s-dlg{gap:10px;z-index:36;max-height:calc(100dvh - 40px);overflow-y:auto;padding:18px}
 .s-dlg h3{margin:0;font-size:17px;font-weight:600}
 .s-dlg label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}
 .s-dlg .s-f{display:flex;align-items:center;gap:8px}
-.s-dlg input{flex:1;min-width:0;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:10px;padding:10px 12px;font:600 16px var(--font)}
+.s-dlg input{flex:1;min-width:0;width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 10px;font:500 16px var(--font)}
+.s-dlg input:focus{outline:none;border-color:var(--ink)}
 .s-dlg .s-f em{font-style:normal;font-size:13px;color:var(--muted);min-width:24px}
-.s-dlg .s-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.s-dlg .s-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.s-dlg .s-four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.s-dlg .s-four label{font-size:11px}.s-dlg .s-four input{padding:7px 6px;text-align:center}
+.s-dlg label{min-width:0}.s-dlg .s-sec{margin:4px 0 -4px;font-size:11.5px;font-weight:600;color:var(--muted)}
 .s-dlg .s-act{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:4px}
 .s-dlg .s-act .save{padding:11px 26px;font-size:14px}
 .s-dlg .s-msg{margin:0;font-size:12px;color:var(--inf);min-height:1em}
@@ -1675,8 +1678,9 @@ function renderHoje(){
   h+='</button>';
   if(rm&&rm.show)h+='<div class="s-hz s-rem"><span class="s-t">'+sdot("rem")+'Isotretinoína</span><span class="s-big">Lembrete</span><button type="button" class="ck s-rk" id="rem-ck" aria-pressed="'+rm.hoje+'" aria-label="Marcar isotretinoína como tomada"></button></div>';
   h+='<div class="s-hz"><span class="s-t">'+sdot("trein")+'Treinos de hoje</span>';
-  if(H.items.length)h+='<ul class="s-list">'+H.items.map(it=>{const P=PITEMS[it.id]||it,on=checks.has(it.id)||!!logged(tk,it);
-      return '<li class="'+(on?'done':'')+'"'+(P.iv?' data-iv="'+it.id+'"':'')+'><button type="button" class="ck" data-hck="'+it.id+'" aria-pressed="'+on+'" aria-label="Marcar '+escH(it.t)+' como feito"></button><span>'+escH(it.t)+(it.k==="run"&&it.p?'<small>'+escH(it.p)+'</small>':'')+'</span><span class="r">'+escH(it.v||"")+'</span></li>'}).join("")+'</ul>';
+  if(H.items.length)h+='<ul class="s-list" data-go="plano">'+H.items.map(it=>{const lv=logged(tk,it),on=checks.has(it.id)||!!lv;
+      const val=it.k==="run"?(lv?nf(lv)+' km':(it.n?nf(it.n)+' km':'')):it.k==="esc"||EXT[it.k]?(lv?nf(lv)+' min':(it.n?nf(it.n)+' min':'')):'';
+      return '<li class="'+(on?'done':'')+'"><span>'+escH(it.t.replace(/^Corrida · /,"Corrida "))+'</span><span class="s-r">'+val+'</span></li>'}).join("")+'</ul>';
   else h+='<p class="s-rest">'+(H.plan?'Descanso':'Nenhum treino no plano para hoje')+'</p>';
   h+='</div>';
   el.innerHTML=h}
@@ -1741,11 +1745,11 @@ function renderEst(){
   let h='<div class="s-st"><div class="s-t">'+sdot("vo2")+'VO2 máx<button type="button" class="s-meta" data-dlg="vo2meta">'+(MV&&MV.v!=null?'meta '+nf(MV.v):'definir meta')+'</button><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máx">+</button></div>';
   if(!L)h+='<p class="s-empty">Toque no + e lance o VO2 máx que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
   else{const nx=key(addMonths(kDate(L.dia),1)),d0=V[0];
-    h+='<div class="s-v"><b>'+nf(L.v)+'</b><small>'+(V.length>1&&L.v!==d0.v?sgn(L.v-d0.v).replace(",0","")+' desde '+dmy(d0.dia):'lançado em '+dmy(L.dia))+'</small>'+(MV&&MV.v!=null?'<small class="s-g">'+(MV.v>L.v?'faltam '+nf(Math.round((MV.v-L.v)*10)/10):'meta atingida')+'</small>':'')+'</div>'+(V.length>1?vo2Chart():'')+
-      '<div class="s-due"><span>Atualizar todo mês</span><span>'+(nx<=tk?'<b class="now">atualize hoje</b>':'próxima: <b>'+dmy(nx)+'</b>')+'</span></div>'}
+    h+='<div class="s-v"><b>'+nf(L.v)+'</b><small>'+dmy(L.dia)+'</small></div>'+(V.length>1?vo2Chart():'')+
+      '<div class="s-due"><span></span><span>'+(nx<=tk?'<b class="now">atualize hoje</b>':'próxima: <b>'+dmy(nx)+'</b>')+'</span></div>'}
   h+='</div>';
   const T=TACF,LT=T[T.length-1],MT=METAS.tacf;
-  h+='<div class="s-st"><div class="s-t">'+sdot("tacf")+'TACF<button type="button" class="s-meta" data-dlg="tacfmeta">'+(MT&&MT.v!=null?'meta '+nf(MT.v)+' pts':'definir meta')+'</button><button type="button" class="s-plus" data-dlg="tacf" aria-label="Lançar semestre do TACF">+</button></div>';
+  h+='<div class="s-st"><div class="s-t">'+sdot("tacf")+'TACF'+(MT&&MT.v!=null?'<button type="button" class="s-meta" data-dlg="tacfmeta">meta '+nf(MT.v)+' pts</button>':'<span style="margin-left:auto"></span>')+'<button type="button" class="s-plus" data-dlg="tacf" aria-label="Lançar semestre do TACF">+</button></div>';
   if(!LT)h+='<p class="s-empty">Toque no + para lançar o resultado do último TACF.</p>';
   else{const S8=T.slice(-8),sc=72/100;
     h+='<div class="s-v"><b>'+nf(LT.pontos)+'</b><small>pts · '+escH(LT.semestre)+'</small>'+(LT.conceito?'<span class="s-tag'+(bomTacf(LT.conceito)?' mb':'')+'">'+escH(LT.conceito)+'</span>':'')+'</div>'+
@@ -1764,15 +1768,14 @@ function renderTacf(){
       (det?'<div class="s-det"><div><b>'+(x.corrida_pts!=null?nf(x.corrida_pts):'—')+'</b><span>corrida</span></div><div><b>'+(x.flexoes_pts!=null?nf(x.flexoes_pts):'—')+'</b><span>flexões</span></div><div><b>'+(x.abdominais_pts!=null?nf(x.abdominais_pts):'—')+'</b><span>abdominais</span></div><div><b>'+(x.cintura_pts!=null?nf(x.cintura_pts):'—')+'</b><span>cintura</span></div><button type="button" class="s-link" data-tfe="'+escH(x.semestre)+'">editar este semestre</button></div>':'')}).join("")+'</div>';
   if(T.length)h+='<p class="note" style="margin:0">Toque num semestre para ver a pontuação de cada prova.</p>';
   el.innerHTML=h}
-function tacfDlg(x){x=x||{};const novo=!x.semestre;
+function tacfDlg(x){x=x||{};const novo=!x.semestre,V=(k,dec)=>x[k]!=null?(dec?nf(x[k]):String(x[k])):"";
   dlg(novo?"Lançar TACF":"TACF "+x.semestre,[
-    {k:"semestre",l:"Semestre",v:x.semestre||"",t:"text",ph:"ex.: 1/27",req:1,ro:!novo},
-    {k:"corrida_m",l:"Corrida",u:"m",v:x.corrida_m!=null?String(x.corrida_m):"",ph:"2400"},
-    {two:[{k:"flexoes",l:"Flexões",v:x.flexoes??""},{k:"abdominais",l:"Abdominais",v:x.abdominais??""}]},
-    {two:[{k:"cintura",l:"Cintura",u:"cm",v:x.cintura!=null?nf(x.cintura):""},{k:"peso",l:"Peso",u:"kg",v:x.peso!=null?nf(x.peso):""}]},
-    {two:[{k:"pontos",l:"Pontuação total",u:"pts",v:x.pontos!=null?nf(x.pontos):""},{k:"conceito",l:"Conceito",t:"text",v:x.conceito||"",list:"s-conc"}]},
-    {two:[{k:"corrida_pts",l:"Pts corrida",v:x.corrida_pts!=null?nf(x.corrida_pts):""},{k:"flexoes_pts",l:"Pts flexões",v:x.flexoes_pts!=null?nf(x.flexoes_pts):""}]},
-    {two:[{k:"abdominais_pts",l:"Pts abdominais",v:x.abdominais_pts!=null?nf(x.abdominais_pts):""},{k:"cintura_pts",l:"Pts cintura",v:x.cintura_pts!=null?nf(x.cintura_pts):""}]}],
+    {two:[{k:"semestre",l:"Semestre",v:x.semestre||"",t:"text",ph:"1/27",req:1,ro:!novo},{k:"corrida_m",l:"Corrida (m)",v:V("corrida_m"),ph:"2400"}]},
+    {two:[{k:"flexoes",l:"Flexões",v:V("flexoes")},{k:"abdominais",l:"Abdominais",v:V("abdominais")}]},
+    {two:[{k:"cintura",l:"Cintura (cm)",v:V("cintura",1)},{k:"peso",l:"Peso (kg)",v:V("peso",1)}]},
+    {two:[{k:"pontos",l:"Pontuação",v:V("pontos",1)},{k:"conceito",l:"Conceito",t:"text",v:x.conceito||"",list:"s-conc"}]},
+    {sec:"Pontos por prova (opcional)"},
+    {four:[{k:"corrida_pts",l:"Corrida",v:V("corrida_pts",1)},{k:"flexoes_pts",l:"Flexões",v:V("flexoes_pts",1)},{k:"abdominais_pts",l:"Abdom.",v:V("abdominais_pts",1)},{k:"cintura_pts",l:"Cintura",v:V("cintura_pts",1)}]}],
     async o=>{const sem=String(o.semestre||x.semestre||"").replace(/\s/g,"");const so=semOrd(sem);if(!so)return "Semestre no formato 1/27 ou 2/27";
       if(novo&&TACF.some(t=>t.semestre===sem))return "Esse semestre já existe. Toque nele para editar.";
       const n=k=>{const v=numIn(o[k]);return v==null?null:v},R={user_id:session.user.id,semestre:sem,ordem:so,corrida_m:n("corrida_m")==null?null:Math.round(n("corrida_m")),flexoes:n("flexoes")==null?null:Math.round(n("flexoes")),abdominais:n("abdominais")==null?null:Math.round(n("abdominais")),
@@ -1796,7 +1799,7 @@ $("pg-tacf").addEventListener("click",e=>{const ed=e.target.closest("[data-tfe]"
 let dlgSave=null,dlgDel=null;
 function dlg(title,fields,onSave,onDel,hint){
   const f=x=>'<label>'+x.l+'<span class="s-f"><input name="'+x.k+'" type="'+(x.t==="date"?"date":"text")+'"'+(x.t==="date"||x.t==="text"?'':' inputmode="decimal"')+' value="'+escH(x.v)+'"'+(x.ph?' placeholder="'+escH(x.ph)+'"':'')+(x.max?' max="'+x.max+'"':'')+(x.ro?' readonly':'')+(x.list?' list="'+x.list+'"':'')+' autocomplete="off">'+(x.u?'<em>'+x.u+'</em>':'')+'</span></label>';
-  $("dlg").innerHTML='<h3 id="dlg-t">'+title+'</h3>'+(hint?'<p class="s-hint">'+hint+'</p>':'')+fields.map(x=>x.two?'<div class="s-two">'+x.two.map(f).join("")+'</div>':f(x)).join("")+
+  $("dlg").innerHTML='<h3 id="dlg-t">'+title+'</h3>'+(hint?'<p class="s-hint">'+hint+'</p>':'')+fields.map(x=>x.sec?'<p class="s-sec">'+x.sec+'</p>':x.four?'<div class="s-four">'+x.four.map(f).join("")+'</div>':x.two?'<div class="s-two">'+x.two.map(f).join("")+'</div>':f(x)).join("")+
     '<datalist id="s-conc"><option value="Excelente"><option value="Muito Bom"><option value="Bom"><option value="Regular"><option value="Insuficiente"></datalist>'+
     '<p class="s-msg" id="dlg-msg" role="status"></p><div class="s-act">'+(onDel?'<button type="button" class="s-link" id="dlg-del">apagar</button>':'<button type="button" class="s-link" id="dlg-x">cancelar</button>')+'<button type="submit" class="save">Salvar</button></div>';
   dlgSave=onSave;dlgDel=onDel;$("dlg").hidden=false;$("scrim").classList.add("open");
