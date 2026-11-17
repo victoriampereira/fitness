@@ -177,3 +177,4 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - sex 11/12: "Subida do Acatenango" (item em destaque)
   - sáb 12/12: "Descida do Acatenango"
   - dom 13/12: longão
+- Recordes mais compacto (opção A): linhas mais próximas e tempo em 18 px. A corrida mais longa aparece como "11,5 km mais longa".

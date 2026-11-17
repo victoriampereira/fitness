@@ -515,9 +515,9 @@ svg.s-ch{display:block;width:100%;height:auto}
 .wkd .it .px strong{overflow-wrap:anywhere}.editing .wkd .it .ed{grid-column:2 / -1;grid-row:1;justify-self:end}}
 /* recordes */
 .rc-l{display:flex;flex-direction:column}
-.rc-r{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;padding:9px 0;border-top:1px solid #E8E8E8;cursor:pointer;font-family:var(--font);color:var(--ink)}.rc-r:first-child{border:none}
-.rc-d{font-size:13.5px;font-weight:600}.rc-d small{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:1px}
-.rc-t{text-align:right;font-size:20px;font-weight:500;letter-spacing:-.02em}.rc-t small{display:block;font-size:11px;color:var(--muted);font-weight:400;letter-spacing:0}
+.rc-r{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;padding:5px 0;border-top:1px solid #E8E8E8;cursor:pointer;font-family:var(--font);color:var(--ink)}.rc-r:first-child{border:none}
+.rc-d{font-size:13.5px;font-weight:600}.rc-d small{display:block;font-size:10.5px;color:var(--muted);font-weight:400;line-height:1.2}
+.rc-t{text-align:right;font-size:18px;font-weight:500;letter-spacing:-.02em;line-height:1.15}.rc-t small{display:block;font-size:10.5px;color:var(--muted);font-weight:400;letter-spacing:0;line-height:1.2}
 .s-dlg .s-seg{flex-wrap:wrap}
 .h-prova{background:var(--ink);color:#fff;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:3px;cursor:pointer}
 .h-pt{font-size:15px;font-weight:600}.h-pv{font-size:13px;opacity:.85}.h-pd{font-size:11.5px;opacity:.6;line-height:1.4;margin-top:2px}
@@ -1928,7 +1928,7 @@ function maisLonga(){const c=REC.map(r=>({prova:r.prova,km:r.km,s:r.s,dia:r.dia}
 function recCard(){const ML=maisLonga(),L=PROVAS.map(p=>[p,p[0]==="longa"?ML:REC.find(r=>r.prova===p[0])]).filter(x=>x[1]);
   let h='<div class="s-st"><div class="s-t">'+'<span class="s-dot" style="--c:#C9A227" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 20h8"/></svg></span>Recordes<span style="margin-left:auto"></span><button type="button" class="s-plus" data-rec="" aria-label="Lançar recorde">+</button></div>';
   if(!L.length)h+='<p class="s-empty">Toque no + para lançar suas melhores marcas.</p>';
-  else h+='<div class="rc-l">'+L.map(([p,r])=>'<button type="button" class="rc-r" '+(r.prova==="dia"?'data-k="'+r.dia+'"':'data-rec="'+r.prova+'"')+'><span class="rc-d">'+(p[0]==="longa"?'Mais longa · '+nf(r.km)+' km':p[1])+'<small>'+(r.dia?dmY(r.dia):'')+'</small></span><span class="rc-t">'+hms(r.s)+'<small>'+mmss(r.s/r.km)+'/km</small></span></button>').join("")+'</div>';
+  else h+='<div class="rc-l">'+L.map(([p,r])=>'<button type="button" class="rc-r" '+(r.prova==="dia"?'data-k="'+r.dia+'"':'data-rec="'+r.prova+'"')+'><span class="rc-d">'+(p[0]==="longa"?nf(r.km)+' km mais longa':p[1])+'<small>'+(r.dia?dmY(r.dia):'')+'</small></span><span class="rc-t">'+hms(r.s)+'<small>'+mmss(r.s/r.km)+'/km</small></span></button>').join("")+'</div>';
   return h+'</div>'}
 function parseHMS(x){x=String(x||"").trim().replace(/[hm]/g,":").replace(/s/g,"");const p=x.split(":").map(v=>v.trim()).filter(v=>v!=="");if(!p.length||p.some(v=>!/^\d+$/.test(v)))return null;let t=0;p.forEach(v=>{t=t*60+ +v});return t>0?t:null}
 function recDlg(prova){const r=REC.find(x=>x.prova===prova)||{},tk=key(today0());
