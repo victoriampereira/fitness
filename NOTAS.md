@@ -156,3 +156,4 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Se bater, aparece "Novo recorde · 5 km" com o tempo e o pace, e o botão Atualizar/Salvar.
   - Se for a corrida mais longa, aparece um aviso "Sua corrida mais longa: X km" (o recorde dela já é automático).
 - **Dia de prova no Hoje:** a prova do plano (7,5 km em 31/12 e 21 km em 29/05) aparece em destaque no cartão Treinos, num bloco preto com distância, pace-alvo e estratégia. Tocar abre o lançamento.
+- **Peso no Mês (opção E):** os dias com pesagem ganham um contorno verde fino no quadradinho. No dia de hoje, o contorno preto fica por fora do verde.
