@@ -90,3 +90,18 @@ Menu de baixo: **Hoje · Planos · Mês · Peso · Estatísticas**. O endereço 
 ## Histórico
 
 A lista completa de mudanças está nos commits do repositório (`git log`), de 16/10/2026 em diante.
+
+## Ajustes de 16/11 (noite)
+
+- **Hoje:** sem "semana N". Nos treinos, o tempo e os km aparecem logo ao lado do nome (ex.: "Escada 13 min").
+- **Planos:** o botão "Editar plano" agora se chama "Editar".
+- **Peso:** sem − e +. O peso fica centralizado e só se atualiza digitando.
+- **Estatísticas:**
+  - O título passou a ser "VO2 máximo". A meta aparece como etiqueta à direita do valor, no mesmo estilo do "Bom" do TACF; tocar nela edita a meta.
+  - No TACF, abaixo das barras, só aparece "ver tudo ›".
+- **TACF:**
+  - Sem "corrida" ao lado dos metros e sem a frase "Toque num semestre…".
+  - O formato padrão de cada semestre é "24F 46A 65cm 63,45kg".
+  - Não há mais "Definir meta". O "+" abre o lançamento com a escolha entre TACF e Meta.
+  - A meta é salva em `saude_tacf` com semestre "Meta". Ela aparece no topo da lista, em verde clarinho, com o rótulo "Meta", e a linha da meta nas barras usa os pontos dela.
+- **Pendente:** cálculo automático das notas do TACF (corrida, flexões, abdominais, cintura, nota final e conceito), pelo site que a Victoria vai mandar. Data de nascimento para a faixa etária: 04/07/1998.
