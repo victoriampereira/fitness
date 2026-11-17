@@ -152,3 +152,7 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Dados na tabela `saude_recordes`.
   - Marcas iniciais: 5 km em 28:15 (5:39/km, 11/10/2025); 10 km em 57:57 (5:48/km, 05/10/2026); mais longa, 11,5 km em 1:14:30 (6:29/km, 08/11/2025).
   - "Mais longa" é calculada sozinha: mostra a maior distância entre os recordes (5 km, 10 km, 21 km, mais longa) e as corridas lançadas no app com pace. Ao lançar os 21 km, eles viram a mais longa até aparecer algo maior. Se a mais longa vier de uma corrida do app, tocar nela abre o lançamento daquele dia.
+- **Aviso de recorde novo:** ao lançar uma corrida com pace (pelo card do dia ou pelos trechos), o app confere se ela bate 5 km, 10 km ou 21 km. Vale se a distância ficou entre a da prova e até 10% a mais; o tempo é estimado pelo pace médio.
+  - Se bater, aparece "Novo recorde · 5 km" com o tempo e o pace, e o botão Atualizar/Salvar.
+  - Se for a corrida mais longa, aparece um aviso "Sua corrida mais longa: X km" (o recorde dela já é automático).
+- **Dia de prova no Hoje:** a prova do plano (7,5 km em 31/12 e 21 km em 29/05) aparece em destaque no cartão Treinos, num bloco preto com distância, pace-alvo e estratégia. Tocar abre o lançamento.
