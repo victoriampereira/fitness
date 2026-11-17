@@ -104,4 +104,13 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - O formato padrão de cada semestre é "24F 46A 65cm 63,45kg".
   - Não há mais "Definir meta". O "+" abre o lançamento com a escolha entre TACF e Meta.
   - A meta é salva em `saude_tacf` com semestre "Meta". Ela aparece no topo da lista, em verde clarinho, com o rótulo "Meta", e a linha da meta nas barras usa os pontos dela.
-- **Pendente:** cálculo automático das notas do TACF (corrida, flexões, abdominais, cintura, nota final e conceito), pelo site que a Victoria vai mandar. Data de nascimento para a faixa etária: 04/07/1998.
+- **TACF automático:** ao digitar corrida, flexões, abdominais e cintura no lançamento (TACF ou Meta), o app calcula os pontos de cada prova, a nota final e o conceito pela NSCA 54-3/2026.
+  - Tabelas e regras em `tacf-calc.js`, copiadas da calculadora https://camposfmc.github.io/TACF/ (repositório camposfmc/TACF).
+  - A idade vem de `saude_metas` 'nascimento' (04/07/1998) e o sexo de 'sexo' (1 = F). A altura, usada na nota da cintura, é pedida no primeiro lançamento e fica em 'estatura'.
+  - Conferido com os semestres 2/26 (56,7 B) e 1/26 (88,1 MB): bate certinho.
+  - Os semestres antigos não são recalculados; o cálculo só acontece ao digitar.
+- **Removidos:**
+  - o título "Lançar TACF/Meta" (fica só o seletor TACF/Meta);
+  - a linha verde da meta nas barras do TACF;
+  - a meta do VO2 (etiqueta e linha);
+  - os textos "Toque em um dia…" (Mês), "Toque no círculo…" e a meta da corrida (Planos).

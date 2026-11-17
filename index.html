@@ -486,6 +486,7 @@ svg.s-ch{display:block;width:100%;height:auto}
 .s-seg{display:flex;background:var(--soft);border-radius:99px;padding:3px;gap:2px;align-self:flex-start}
 .s-seg button{border:none;background:none;border-radius:99px;padding:6px 16px;font:500 12.5px var(--font);color:var(--muted);cursor:pointer}
 .s-seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+#pl-goal{display:none!important}#app>#sync{display:none!important}
 /* Hoje (opção B): cartões menores e delicados */
 .h-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .h-head b{font-size:15px;font-weight:600}.h-head span{font-size:12px;color:var(--muted)}
@@ -676,7 +677,6 @@ button.h-card{cursor:pointer}
     <div class="adj" id="pl-adj" hidden></div>
     <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia, inclusive de outra semana. Para abrir uma semana fechada, pare em cima do título dela por um instante. Toque no × para excluir um treino. Restaurar original desfaz trocas e exclusões.</span><span class="pl-ics"><button type="button" class="pl-ic" data-go="conv" aria-label="Conversor" title="Conversor"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4L4 7M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg></button><button type="button" class="pl-ic" data-go="ativ" aria-label="Atividades" title="Atividades"><svg viewBox="0 0 24 24"><path d="M3 8c2 0 2-3 4.5-3S10 11 12.5 11 15 5 17.5 5 20 8 21 8M3 17c2 0 2-3 4.5-3s2.5 6 5 6 2.5-6 5-6 2.5 3 3.5 3"/></svg></button></span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar</button></div>
     <div class="plan" id="pl-weeks"></div>
-    <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
   </section>
 
   <section id="pg-ativ" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:0">
@@ -737,6 +737,7 @@ button.h-card{cursor:pointer}
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="tacf-calc.js?v=1"></script>
 <script>
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,"0");
@@ -1768,7 +1769,7 @@ function metaPesoDlg(){const M=METAS.peso||{},pi=pesoInfo();
     METAS.peso?async()=>{await saveMeta("peso",null);renderPeso();toast("Meta removida")}:null)}
 
 /* ---- Estatísticas ---- */
-function vo2Chart(){const V=S.vo2,M=METAS.vo2;if(!V.length)return "";const w=350,h=120,pl=6,pr=34,pt=12,pb=20;
+function vo2Chart(){const V=S.vo2,M=null;if(!V.length)return "";const w=350,h=120,pl=6,pr=34,pt=12,pb=20;
   const vals=V.map(x=>x.v);if(M&&M.v!=null)vals.push(M.v);const lo=Math.floor(Math.min(...vals))-2,hi=Math.ceil(Math.max(...vals))+2;
   const t0=kDate(V[0].dia).getTime(),t1=Math.max(kDate(V[V.length-1].dia).getTime(),t0+30*864e5),X=t=>pl+(t-t0)/(t1-t0)*(w-pl-pr),Y=v=>pt+(hi-v)/(hi-lo)*(h-pt-pb);
   let s='<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Evolução do VO2 máx">';const step=hi-lo>10?4:2;
@@ -1785,7 +1786,7 @@ function renderEst(){
   let h='<div class="s-st"><div class="s-t">'+sdot("vo2")+'VO2 máximo<span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máximo">+</button></div>';
   if(!L)h+='<p class="s-empty">Toque no + e lance o VO2 máximo que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
   else{const nx=key(addMonths(kDate(L.dia),1)),d0=V[0];
-    h+='<div class="s-v"><b>'+nf(L.v)+'</b><small>'+dmy(L.dia)+'</small><button type="button" class="s-tag" data-dlg="vo2meta">'+(MV&&MV.v!=null?'meta '+nf(MV.v):'definir meta')+'</button></div>'+(V.length>1?vo2Chart():'')+
+    h+='<div class="s-v"><b>'+nf(L.v)+'</b><small>'+dmy(L.dia)+'</small></div>'+(V.length>1?vo2Chart():'')+
       '<div class="s-due"><span></span><span>'+(nx<=tk?'<b class="now">atualize hoje</b>':'próxima: <b>'+dmy(nx)+'</b>')+'</span></div>'}
   h+='</div>';
   const T=tacfReal(),LT=T[T.length-1],TM=tacfMeta(),MT=TM&&TM.pontos!=null?{v:+TM.pontos}:null;
@@ -1793,7 +1794,7 @@ function renderEst(){
   if(!LT)h+='<p class="s-empty">Toque no + para lançar o resultado do último TACF.</p>';
   else{const S8=T.slice(-8),sc=72/100;
     h+='<div class="s-v"><b>'+nf(LT.pontos)+'</b><small>pts · '+escH(LT.semestre)+'</small>'+(LT.conceito?'<span class="s-tag'+(bomTacf(LT.conceito)?' mb':'')+'">'+escH(LT.conceito)+'</span>':'')+'</div>'+
-      '<div class="s-bars">'+(MT&&MT.v!=null?'<span class="s-goal" style="bottom:'+Math.min(72,MT.v*sc)+'px"><em>meta</em></span>':'')+S8.map(x=>'<i class="'+(bomTacf(x.conceito)?'mb':'')+'" style="height:'+Math.max(3,(+x.pontos||0)*sc)+'px" title="'+escH(x.semestre)+': '+nf(x.pontos)+' pts"></i>').join("")+'</div>'+
+      '<div class="s-bars">'+S8.map(x=>'<i class="'+(bomTacf(x.conceito)?'mb':'')+'" style="height:'+Math.max(3,(+x.pontos||0)*sc)+'px" title="'+escH(x.semestre)+': '+nf(x.pontos)+' pts"></i>').join("")+'</div>'+
       '<div class="s-bl">'+S8.map(x=>'<span>'+escH(x.semestre)+'</span>').join("")+'</div>'+
       '<div class="s-due"><span></span><button type="button" data-go="tacf">ver tudo ›</button></div>'}
   h+='</div>';el.innerHTML=h}
@@ -1809,29 +1810,42 @@ function renderTacf(){
   el.innerHTML=h}
 function tacfDlg(x,modo){x=x||{};const novo=!x.semestre,meta=x.semestre==="Meta"||(novo&&modo==="meta"),V=(k,dec)=>x[k]!=null?(dec?nf(x[k]):String(x[k])):"";
   const seg=novo?'<span class="s-seg"><button type="button" data-tmode="tacf" aria-pressed="'+!meta+'">TACF</button><button type="button" data-tmode="meta" aria-pressed="'+meta+'">Meta</button></span>':'';
-  dlg(novo?(meta?"Lançar meta":"Lançar TACF"):(meta?"Meta do TACF":"TACF "+x.semestre),[
+  dlg(novo?"":(meta?"Meta do TACF":"TACF "+x.semestre),[
+    ...(METAS.estatura&&METAS.estatura.v?[]:[{k:"estatura",l:"Sua altura (cm) · usada na nota da cintura",v:"",ph:"ex.: 163"}]),
     meta?{k:"corrida_m",l:"Corrida (m)",v:V("corrida_m"),ph:"2400"}:{two:[{k:"semestre",l:"Semestre",v:x.semestre||"",t:"text",ph:"1/27",req:1,ro:!novo},{k:"corrida_m",l:"Corrida (m)",v:V("corrida_m"),ph:"2400"}]},
     {two:[{k:"flexoes",l:"Flexões",v:V("flexoes")},{k:"abdominais",l:"Abdominais",v:V("abdominais")}]},
     {two:[{k:"cintura",l:"Cintura (cm)",v:V("cintura",1)},{k:"peso",l:"Peso (kg)",v:V("peso",1)}]},
     {two:[{k:"pontos",l:"Pontuação",v:V("pontos",1)},{k:"conceito",l:"Conceito",t:"text",v:x.conceito||"",list:"s-conc"}]},
-    {sec:"Pontos por prova (opcional)"},
+    {sec:"Pontos por prova · calculados pela NSCA 54-3/2026"},
     {four:[{k:"corrida_pts",l:"Corrida",v:V("corrida_pts",1)},{k:"flexoes_pts",l:"Flexões",v:V("flexoes_pts",1)},{k:"abdominais_pts",l:"Abdom.",v:V("abdominais_pts",1)},{k:"cintura_pts",l:"Cintura",v:V("cintura_pts",1)}]}],
-    async o=>{const sem=meta?"Meta":String(o.semestre||x.semestre||"").replace(/\s/g,"");const so=meta?999999:semOrd(sem);if(!so)return "Semestre no formato 1/27 ou 2/27";
+    async o=>{if(o.estatura){const es=numIn(o.estatura);if(es==null||es<140||es>220)return "Altura em cm, entre 140 e 220";await saveMeta("estatura",{v:es})}
+      const sem=meta?"Meta":String(o.semestre||x.semestre||"").replace(/\s/g,"");const so=meta?999999:semOrd(sem);if(!so)return "Semestre no formato 1/27 ou 2/27";
       if(novo&&TACF.some(t=>t.semestre===sem))return "Esse semestre já existe. Toque nele para editar.";
       const n=k=>{const v=numIn(o[k]);return v==null?null:v},R={user_id:session.user.id,semestre:sem,ordem:so,corrida_m:n("corrida_m")==null?null:Math.round(n("corrida_m")),flexoes:n("flexoes")==null?null:Math.round(n("flexoes")),abdominais:n("abdominais")==null?null:Math.round(n("abdominais")),
         cintura:n("cintura"),peso:n("peso"),pontos:n("pontos"),conceito:(o.conceito||"").trim()||null,corrida_pts:n("corrida_pts"),flexoes_pts:n("flexoes_pts"),abdominais_pts:n("abdominais_pts"),cintura_pts:n("cintura_pts"),updated_at:new Date().toISOString()};
       const r=await sb.from("saude_tacf").upsert(R);if(r.error)throw r.error;TACF=TACF.filter(t=>t.semestre!==sem).concat([{...x,...R}]).sort((a,b)=>(semOrd(a.semestre)||a.ordem||0)-(semOrd(b.semestre)||b.ordem||0));render();toast(meta?"Meta salva":"TACF salvo")},
     novo?null:async()=>{const r=await sb.from("saude_tacf").delete().eq("user_id",session.user.id).eq("semestre",x.semestre);if(r.error)throw r.error;TACF=TACF.filter(t=>t.semestre!==x.semestre);tacfAberto=null;render();toast(meta?"Meta apagada":"Semestre apagado")},seg)}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-dlg]");if(!b||!session)return;e.preventDefault();const k=b.dataset.dlg,tk=key(today0());
-  if(k==="vo2"){const L=S.vo2[S.vo2.length-1];dlg("VO2 máx",[{k:"v",l:"Valor do Garmin",u:"ml/kg/min",v:"",ph:L?nf(L.v):"ex.: 42",req:1},{k:"dia",l:"Dia",t:"date",v:tk,max:tk}],
+  if(k==="vo2"){const L=S.vo2[S.vo2.length-1];dlg("VO2 máximo",[{k:"v",l:"Valor do Garmin",u:"ml/kg/min",v:"",ph:L?nf(L.v):"ex.: 42",req:1},{k:"dia",l:"Dia",t:"date",v:tk,max:tk}],
     async o=>{const v=numIn(o.v),dia=o.dia||tk;if(v===0&&S.vo2.some(x=>x.dia===dia)){await delReg("vo2",dia);renderEst();toast("Lançamento apagado");return}
-      if(v==null||v<10||v>99)return "Coloque o número do Garmin. Ex.: 42";await saveReg("vo2",dia,v);renderEst();toast("VO2 máx salvo")},null,
+      if(v==null||v<10||v>99)return "Coloque o número do Garmin. Ex.: 42";await saveReg("vo2",dia,v);renderEst();toast("VO2 máximo salvo")},null,
     L?'Último: '+nf(L.v)+' em '+dmy(L.dia)+'. Para apagar um lançamento, escolha o dia e coloque 0.':'')}
   else if(k==="vo2meta"){const M=METAS.vo2||{};dlg("Meta de VO2 máx",[{k:"v",l:"Meta",u:"ml/kg/min",v:M.v!=null?nf(M.v):"",req:1}],
     async o=>{const v=numIn(o.v);if(v==null||v<10||v>99)return "Meta inválida. Ex.: 45";await saveMeta("vo2",{v});renderEst();toast("Meta salva")},M.v!=null?async()=>{await saveMeta("vo2",null);renderEst();toast("Meta removida")}:null)}
   else if(k==="tacfmeta"){const M=METAS.tacf||{};dlg("Meta do TACF",[{k:"v",l:"Pontuação",u:"pts",v:M.v!=null?nf(M.v):"",req:1},{k:"x",l:"Corrida (opcional)",u:"m",v:M.x!=null?String(M.x):""}],
     async o=>{const v=numIn(o.v),x=numIn(o.x);if(v==null||v<=0||v>100)return "Pontuação entre 1 e 100";await saveMeta("tacf",{v,x:x==null?null:Math.round(x)});render();toast("Meta salva")},M.v!=null?async()=>{await saveMeta("tacf",null);render();toast("Meta removida")}:null)}
   else if(k==="tacf")tacfDlg(null,"tacf")});
+function tacfPerfil(){const nas=METAS.nascimento&&METAS.nascimento.data,sx=METAS.sexo?(METAS.sexo.v===0?"M":"F"):(PROFILE&&PROFILE.sexo==="m"?"M":"F");
+  let idade=PROFILE&&+PROFILE.idade||null;if(nas){const b=kDate(nas),t=today0();idade=t.getFullYear()-b.getFullYear()-((t.getMonth()<b.getMonth()||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate()))?1:0)}
+  return {sexo:sx,idade:idade||30,estatura:METAS.estatura&&METAS.estatura.v||null}}
+const MENC={E:"Excelente",MB:"Muito Bom",B:"Bom",S:"Satisfatório",I:"Não apto"};
+function tacfAuto(){const f=$("dlg");if(!f.querySelector('[name="flexoes"]')||!window.TACFCALC)return;const g=k=>{const el=f.querySelector('[name="'+k+'"]');return el?numIn(el.value):null},put=(k,v)=>{const el=f.querySelector('[name="'+k+'"]');if(el)el.value=v==null?"":nf(Math.round(v*10)/10)};
+  const P=tacfPerfil(),est=g("estatura")||P.estatura,e={sexo:P.sexo,idade:P.idade,estatura:est||165,aerobicoModo:"corrida",corridaM:g("corrida_m"),cintura:g("cintura"),flexao:g("flexoes"),abdominal:g("abdominais")};
+  const T=window.TACFCALC,N=T.normalizarEntrada({...e,corridaM:e.corridaM||0});
+  const it={cintura:"cintura_pts",flexao:"flexoes_pts",abdominal:"abdominais_pts",aerobico:"corrida_pts"},src={cintura:"cintura",flexao:"flexao",abdominal:"abdominal",aerobico:"corridaM"};
+  Object.keys(it).forEach(k=>{const v=k==="aerobico"?N.corridaM:e[src[k]];put(it[k],v==null||(k==="aerobico"&&!v)||(k==="cintura"&&!est)?null:T.pontosItem(k,N))});
+  if(e.corridaM&&e.cintura!=null&&e.flexao!=null&&e.abdominal!=null&&est){const r=T.calcularTACF(N);put("pontos",r.grau);const c=f.querySelector('[name="conceito"]');if(c)c.value=MENC[r.mencao]||""}}
+$("dlg").addEventListener("input",e=>{if(["corrida_m","flexoes","abdominais","cintura","estatura"].includes(e.target.name))tacfAuto()});
 $("dlg").addEventListener("click",e=>{const m=e.target.closest("[data-tmode]");if(m){e.preventDefault();tacfDlg(null,m.dataset.tmode)}});
 $("pg-tacf").addEventListener("click",e=>{const ed=e.target.closest("[data-tfe]");if(ed){e.preventDefault();tacfDlg(TACF.find(t=>t.semestre===ed.dataset.tfe));return}
   const r=e.target.closest("[data-tf]");if(r){tacfAberto=tacfAberto===r.dataset.tf?null:r.dataset.tf;renderTacf()}});
@@ -1840,7 +1854,7 @@ $("pg-tacf").addEventListener("click",e=>{const ed=e.target.closest("[data-tfe]"
 let dlgSave=null,dlgDel=null;
 function dlg(title,fields,onSave,onDel,hint){
   const f=x=>'<label>'+x.l+'<span class="s-f"><input name="'+x.k+'" type="'+(x.t==="date"?"date":"text")+'"'+(x.t==="date"||x.t==="text"?'':' inputmode="decimal"')+' value="'+escH(x.v)+'"'+(x.ph?' placeholder="'+escH(x.ph)+'"':'')+(x.max?' max="'+x.max+'"':'')+(x.ro?' readonly':'')+(x.list?' list="'+x.list+'"':'')+' autocomplete="off">'+(x.u?'<em>'+x.u+'</em>':'')+'</span></label>';
-  $("dlg").innerHTML='<h3 id="dlg-t">'+title+'</h3>'+(hint?(/^<span class="s-seg"/.test(hint)?hint:'<p class="s-hint">'+hint+'</p>'):'')+fields.map(x=>x.sec?'<p class="s-sec">'+x.sec+'</p>':x.four?'<div class="s-four">'+x.four.map(f).join("")+'</div>':x.two?'<div class="s-two">'+x.two.map(f).join("")+'</div>':f(x)).join("")+
+  $("dlg").innerHTML=(title?'<h3 id="dlg-t">'+title+'</h3>':'')+(hint?(/^<span class="s-seg"/.test(hint)?hint:'<p class="s-hint">'+hint+'</p>'):'')+fields.map(x=>x.sec?'<p class="s-sec">'+x.sec+'</p>':x.four?'<div class="s-four">'+x.four.map(f).join("")+'</div>':x.two?'<div class="s-two">'+x.two.map(f).join("")+'</div>':f(x)).join("")+
     '<datalist id="s-conc"><option value="Excelente"><option value="Muito Bom"><option value="Bom"><option value="Regular"><option value="Insuficiente"></datalist>'+
     '<p class="s-msg" id="dlg-msg" role="status"></p><div class="s-act">'+(onDel?'<button type="button" class="s-link" id="dlg-del">apagar</button>':'<button type="button" class="s-link" id="dlg-x">cancelar</button>')+'<button type="submit" class="save">Salvar</button></div>';
   dlgSave=onSave;dlgDel=onDel;$("dlg").hidden=false;$("scrim").classList.add("open");
