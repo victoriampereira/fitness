@@ -117,7 +117,7 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 
 ## Ícone, menu e VO2 (16/11, noite)
 
-- **Ícone do app:** opção S, um bonequinho correndo em traço fino, com a cabeça (bolinha) menor e preta cheia. Arquivos: `apple-touch-icon-s.png`, `icon-s-192.png`, `icon-s-512.png` e `favicon-s.png`. O iPhone só troca o ícone ao refazer o atalho na tela de início.
+- **Ícone do app:** opção A, um "s" fino e minúsculo em Raleway 200, preto sobre branco (desde 16/11). Arquivos: `apple-touch-icon-a.png`, `icon-a-192.png`, `icon-a-512.png` e `favicon-a.png`. O iPhone só troca o ícone ao refazer o atalho na tela de início.
 - **Menu de baixo (opção C):** ícones e nomes finos e pequenos, em cinza-claro. A aba ativa fica em preto, sem laranja.
 - **Gráfico do VO2 (opção E):** linha fina com área clarinha embaixo. Os pontos ficam com o mesmo espaço entre si, independentemente da data. O valor aparece em cima de cada ponto, pequeno e cinza, e as datas só nas pontas.
 - **VO2:** sem a linha "próxima: dd/mm". Os lançamentos de teste anteriores a 16/11 foram apagados; ficou só o 40 de 16/11.
