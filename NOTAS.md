@@ -146,3 +146,4 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - Cartão de Peso em Estatísticas: sem "ver tudo". Tem um gráfico igual ao do VO2 (verde, últimas 14 pesagens). Tocar no valor ou no gráfico abre a tela de Peso; o "+" também.
 - Hoje: o cartão "Treinos de hoje" passou a se chamar "Treinos".
 - Treinos feitos no Hoje (opção D): ficam em cinza, sem risco, com um ✓ verde fino à direita.
+- O rodapé com e-mail e "Sair" foi removido de todas as abas, a pedido da Victoria; não há botão de sair.

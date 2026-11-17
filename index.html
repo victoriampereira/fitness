@@ -869,7 +869,7 @@ function render(){
   const TABOF={rem:"hoje",hoje:"hoje",sem:"hoje",plano:"plano",conv:"plano",ativ:"plano",mes:"mes",peso:"est",est:"est",tacf:"est"};
   ["hoje","plano","mes","est"].forEach(p=>$("tab-"+p).setAttribute("aria-selected",String(TABOF[page]===p)));
   ["hoje","rem","sem","mes","plano","ativ","conv","peso","est","tacf"].forEach(p=>{const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});
-  $("app").querySelector(".foot").style.display=page==="est"?"":"none";
+  $("app").querySelector(".foot").style.display="none";
   renderPlanKeep();renderFeed();renderHoje();renderRem();renderPeso();renderEst();renderTacf();
 
   /* semana */
