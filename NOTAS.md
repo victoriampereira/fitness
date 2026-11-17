@@ -145,3 +145,4 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - Peso sem ",0": aparece 66 em vez de 66,0 (`nf1` mostra decimal só quando existe).
 - Cartão de Peso em Estatísticas: sem "ver tudo". Tem um gráfico igual ao do VO2 (verde, últimas 14 pesagens). Tocar no valor ou no gráfico abre a tela de Peso; o "+" também.
 - Hoje: o cartão "Treinos de hoje" passou a se chamar "Treinos".
+- Treinos feitos no Hoje (opção D): ficam em cinza, sem risco, com um ✓ verde fino à direita.

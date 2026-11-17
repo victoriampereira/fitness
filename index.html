@@ -529,7 +529,8 @@ button.h-card{cursor:pointer}
 .h-ck{width:26px;height:26px;border-radius:50%;border:1.5px solid #E7A9CB;background:#fff;padding:0;cursor:pointer;display:grid;place-items:center}
 .h-ck::after{content:"";width:9px;height:5px;border:solid transparent;border-width:0 0 2px 2px;transform:rotate(-45deg) translate(1px,-1px)}
 .h-ck[aria-pressed="true"]{background:var(--s-rem);border-color:var(--s-rem)}.h-ck[aria-pressed="true"]::after{border-color:#fff}
-.h-card .s-list{gap:7px}.h-card .s-list li{font-size:13.5px;display:block}.s-list li em{font-style:normal;color:var(--muted);font-size:12.5px;margin-left:4px}
+.h-card .s-list{gap:7px}.h-card .s-list li{font-size:13.5px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.h-card .s-list li.done>span:first-child{text-decoration:none!important;color:#A8A8A8}.h-card .s-list li.done em{color:#A8A8A8}.h-card .s-list li.done>span.s-ok{color:#2FA36B!important;font-size:13px;text-decoration:none!important}.s-list li em{font-style:normal;color:var(--muted);font-size:12.5px;margin-left:4px}
 /* Planos (opção B): ícones redondos finos */
 .pl-ics{display:flex;gap:8px;margin-right:auto}
 .pl-ic{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:none;display:grid;place-items:center;padding:0;cursor:pointer}
@@ -1774,7 +1775,7 @@ function renderHoje(){
   h+='<div class="h-card"><span class="h-t">'+mi("trein")+'Treinos</span>';
   if(H.items.length)h+='<ul class="s-list">'+H.items.map(it=>{const lv=logged(tk,it),on=checks.has(it.id)||!!lv;
       const val=it.k==="run"?(lv?nf(lv)+' km':(it.n?nf(it.n)+' km':'')):it.k==="esc"||EXT[it.k]?(lv?nf(lv)+' min':(it.n?nf(it.n)+' min':'')):'';
-      return '<li class="'+(on?'done':'')+'"'+((PITEMS[it.id]||it).iv?' data-iv="'+it.id+'"':' data-k="'+tk+'"')+'><span>'+escH(it.t.replace(/^Corrida · /,"Corrida "))+(val?' <em>'+val+'</em>':'')+'</span></li>'}).join("")+'</ul>';
+      return '<li class="'+(on?'done':'')+'"'+((PITEMS[it.id]||it).iv?' data-iv="'+it.id+'"':' data-k="'+tk+'"')+'><span>'+escH(it.t.replace(/^Corrida · /,"Corrida "))+(val?' <em>'+val+'</em>':'')+'</span>'+(on?'<span class="s-ok" aria-label="feito">✓</span>':'')+'</li>'}).join("")+'</ul>';
   else h+='<p class="s-rest">'+(H.plan?'Descanso':'Nenhum treino no plano para hoje')+'</p>';
   h+='</div>';
   el.innerHTML=h}
