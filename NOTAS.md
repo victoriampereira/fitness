@@ -186,3 +186,7 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Tocar na data do topo edita aquela avaliação.
   - O "+" lança uma nova. IMC (pela altura de 168 cm), massa gorda e massa magra são calculados sozinhos se ficarem em branco.
   - Dados na tabela `saude_avaliacoes`. Importadas nov/2024 e nov/2025 (do print da planilha), com dia 01.
+- Metas da Avaliação Física calculadas sozinhas:
+  - Meta de peso → meta de IMC (peso ÷ 1,68²).
+  - Meta de % gordura → metas de massa gorda e massa magra. Usa a meta de peso; sem ela, o peso da última avaliação.
+  - Se mudar a meta de peso com % gordura definida, as massas são recalculadas.

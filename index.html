@@ -1984,6 +1984,11 @@ function avCard(){const L=AVA[AVA.length-1];
   else{const G=AVA.filter(a=>a.gordura!=null).map(a=>({dia:a.dia,v:+a.gordura}));
     h+='<div class="s-v" data-go="aval" style="cursor:pointer"><b>'+nf(+L.gordura)+'%</b><small class="s-dt">'+myL(L.dia)+'</small></div><div data-go="aval" style="cursor:pointer">'+lineChart(G,"#6B7A99","avg",myL)+'</div>'}
   return h+'</div>'}
+async function avMetaCalc(k){if(k!=="peso"&&k!=="gordura")return "";
+  const r2=x=>Math.round(x*100)/100,mv=c=>METAS["av_"+c]&&METAS["av_"+c].v,L=AVA[AVA.length-1]||{},est=(METAS.estatura&&METAS.estatura.v||168)/100,peso=mv("peso")||L.peso,g=mv("gordura"),out=[];
+  if(k==="peso"&&mv("peso")){await saveMeta("av_imc",{v:r2(mv("peso")/(est*est))});out.push("IMC calculado")}
+  if(g&&peso){const mg=r2(peso*g/100);await saveMeta("av_massa_gorda",{v:mg});await saveMeta("av_massa_magra",{v:r2(peso-mg)});out.push("massas calculadas")}
+  return out.join(" e ")}
 function renderAval(){const el=$("pg-aval");if(!el||page!=="aval")return;const A=AVA.slice(-3),hasM=AVC.some(([k])=>METAS["av_"+k]&&METAS["av_"+k].v!=null);
   const f=(v,u)=>v==null||v===""?'—':nf(+v);
   let h='<div class="s-th"><button type="button" class="s-back" data-go="est" aria-label="Voltar">‹</button><b>Avaliação Física</b><button type="button" class="s-plus" data-avn="1" aria-label="Lançar avaliação">+</button></div>';
@@ -1997,7 +2002,7 @@ function renderAval(){const el=$("pg-aval");if(!el||page!=="aval")return;const A
 $("pg-aval").addEventListener("click",e=>{if(e.target.closest("[data-avdob]")){avDob=!avDob;renderAval();return}
   const ed=e.target.closest("[data-ave]");if(ed){avDlg(AVA.find(a=>a.dia===ed.dataset.ave));return}
   const m=e.target.closest("[data-avm]");if(m&&e.target.closest(".mt")){const k=m.dataset.avm,[,n,u]=AVC.find(x=>x[0]===k),M=METAS["av_"+k]||{};
-    dlg("Meta · "+n,[{k:"v",l:"Meta",u:u.trim(),v:M.v!=null?nf(M.v):"",req:1}],async o=>{const v=numIn(o.v);if(v==null||v<=0)return "Coloque um número";await saveMeta("av_"+k,{v});renderAval();toast("Meta salva")},M.v!=null?async()=>{await saveMeta("av_"+k,null);renderAval();toast("Meta removida")}:null)}});
+    dlg("Meta · "+n,[{k:"v",l:"Meta",u:u.trim(),v:M.v!=null?nf(M.v):"",req:1}],async o=>{const v=numIn(o.v);if(v==null||v<=0)return "Coloque um número";await saveMeta("av_"+k,{v});const cal=await avMetaCalc(k);renderAval();toast(cal?"Meta salva · "+cal:"Meta salva")},M.v!=null?async()=>{await saveMeta("av_"+k,null);renderAval();toast("Meta removida")}:null)}});
 function avDlg(a){a=a||{};const novo=!a.dia,tk=key(today0()),V=k=>a[k]!=null?nf(+a[k]):"";
   dlg(novo?"Nova Avaliação Física":"Avaliação · "+myL(a.dia),[
     {two:[{k:"dia",l:"Data",t:"date",v:a.dia||tk,max:tk,ro:!novo},{k:"peso",l:"Peso (kg)",v:V("peso")}]},
