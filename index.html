@@ -1674,7 +1674,7 @@ const SIC={
   tacf:'<circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/>'};
 const SCOL={peso:"var(--s-peso)",rem:"var(--s-rem)",trein:"var(--run)",vo2:"var(--s-vo2)",tacf:"var(--s-tacf)"};
 const sdot=k=>'<span class="s-dot" style="--c:'+SCOL[k]+'" aria-hidden="true"><svg viewBox="0 0 24 24">'+SIC[k]+'</svg></span>';
-const nf1=v=>Number(v).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1,useGrouping:false});
+const nf1=v=>Number(v).toLocaleString("pt-BR",{minimumFractionDigits:0,maximumFractionDigits:1,useGrouping:false});
 const sgn=v=>(v<-0.05?"−":v>0.05?"+":"")+nf1(Math.abs(v));
 const dmy=k=>{const d=new Date(k+"T12:00:00");return d.getDate()+"/"+pad(d.getMonth()+1)};
 const kDate=k=>new Date(k+"T12:00:00");
@@ -1771,7 +1771,7 @@ function renderHoje(){
       (pi.meta!=null?'<span class="h-bar"><i style="width:'+pi.pct+'%"></i></span>':'')}
   h+='</button>';
   if(rm&&rm.show)h+='<div class="h-card h-line" data-go="rem" style="cursor:pointer"><span class="h-t">'+mi("rem")+'Isotretinoína</span><button type="button" class="h-ck" id="rem-ck" aria-pressed="'+rm.hoje+'" aria-label="Marcar isotretinoína como tomada"></button></div>';
-  h+='<div class="h-card"><span class="h-t">'+mi("trein")+'Treinos de hoje</span>';
+  h+='<div class="h-card"><span class="h-t">'+mi("trein")+'Treinos</span>';
   if(H.items.length)h+='<ul class="s-list">'+H.items.map(it=>{const lv=logged(tk,it),on=checks.has(it.id)||!!lv;
       const val=it.k==="run"?(lv?nf(lv)+' km':(it.n?nf(it.n)+' km':'')):it.k==="esc"||EXT[it.k]?(lv?nf(lv)+' min':(it.n?nf(it.n)+' min':'')):'';
       return '<li class="'+(on?'done':'')+'"'+((PITEMS[it.id]||it).iv?' data-iv="'+it.id+'"':' data-k="'+tk+'"')+'><span>'+escH(it.t.replace(/^Corrida · /,"Corrida "))+(val?' <em>'+val+'</em>':'')+'</span></li>'}).join("")+'</ul>';
@@ -1817,12 +1817,13 @@ function metaPesoDlg(){const M=METAS.peso||{},pi=pesoInfo();
     METAS.peso?async()=>{await saveMeta("peso",null);renderPeso();toast("Meta removida")}:null)}
 
 /* ---- Estatísticas ---- */
-function vo2Chart(){const V=S.vo2;if(V.length<2)return "";const w=350,h=110,pl=14,pr=14,pt=20,pb=20,n=V.length;
+function vo2Chart(){return lineChart(S.vo2,"#0E9AA7","vo2g")}
+function lineChart(V,cor,gid){if(V.length<2)return "";const w=350,h=110,pl=14,pr=14,pt=20,pb=20,n=V.length;
   const vals=V.map(x=>x.v),lo=Math.min(...vals)-1,hi=Math.max(...vals)+1,X=i=>pl+i*(w-pl-pr)/(n-1),Y=v=>pt+(hi-v)/(hi-lo)*(h-pt-pb);
   const pts=V.map((q,i)=>X(i).toFixed(1)+","+Y(q.v).toFixed(1));const show=n<=8?V.map((_,i)=>i):[0,n-1].concat(V.map((_,i)=>i).filter(i=>i%Math.ceil(n/6)===0));
-  let s='<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Evolução do VO2 máximo"><defs><linearGradient id="vo2g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E9AA7" stop-opacity=".16"/><stop offset="1" stop-color="#0E9AA7" stop-opacity="0"/></linearGradient></defs>';
-  s+='<path d="M'+X(0)+','+(h-pb)+' L'+pts.join(' L')+' L'+X(n-1)+','+(h-pb)+'Z" fill="url(#vo2g)"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#0E9AA7" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>';
-  V.forEach((q,i)=>{s+='<circle cx="'+X(i)+'" cy="'+Y(q.v)+'" r="2.6" fill="#0E9AA7"/>';if(show.includes(i))s+='<text x="'+X(i)+'" y="'+(Y(q.v)-8)+'" font-size="9.5" fill="#8A8A8A" text-anchor="'+(i===0?'start':i===n-1?'end':'middle')+'">'+nf(q.v)+'</text>'});
+  let s='<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" role="img" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+cor+'" stop-opacity=".16"/><stop offset="1" stop-color="'+cor+'" stop-opacity="0"/></linearGradient></defs>';
+  s+='<path d="M'+X(0)+','+(h-pb)+' L'+pts.join(' L')+' L'+X(n-1)+','+(h-pb)+'Z" fill="url(#'+gid+')"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="'+cor+'" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>';
+  V.forEach((q,i)=>{s+='<circle cx="'+X(i)+'" cy="'+Y(q.v)+'" r="2.6" fill="'+cor+'"/>';if(show.includes(i))s+='<text x="'+X(i)+'" y="'+(Y(q.v)-8)+'" font-size="9.5" fill="#8A8A8A" text-anchor="'+(i===0?'start':i===n-1?'end':'middle')+'">'+nf(q.v)+'</text>'});
   s+='<text x="'+X(0)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+dmy(V[0].dia)+'</text><text x="'+X(n-1)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0" text-anchor="end">'+dmy(V[n-1].dia)+'</text>';
   return s+'</svg>'}
 function pesoMini(){const P=S.peso.slice(-30);if(P.length<2)return "";const w=350,h=70,pl=4,pr=4,pt=10,pb=8,vals=P.map(x=>x.v),lo=Math.min(...vals)-.3,hi=Math.max(...vals)+.3,X=i=>pl+i*(w-pl-pr)/(P.length-1),Y=v=>pt+(hi-v)/(hi-lo)*(h-pt-pb);
@@ -1830,8 +1831,7 @@ function pesoMini(){const P=S.peso.slice(-30);if(P.length<2)return "";const w=35
 function renderEst(){
   const el=$("pg-est");if(!el||page!=="est")return;const V=S.vo2,MV=METAS.vo2,L=V[V.length-1],tk=key(today0()),PL=S.peso[S.peso.length-1];
   let h='<div class="s-st"><div class="s-t">'+sdot("peso")+'Peso<span style="margin-left:auto"></span><button type="button" class="s-plus" data-go="peso" aria-label="Lançar peso">+</button></div>'+
-    (PL?'<div class="s-v"><b>'+nf1(PL.v)+'</b><small class="s-dt">'+dmy(PL.dia)+'</small></div>'+pesoMini():'<p class="s-empty">Toque no + para lançar seu peso.</p>')+
-    '<div class="s-due"><span></span><button type="button" data-go="peso">ver tudo ›</button></div></div>';
+    (PL?'<div class="s-v" data-go="peso" style="cursor:pointer"><b>'+nf1(PL.v)+'</b><small class="s-dt">'+dmy(PL.dia)+'</small></div><div data-go="peso" style="cursor:pointer">'+lineChart(S.peso.slice(-14),"#2FA36B","pesog")+'</div>':'<p class="s-empty">Toque no + para lançar seu peso.</p>')+'</div>';
   h+='<div class="s-st"><div class="s-t">'+sdot("vo2")+'VO2 máximo<span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máximo">+</button></div>';
   if(!L)h+='<p class="s-empty">Toque no + e lance o VO2 máximo que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
   else{const nx=key(addMonths(kDate(L.dia),1)),d0=V[0];

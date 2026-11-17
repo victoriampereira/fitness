@@ -142,3 +142,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - A janela do VO2 não tem mais texto de instrução.
 - **Peso dentro de Estatísticas:** a aba Peso saiu do menu, que agora tem 4 abas: Hoje · Plano · Mês · Estatísticas. Em Estatísticas, o primeiro cartão é o Peso: valor, data, minigráfico verde dos últimos 30 lançamentos, "+" e "ver tudo ›", que abrem a tela de Peso com "‹" para voltar. O cartão do Hoje também abre essa tela.
 - A isotretinoína aparece só no Hoje, no dia da dose. Não há outra forma de ver o calendário, por decisão da Victoria.
+- Peso sem ",0": aparece 66 em vez de 66,0 (`nf1` mostra decimal só quando existe).
+- Cartão de Peso em Estatísticas: sem "ver tudo". Tem um gráfico igual ao do VO2 (verde, últimas 14 pesagens). Tocar no valor ou no gráfico abre a tela de Peso; o "+" também.
+- Hoje: o cartão "Treinos de hoje" passou a se chamar "Treinos".
