@@ -1784,8 +1784,7 @@ function renderEst(){
   let h='<div class="s-st"><div class="s-t">'+sdot("vo2")+'VO2 máximo<span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máximo">+</button></div>';
   if(!L)h+='<p class="s-empty">Toque no + e lance o VO2 máximo que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
   else{const nx=key(addMonths(kDate(L.dia),1)),d0=V[0];
-    h+='<div class="s-v"><b>'+nf(L.v)+'</b><small>'+dmy(L.dia)+'</small></div>'+(V.length>1?vo2Chart():'')+
-      '<div class="s-due"><span></span><span>'+(nx<=tk?'<b class="now">atualize hoje</b>':'próxima: <b>'+dmy(nx)+'</b>')+'</span></div>'}
+    h+='<div class="s-v"><b>'+nf(L.v)+'</b><small>'+dmy(L.dia)+'</small></div>'+(V.length>1?vo2Chart():'')}
   h+='</div>';
   const T=tacfReal(),LT=T[T.length-1],TM=tacfMeta(),MT=TM&&TM.pontos!=null?{v:+TM.pontos}:null;
   h+='<div class="s-st"><div class="s-t">'+sdot("tacf")+'TACF<span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="tacf" aria-label="Lançar semestre do TACF">+</button></div>';
@@ -1809,7 +1808,6 @@ function renderTacf(){
 function tacfDlg(x,modo){x=x||{};const novo=!x.semestre,meta=x.semestre==="Meta"||(novo&&modo==="meta"),V=(k,dec)=>x[k]!=null?(dec?nf(x[k]):String(x[k])):"";
   const seg=novo?'<span class="s-seg"><button type="button" data-tmode="tacf" aria-pressed="'+!meta+'">TACF</button><button type="button" data-tmode="meta" aria-pressed="'+meta+'">Meta</button></span>':'';
   dlg(novo?"":(meta?"Meta do TACF":"TACF "+x.semestre),[
-    ...(METAS.estatura&&METAS.estatura.v?[]:[{k:"estatura",l:"Sua altura (cm) · usada na nota da cintura",v:"",ph:"ex.: 163"}]),
     meta?{k:"corrida_m",l:"Corrida (m)",v:V("corrida_m"),ph:"2400"}:{two:[{k:"semestre",l:"Semestre",v:x.semestre||"",t:"text",ph:"1/27",req:1,ro:!novo},{k:"corrida_m",l:"Corrida (m)",v:V("corrida_m"),ph:"2400"}]},
     {two:[{k:"flexoes",l:"Flexões",v:V("flexoes")},{k:"abdominais",l:"Abdominais",v:V("abdominais")}]},
     {two:[{k:"cintura",l:"Cintura (cm)",v:V("cintura",1)},{k:"peso",l:"Peso (kg)",v:V("peso",1)}]},
