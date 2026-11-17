@@ -156,4 +156,24 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Se bater, aparece "Novo recorde · 5 km" com o tempo e o pace, e o botão Atualizar/Salvar.
   - Se for a corrida mais longa, aparece um aviso "Sua corrida mais longa: X km" (o recorde dela já é automático).
 - **Dia de prova no Hoje:** a prova do plano (7,5 km em 31/12 e 21 km em 29/05) aparece em destaque no cartão Treinos, num bloco preto com distância, pace-alvo e estratégia. Tocar abre o lançamento.
-- **Isotretinoína no Mês (opção E):** os dias em que a Victoria tomou a cápsula ganham um contorno rosa fino (#D6409F) no quadradinho. No dia de hoje, o contorno preto fica por fora. O contorno verde dos dias com pesagem foi cancelado a pedido dela.
+- O Mês não tem contorno de peso nem de isotretinoína; os dois foram testados e removidos a pedido da Victoria.
+
+## Escada e Acatenango (definido em 16/11)
+
+- A Victoria vai subir o vulcão Acatenango em **11/12/2026**: subida na sexta, descida no sábado 12/12.
+- A escada aumentou a partir de 17/11. Valores em minutos por sessão (o array `ESC`):
+  - semana 5: 13 (feito), 18, 20
+  - semana 6: 20, 22, 25
+  - semana 7: 22, 25, 30 (pico)
+  - semana 8: 20, 12 (leve antes da trilha)
+  - semana 9: 15, 18, 18 (volta gradual)
+  - semana 10: 15, 15, 12
+  - semana 11: 10 (prova de 7,5 km)
+- Semana 8 tem um layout próprio:
+  - seg: inferiores e escada 20
+  - ter: 1 km forte e superiores
+  - qua: abdômen e escada 12
+  - qui: corrida leve, sem pernas
+  - sex 11/12: "Subida do Acatenango" (item em destaque)
+  - sáb 12/12: "Descida do Acatenango"
+  - dom 13/12: longão

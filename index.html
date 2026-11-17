@@ -907,7 +907,7 @@ function render(){
   for(let n=1;n<=len;n++){
     const d=new Date(y,m,n),k=key(d),v=days[k],fut=d>t;if(v)M.push(v);
     const marks=v?["inf","sup","abd"].filter(f=>v[f]).map(f=>ic(f)).join(""):"";
-    h+='<button type="button" class="tile'+(fut?' future':'')+(active(v)?' done':'')+(k===tk?' today':'')+(typeof S!=="undefined"&&S.remedio.some(x=>x.dia===k)?' rm':'')+'" data-k="'+k+'"'+(fut?' disabled':'')+' aria-label="Dia '+n+'">'+
+    h+='<button type="button" class="tile'+(fut?' future':'')+(active(v)?' done':'')+(k===tk?' today':'')+'" data-k="'+k+'"'+(fut?' disabled':'')+' aria-label="Dia '+n+'">'+
       '<span class="n">'+n+'</span>'+(marks?'<span class="marks">'+marks+'</span>':'')+'<span class="mt">'+
       (v&&v.km>0?'<span class="val">'+ic("run")+'<span class="km">'+nf(v.km)+'km</span></span>':'')+
       (v&&v.esc>0?'<span class="val">'+ic("esc")+'<span class="km">'+nf(v.esc)+'min</span></span>':'')+
@@ -1082,7 +1082,8 @@ function runStats(segs){let km=0,sec=0,ak=0,as=0;const ps=new Set();
   return {km,avg:ak?as/ak:sec/km,mixed:ps.size>1,rest:ak<km}}
 for(let w=11;w<=31;w++)RUNS.push(null); // preenchidas por halfRuns() já com os ritmos da semana
 // semanas 4 em diante recalibradas em 09/11 pelo que foi feito (10, 15, 10 e 21 min nas últimas sessões); sempre crescendo
-const ESC=[[5,5,6],[6,7,7],[8,8,9],[12,12,13],[13,13,14],[14,14,15],[15,15,16],[16,16,17],[17,17,18],[18,18,19],[10]];
+// 16/11: escada aumentada a partir de 17/11 para a subida do Acatenango (11/12): pico de 30 min na semana 7, semana 8 leve, depois volta gradual
+const ESC=[[5,5,6],[6,7,7],[8,8,9],[12,12,13],[13,18,20],[20,22,25],[22,25,30],[20,12],[15,18,18],[15,15,12],[10]];
 // semanas 12+: +1 min por semana até 30 min por sessão; polimento e semana da meia mais leves
 for(let w=11;w<=31;w++){const b=Math.min(30,19+(w-11));ESC.push(w===31?[10]:w===30?[15,15]:[b,b,Math.min(30,b+1)])}
 const WT=["Volta aos treinos","Base","Base","Construção","Construção","Construção","Construção","Construção","Pico","Pico","Prova de 7,5 km"];
@@ -1105,6 +1106,8 @@ function planWeeks(){
     // semana 2: inferiores saíram da segunda (domingo anterior já tem pernas)
     else if(w===1) D=[[sup(w),esc(E[0])],[inf(w),run(R[0]),{...run(["Leve","30 min contínuos, ritmo de conversa",[["m",30,"L"]]]),ik:"run2"}],[abd,esc(E[1])],[inf(w),run(R[1])],[sup(w),esc(E[2])],[abd,run(R[2])],[]];
     else if(w===10) D=[[sup(w),esc(E[0])],[run(R[0]),abd],[],[run(PROVA,true)],[],[],[]];
+    // semana 8: Acatenango (sex 11/12 subida, sáb 12/12 descida); longão vai para domingo e sem pernas na véspera
+    else if(w===7) D=[[inf(w),esc(E[0])],[run(R[1]),sup(w)],[esc(E[1]),abd],[run(R[0])],[{k:"esc",ik:"acat",t:"Subida do Acatenango",d:"Ritmo de conversa, passos curtos e pausas breves. Água e lanche a cada hora",v:"trilha",big:true}],[{k:"esc",ik:"acat",t:"Descida do Acatenango",d:"Cume ao amanhecer e descida com calma. Sem outros treinos",v:"trilha",big:true}],[run(R[2])]];
     else if(w===30) D=[[inf(w),esc(E[0])],[run(R[0]),sup(w)],[abd],[run(R[1])],[esc(E[1]),sup(w)],[run(R[2]),abd],[]];
     else if(w===31) D=[[sup(w),esc(E[0])],[run(R[0]),abd],[],[run(R[1])],[],[run(PROVA21,true)],[]];
     else D=[[inf(w),esc(E[0])],[run(R[0]),sup(w)],[esc(E[1]),abd],[run(R[1]),inf(w,"depois da corrida")],[esc(E[2]),sup(w)],[run(R[2]),abd],[]];
