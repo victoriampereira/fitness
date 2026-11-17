@@ -479,6 +479,44 @@ svg.s-ch{display:block;width:100%;height:auto}
 .s-dlg .s-msg{margin:0;font-size:12px;color:var(--inf);min-height:1em}
 .s-dlg .s-hint{margin:-4px 0 0;font-size:12px;color:var(--muted)}
 
+
+/* Hoje (opção B): cartões menores e delicados */
+.h-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.h-head b{font-size:15px;font-weight:600}.h-head span{font-size:12px;color:var(--muted)}
+.h-card{all:unset;box-sizing:border-box;width:100%;background:#F7F7F7;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-family:var(--font);color:var(--ink)}
+button.h-card{cursor:pointer}
+.h-card.h-line{flex-direction:row;justify-content:space-between;align-items:center}
+.h-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.h-t{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600}
+.h-ic{width:18px;height:18px;border-radius:50%;background:var(--c);display:inline-grid;place-items:center;flex:none}
+.h-ic svg{width:11px;height:11px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.h-s{font-size:12px;color:var(--muted)}.h-s.ok{color:var(--s-ok)}
+.h-num{font-size:24px;font-weight:500;letter-spacing:-.02em;line-height:1}.h-num small{font-size:12px;color:var(--muted);margin-left:2px;font-weight:500}
+.h-bar{height:3px;background:#EDEDED;border-radius:9px;position:relative;overflow:hidden}.h-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--s-peso);border-radius:9px}
+.h-ck{width:26px;height:26px;border-radius:50%;border:1.5px solid #E7A9CB;background:#fff;padding:0;cursor:pointer;display:grid;place-items:center}
+.h-ck::after{content:"";width:9px;height:5px;border:solid transparent;border-width:0 0 2px 2px;transform:rotate(-45deg) translate(1px,-1px)}
+.h-ck[aria-pressed="true"]{background:var(--s-rem);border-color:var(--s-rem)}.h-ck[aria-pressed="true"]::after{border-color:#fff}
+.h-card .s-list{gap:7px}.h-card .s-list li{font-size:13.5px}
+/* Planos (opção B): ícones redondos finos */
+.pl-ics{display:flex;gap:8px;margin-right:auto}
+.pl-ic{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:none;display:grid;place-items:center;padding:0;cursor:pointer}
+.pl-ic svg{width:15px;height:15px;fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#pl-edit:not(.on){border:none;background:none;color:var(--muted);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line);padding:6px 2px}
+/* Peso (opção E): três números e lançamento discreto */
+.p-trio{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0}
+.p-trio>*{all:unset;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--font)}
+.p-trio button{cursor:pointer}
+.p-trio b{font-size:20px;font-weight:400;letter-spacing:-.02em;color:var(--ink)}.p-trio span{font-size:10.5px;color:var(--muted)}
+.p-eta{margin:-4px 0 0;text-align:center;font-size:12px;color:var(--muted)}
+.p-in{display:flex;flex-direction:column;align-items:center;gap:8px}
+.p-day{position:relative;font-size:11.5px;color:var(--muted)}.p-day u{text-underline-offset:2px;text-decoration-color:var(--line)}
+.p-day input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.p-step{display:flex;align-items:center;justify-content:center;gap:18px}
+.p-step button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:none;font:300 18px var(--font);color:var(--ink);cursor:pointer;padding:0}
+.p-step label{display:flex;align-items:baseline;gap:4px}
+.p-step input{width:86px;border:none;background:none;text-align:right;font:300 24px var(--font);color:var(--ink);padding:0;letter-spacing:-.01em}
+.p-step input:focus{outline:none}.p-step em{font-style:normal;font-size:22px;font-weight:300;color:var(--ink)}
+.p-link{border:none;background:none;font:500 12.5px var(--font);color:var(--ink);text-decoration:underline;text-underline-offset:3px;text-decoration-color:#CFCFCF;cursor:pointer;padding:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .onb{display:flex;flex-direction:column;gap:18px}
 .onb-h{font-size:20px;font-weight:600;letter-spacing:-.02em}
@@ -630,7 +668,7 @@ svg.s-ch{display:block;width:100%;height:auto}
   <section id="pg-plano" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
     <p class="pl-goal" id="pl-goal" hidden></p>
     <div class="adj" id="pl-adj" hidden></div>
-    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia, inclusive de outra semana. Para abrir uma semana fechada, pare em cima do título dela por um instante. Toque no × para excluir um treino. Restaurar original desfaz trocas e exclusões.</span><button type="button" class="pl-btn s-dk" data-go="conv">⇅ Conversor de pace</button><button type="button" class="pl-btn" data-go="ativ" style="margin-right:auto">Atividades</button><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
+    <div class="pl-bar"><span class="note" id="pl-hint" hidden>Segure o ≡ e arraste para outro dia, inclusive de outra semana. Para abrir uma semana fechada, pare em cima do título dela por um instante. Toque no × para excluir um treino. Restaurar original desfaz trocas e exclusões.</span><span class="pl-ics"><button type="button" class="pl-ic" data-go="conv" aria-label="Conversor" title="Conversor"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4L4 7M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"/></svg></button><button type="button" class="pl-ic" data-go="ativ" aria-label="Atividades" title="Atividades"><svg viewBox="0 0 24 24"><path d="M3 8c2 0 2-3 4.5-3S10 11 12.5 11 15 5 17.5 5 20 8 21 8M3 17c2 0 2-3 4.5-3s2.5 6 5 6 2.5-6 5-6 2.5 3 3.5 3"/></svg></button></span><button type="button" class="pl-btn ghostb" id="pl-reset" hidden>Restaurar original</button><button type="button" class="pl-btn ghostb" id="pl-redo" hidden>Refazer plano</button><button type="button" class="pl-btn" id="pl-edit">Editar plano</button></div>
     <div class="plan" id="pl-weeks"></div>
     <p class="note">Toque no círculo para marcar o treino como feito. Se sentir dor que não passa ou que piora, pare e descanse. Dá para trocar dias de lugar, mas evite pernas ou escada na véspera do longão.</p>
   </section>
@@ -644,7 +682,7 @@ svg.s-ch{display:block;width:100%;height:auto}
 
   <section id="pg-conv" role="tabpanel" aria-labelledby="tab-plano" hidden style="flex-direction:column;gap:18px">
     <button type="button" class="s-backl" data-go="plano">‹ Planos</button>
-    <div class="ph"><h2>Pace ↔ velocidade</h2></div>
+    <div class="ph"><h2>Conversor · pace ↔ velocidade</h2></div>
     <div class="conv">
       <label class="cv"><span>Pace</span><input id="cv-pace" type="text" inputmode="numeric" autocomplete="off" placeholder="7:30"><em>min/km</em></label>
       <div class="cv-eq" aria-hidden="true">⇅</div>
@@ -1669,15 +1707,16 @@ function hojeItems(){const tk=key(today0());let W;try{W=planWeeksMoved()}catch(_
 function renderHoje(){
   const el=$("pg-hoje");if(!el||page!=="hoje")return;const t=today0(),tk=key(t),H=hojeItems(),pi=pesoInfo(),rm=remInfo();
   const wd=t.toLocaleDateString("pt-BR",{weekday:"long"}).split("-")[0];
-  let h='<div class="s-head"><b>'+wd.charAt(0).toUpperCase()+wd.slice(1)+', '+t.getDate()+'/'+pad(t.getMonth()+1)+'</b><span>'+(H.wk>=0?'semana '+(H.wk+1)+' do plano':'')+'</span></div>';
-  h+='<button type="button" class="s-hz" data-go="peso"><span class="s-t">'+sdot("peso")+'Peso'+(pi&&pi.meta!=null?'<em>meta '+nf1(pi.meta)+' kg</em>':'')+'</span>';
-  if(!pi)h+='<span class="s-big" style="font-size:22px">Lançar peso</span><span class="s-sub">toque para registrar</span>';
+  const mi=k=>'<span class="h-ic" style="--c:'+SCOL[k]+'" aria-hidden="true"><svg viewBox="0 0 24 24">'+SIC[k]+'</svg></span>';
+  let h='<div class="h-head"><b>'+wd.charAt(0).toUpperCase()+wd.slice(1)+', '+t.getDate()+'/'+pad(t.getMonth()+1)+'</b><span>'+(H.wk>=0?'semana '+(H.wk+1):'')+'</span></div>';
+  h+='<button type="button" class="h-card" data-go="peso"><span class="h-row"><span class="h-t">'+mi("peso")+'Peso</span><span class="h-s">'+(pi&&pi.meta!=null?pi.pct+'%':'')+'</span></span>';
+  if(!pi)h+='<span class="h-row"><span class="h-s">Toque para lançar seu peso</span></span>';
   else{const dl=pi.media-pi.ini,good=pi.meta==null||Math.sign(dl)===Math.sign(pi.meta-pi.ini);
-    h+='<span class="s-big">'+nf1(pi.last.v)+'<small>kg</small></span><span class="s-sub">'+(pi.meta!=null?'<b class="'+(good?'':'neg')+'">'+sgn(dl)+' kg</b><br>'+pi.pct+'%':(pi.last.dia===tk?'lançado hoje':'último: '+dmy(pi.last.dia)))+'</span>'+
-      (pi.meta!=null?'<span class="s-bar"><i style="width:'+pi.pct+'%"></i></span>':'')}
+    h+='<span class="h-row"><span class="h-num">'+nf1(pi.last.v)+'<small>kg</small></span><span class="h-s'+(good?' ok':'')+'">'+(pi.meta!=null?sgn(dl)+' kg':(pi.last.dia===tk?'hoje':dmy(pi.last.dia)))+'</span></span>'+
+      (pi.meta!=null?'<span class="h-bar"><i style="width:'+pi.pct+'%"></i></span>':'')}
   h+='</button>';
-  if(rm&&rm.show)h+='<div class="s-hz s-rem"><span class="s-t">'+sdot("rem")+'Isotretinoína</span><span class="s-big">Lembrete</span><button type="button" class="ck s-rk" id="rem-ck" aria-pressed="'+rm.hoje+'" aria-label="Marcar isotretinoína como tomada"></button></div>';
-  h+='<div class="s-hz"><span class="s-t">'+sdot("trein")+'Treinos de hoje</span>';
+  if(rm&&rm.show)h+='<div class="h-card h-line"><span class="h-t">'+mi("rem")+'Lembrete</span><button type="button" class="h-ck" id="rem-ck" aria-pressed="'+rm.hoje+'" aria-label="Marcar isotretinoína como tomada"></button></div>';
+  h+='<div class="h-card"><span class="h-t">'+mi("trein")+'Treinos de hoje</span>';
   if(H.items.length)h+='<ul class="s-list" data-go="plano">'+H.items.map(it=>{const lv=logged(tk,it),on=checks.has(it.id)||!!lv;
       const val=it.k==="run"?(lv?nf(lv)+' km':(it.n?nf(it.n)+' km':'')):it.k==="esc"||EXT[it.k]?(lv?nf(lv)+' min':(it.n?nf(it.n)+' min':'')):'';
       return '<li class="'+(on?'done':'')+'"><span>'+escH(it.t.replace(/^Corrida · /,"Corrida "))+'</span><span class="s-r">'+val+'</span></li>'}).join("")+'</ul>';
@@ -1694,21 +1733,16 @@ function renderPeso(){
   const el=$("pg-peso");if(!el||page!=="peso")return;if(el.contains(document.activeElement)&&document.activeElement.id==="pw-v")return;
   const pi=pesoInfo(),tk=key(today0());if(!pesoDia)pesoDia=tk;const ex=S.peso.find(p=>p.dia===pesoDia);
   if(pesoVal==null)pesoVal=ex?ex.v:(pi?pi.last.v:null);
-  let h;
-  if(pi&&pi.meta!=null){const dl=pi.media-pi.ini;
-    h='<button type="button" class="s-card" id="pw-meta"><span class="s-row"><b>Meta: '+nf1(pi.meta)+' kg</b><span>'+(METAS.peso.data?'até '+dmy(METAS.peso.data):'editar')+'</span></span>'+
-      '<span><span class="s-bar" style="display:block"><i style="width:'+pi.pct+'%"></i></span><span class="s-ends"><span>início <b>'+nf1(pi.ini)+'</b></span><span><b>'+pi.pct+'%</b> do caminho</span><span>meta <b>'+nf1(pi.meta)+'</b></span></span></span>'+
-      '<span class="s-3"><span><b>'+sgn(dl)+'</b><span>kg desde o início</span></span><span><b>'+nf1(Math.abs(pi.media-pi.meta))+'</b><span>kg para a meta</span></span><span><b>'+(pi.slope!=null?sgn(pi.slope*7):'—')+'</b><span>kg por semana</span></span></span>'+
-      (pi.eta?'<span class="s-eta">No ritmo atual, você chega à meta por volta de <b>'+dmy(key(pi.eta))+'</b></span>':(pi.slope==null?'<span class="s-eta">A previsão aparece depois de uma semana de pesagens</span>':''))+'</button>'}
-  else h='<button type="button" class="s-card empty" id="pw-meta">'+(pi?'Definir meta de peso':'Definir meta de peso')+'<b>+</b></button>';
-  const d=kDate(pesoDia),lab=pesoDia===tk?'Peso de hoje':'Peso de '+DW[d.getDay()].toLowerCase()+', '+dmy(pesoDia);
-  h+='<div class="s-in"><label class="s-day">'+lab+' · <u>outro dia</u><input type="date" id="pw-date" max="'+tk+'" value="'+pesoDia+'" aria-label="Escolher o dia da pesagem"></label>'+
-    '<div class="s-step"><button type="button" data-ps="-0.1" aria-label="Menos 100 gramas">−</button><label><input id="pw-v" type="text" inputmode="decimal" autocomplete="off" value="'+(pesoVal!=null?nf1(pesoVal):'')+'" placeholder="0,0" aria-label="Peso em kg"><em>kg</em></label><button type="button" data-ps="0.1" aria-label="Mais 100 gramas">+</button></div>'+
-    '<button type="button" class="s-soft" id="pw-save">'+(ex?'Atualizar':'Salvar')+'</button>'+(ex?'<button type="button" class="s-link" id="pw-del">apagar este dia</button>':'')+'</div>';
+  const meta=pi&&pi.meta!=null?pi.meta:(METAS.peso&&METAS.peso.v!=null?METAS.peso.v:null);
+  let h='<div class="p-trio"><div><b>'+(pi?nf1(pi.last.v):'—')+'</b><span>atual</span></div>'+
+    '<button type="button" id="pw-meta"><b>'+(meta!=null?nf1(meta):'+')+'</b><span>'+(meta!=null?'meta':'definir meta')+'</span></button>'+
+    '<div><b>'+(pi&&meta!=null?nf1(Math.abs(pi.media-meta)):'—')+'</b><span>falta</span></div></div>';
+  if(pi&&pi.eta)h+='<p class="p-eta">no ritmo atual, meta por volta de '+dmy(key(pi.eta))+'</p>';
+  const d=kDate(pesoDia),lab=pesoDia===tk?'hoje':DW[d.getDay()].toLowerCase()+', '+dmy(pesoDia);
+  h+='<div class="p-in"><label class="p-day">'+lab+' · <u>outro dia</u><input type="date" id="pw-date" max="'+tk+'" value="'+pesoDia+'" aria-label="Escolher o dia da pesagem"></label>'+
+    '<div class="p-step"><button type="button" data-ps="-0.1" aria-label="Menos 100 gramas">−</button><label><input id="pw-v" type="text" inputmode="decimal" autocomplete="off" value="'+(pesoVal!=null?nf1(pesoVal):'')+'" placeholder="0,0" aria-label="Peso em kg"><em>kg</em></label><button type="button" data-ps="0.1" aria-label="Mais 100 gramas">+</button></div>'+
+    '<button type="button" class="p-link" id="pw-save">'+(ex?'atualizar':'salvar')+'</button>'+(ex?'<button type="button" class="s-link" id="pw-del">apagar este dia</button>':'')+'</div>';
   if(pi)h+=pesoChart(pi);
-  const R=S.peso.slice(-7).reverse();
-  if(R.length)h+='<div class="s-recent"><h3>Últimas pesagens</h3>'+R.map(p=>{const i=S.peso.indexOf(p),q=S.peso[i-1],df=q?p.v-q.v:null;const dd=kDate(p.dia);
-      return '<button type="button" class="s-rr'+(p.dia===pesoDia?' sel':'')+'" data-pd="'+p.dia+'"><span><b>'+DW[dd.getDay()].toLowerCase()+', '+dmy(p.dia)+'</b></span><span class="s-d'+(df!=null&&pi&&pi.meta!=null&&Math.sign(df)===Math.sign(pi.meta-pi.ini)?' ok':'')+'">'+(df==null?'':sgn(df))+'</span><span><b>'+nf1(p.v)+'</b> <span class="s-m">kg</span></span></button>'}).join("")+'</div>';
   el.innerHTML=h}
 $("pg-peso").addEventListener("click",async e=>{
   const st=e.target.closest("[data-ps]");if(st){const v=numIn($("pw-v").value)??pesoVal??60;pesoVal=Math.round((v+ +st.dataset.ps)*10)/10;$("pw-v").value=nf1(pesoVal);return}

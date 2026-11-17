@@ -25,13 +25,13 @@ Resumo do que já foi combinado sobre o app, para retomar o trabalho em qualquer
 
 Menu de baixo: **Hoje · Planos · Mês · Peso · Estatísticas**. O endereço continua o mesmo (/fitness/).
 
-- **Hoje:** data e "semana N do plano", seguidas de três quadros um embaixo do outro:
+- **Hoje (opção B, escolhida em 16/11):** cartões menores e claros (#F7F7F7) com ícones de 18 px. No topo, a data e "semana N". Depois três quadros, um embaixo do outro:
   - **Peso:** último peso, variação desde o início (média de 7 dias) e "%" da meta com barra. Mostra só "40%", sem "do caminho". Tocar abre a aba Peso.
-  - **Isotretinoína (Lembrete):** fundo preto, título "Lembrete" e só um círculo de check. Aparece só no dia da dose: 1 cápsula a cada 3 dias, contados a partir da última marcada. Se não marcar, continua aparecendo nos dias seguintes. Depois de marcado, fica visível (rosa) só naquele dia. Não aparece no Mês, por decisão da Victoria. Só aparece para quem tem a linha `remedio` em `saude_metas`.
+  - **Isotretinoína (Lembrete):** cartão claro com o título "Lembrete" e um círculo rosa de check. Aparece só no dia da dose: 1 cápsula a cada 3 dias, contados a partir da última marcada. Se não marcar, continua aparecendo nos dias seguintes. Depois de marcado, fica visível (rosa) só naquele dia. Não aparece no Mês, por decisão da Victoria. Só aparece para quem tem a linha `remedio` em `saude_metas`.
   - **Treinos de hoje:** itens do Plano do dia, sem bolinhas. Quando marcados na aba Planos (ou lançados), ficam riscados no meio. Mostram os minutos da escada e os km da corrida: o real, se lançado; senão, o previsto. Tocar abre Planos. Sem texto ao lado do título.
-- **Planos:** o plano de sempre. No topo ficam os botões "Conversor de pace" e "Atividades", que abrem essas telas, cada uma com "‹ Planos" para voltar. As antigas abas Semana, Atividades e Conversor saíram do menu.
+- **Planos (opção B):** o plano de sempre. No topo ficam dois ícones redondos finos, Conversor (⇅) e Atividades (onda), e "Editar plano" como link sublinhado. Eles, que abrem essas telas, cada uma com "‹ Planos" para voltar. As antigas abas Semana, Atividades e Conversor saíram do menu.
 - **Mês:** igual ao que já era. Não inclui a isotretinoína.
-- **Peso (opção B):**
+- **Peso (opção E, escolhida em 16/11; o cartão descrito abaixo foi substituído):** três números entre linhas finas (atual, meta e falta; tocar na meta edita), "no ritmo atual, meta por volta de…", "hoje · outro dia", − peso + com fonte fina e "salvar" como link, seguidos do gráfico. Sem lista de pesagens. Versão antiga:
   - Cartão da meta: meta, prazo, início, barra com "% do caminho", kg desde o início, kg para a meta, kg por semana (regressão linear dos últimos 28 dias) e "No ritmo atual, você chega à meta por volta de…".
   - Lançamento com − e + de 0,1 kg e botão "Salvar" delicado (só contorno). "outro dia" permite lançar ou corrigir dias passados.
   - Gráfico de 30 dias com pontos, média de 7 dias, linha tracejada da meta e projeção.
