@@ -344,7 +344,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 #app>section{grid-column:2;grid-row:1 / span 30}
 #app>#sync{grid-column:1;grid-row:3;text-align:left}
 #app>.foot{grid-column:1;grid-row:4;flex-direction:column;align-items:flex-start}
-#pg-sem,#pg-mes,#pg-conv{max-width:760px}#pg-hoje,#pg-peso,#pg-est,#pg-tacf{max-width:560px}
+#pg-sem,#pg-mes,#pg-conv{max-width:760px}#pg-hoje,#pg-rem,#pg-peso,#pg-est,#pg-tacf{max-width:560px}
 .grid .tile{min-height:88px}
 .wkd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;padding-bottom:14px}
 .pd{grid-template-columns:1fr;border-top:none;background:var(--soft);border-radius:14px;padding:12px;align-content:start;gap:10px}
@@ -489,6 +489,19 @@ svg.s-ch{display:block;width:100%;height:auto}
 #pl-goal{display:none!important}#app>#sync{display:none!important}
 /* menu de baixo (opção C): ícones e nomes finos, ativo em preto */
 @media (max-width:999px){#app>.tabs{border-top-color:#F3F3F3}#app>.tabs .tab{color:#B0B0B0;font-size:9.5px;font-weight:400;gap:4px}#app>.tabs .tab svg{width:21px;height:21px;stroke-width:1.3}#app>.tabs .tab[aria-selected="true"]{color:var(--ink);font-weight:500}}
+/* isotretinoína: calendário */
+.r-cal{background:#F7F7F7;border-radius:16px;padding:14px 12px 12px;display:flex;flex-direction:column;gap:10px}
+.r-h{display:flex;justify-content:space-between;align-items:center}.r-h b{font-size:15px;font-weight:500}
+.r-nav{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;font:300 18px/1 var(--font);color:var(--ink);cursor:pointer;padding:0}
+.r-g{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.r-w{text-align:center;font-size:10.5px;font-weight:500;color:var(--muted);padding-bottom:2px}
+.r-d{aspect-ratio:1;border:none;border-radius:10px;background:none;font:500 14px var(--font);color:var(--ink);cursor:pointer;padding:0}
+.r-d:disabled{cursor:default}
+.r-d.tk{background:var(--s-rem);color:#fff;font-weight:600}
+.r-d.pv{background:#FBE3EF;color:#9C2F6D;font-weight:600}
+.r-d.hj{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.r-leg{display:flex;gap:16px;font-size:11.5px;color:var(--muted)}.r-leg span{display:flex;align-items:center;gap:6px}
+.r-leg i{width:12px;height:12px;border-radius:4px;display:inline-block}.r-leg i.tk{background:var(--s-rem)}.r-leg i.pv{background:#FBE3EF}
 /* Hoje (opção B): cartões menores e delicados */
 .h-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .h-head b{font-size:15px;font-weight:600}.h-head span{font-size:12px;color:var(--muted)}
@@ -644,6 +657,7 @@ button.h-card{cursor:pointer}
   <section id="pg-peso" role="tabpanel" aria-labelledby="tab-peso" hidden style="flex-direction:column;gap:18px"></section>
   <section id="pg-est" role="tabpanel" aria-labelledby="tab-est" hidden style="flex-direction:column;gap:14px"></section>
   <section id="pg-tacf" role="tabpanel" aria-labelledby="tab-est" hidden style="flex-direction:column;gap:14px"></section>
+  <section id="pg-rem" role="tabpanel" aria-labelledby="tab-hoje" hidden style="flex-direction:column;gap:16px"></section>
   <section id="pg-sem" role="tabpanel" hidden style="flex-direction:column;gap:14px">
     <div class="ph"><h2 id="sem-t">Esta semana</h2>
       <div class="nav"><button id="w-prev" aria-label="Semana anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button><button id="w-next" aria-label="Próxima semana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
@@ -783,7 +797,7 @@ const SUPABASE_URL="https://ufbmhikchqhstcbhioib.supabase.co";
 const SUPABASE_KEY="sb_publishable_QGj4aoHhWZXbCUBep2tylA_a8NckDy7";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 let session=null,channel=null;
-try{const p=localStorage.getItem("saude-pagina");if(["hoje","plano","mes","peso","est","tacf","conv","ativ"].includes(p))page=p}catch(e){}
+try{const p=localStorage.getItem("saude-pagina");if(["hoje","rem","plano","mes","peso","est","tacf","conv","ativ"].includes(p))page=p}catch(e){}
 
 async function reload(){
   if(!session)return;
@@ -841,11 +855,11 @@ function actsHTML(v){
 function render(){
   const t=today0(),tk=key(t);
   $("hoje").textContent=t.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  const TABOF={hoje:"hoje",sem:"hoje",plano:"plano",conv:"plano",ativ:"plano",mes:"mes",peso:"peso",est:"est",tacf:"est"};
+  const TABOF={rem:"hoje",hoje:"hoje",sem:"hoje",plano:"plano",conv:"plano",ativ:"plano",mes:"mes",peso:"peso",est:"est",tacf:"est"};
   ["hoje","plano","mes","peso","est"].forEach(p=>$("tab-"+p).setAttribute("aria-selected",String(TABOF[page]===p)));
-  ["hoje","sem","mes","plano","ativ","conv","peso","est","tacf"].forEach(p=>{const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});
+  ["hoje","rem","sem","mes","plano","ativ","conv","peso","est","tacf"].forEach(p=>{const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});
   $("sync").style.display=page==="mes"?"":"none";
-  renderPlanKeep();renderFeed();renderHoje();renderPeso();renderEst();renderTacf();
+  renderPlanKeep();renderFeed();renderHoje();renderRem();renderPeso();renderEst();renderTacf();
 
   /* semana */
   const wk=[...Array(7)].map((_,i)=>addDays(wStart,i));
@@ -1710,6 +1724,27 @@ function remInfo(){const M=METAS.remedio;if(!M)return null;const iv=M.v||3,tk=ke
 async function toggleRem(){const tk=key(today0()),on=S.remedio.some(r=>r.dia===tk);
   try{on?await delReg("remedio",tk):await saveReg("remedio",tk,1);renderHoje();toast(on?"Desmarcado":"Isotretinoína marcada")}catch(e){toast("Não salvou. Verifique a internet.")}}
 
+
+/* ---- tela da isotretinoína: calendário do mês ---- */
+let remView=null;
+function remPrevistos(){const M=METAS.remedio;if(!M)return new Set();const iv=M.v||3,tk=key(today0()),R=S.remedio.map(r=>r.dia).sort(),last=R[R.length-1],out=new Set();
+  let d=last?addDays(kDate(last),iv):today0();if(key(d)<tk)d=today0();for(let i=0;i<60;i++){out.add(key(d));d=addDays(d,iv)}return out}
+function renderRem(){const el=$("pg-rem");if(!el||page!=="rem")return;const t=today0(),tk=key(t);if(!remView)remView=new Date(t.getFullYear(),t.getMonth(),1);
+  const y=remView.getFullYear(),m=remView.getMonth(),n=new Date(y,m+1,0).getDate(),lead=new Date(y,m,1).getDay(),tom=new Set(S.remedio.map(r=>r.dia)),prev=remPrevistos();
+  let h='<div class="s-th"><button type="button" class="s-back" data-go="hoje" aria-label="Voltar">‹</button><b>Isotretinoína</b></div>';
+  h+='<div class="r-cal"><div class="r-h"><button type="button" class="r-nav" data-rm="-1" aria-label="Mês anterior">‹</button><b>'+MESES[m]+(y!==t.getFullYear()?' '+y:'')+'</b><button type="button" class="r-nav" data-rm="1" aria-label="Próximo mês">›</button></div>';
+  h+='<div class="r-g">'+["D","S","T","Q","Q","S","S"].map(x=>'<span class="r-w">'+x+'</span>').join("");
+  for(let i=0;i<lead;i++)h+='<span></span>';
+  for(let d=1;d<=n;d++){const k=y+"-"+pad(m+1)+"-"+pad(d),tk2=tom.has(k),pv=!tk2&&prev.has(k),fut=k>tk;
+    h+='<button type="button" class="r-d'+(tk2?' tk':pv?' pv':'')+(k===tk?' hj':'')+'"'+(fut?' disabled':' data-rd="'+k+'"')+' aria-label="Dia '+d+(tk2?', tomei':pv?', dia de tomar':'')+'">'+d+'</button>'}
+  h+='</div><div class="r-leg"><span><i class="tk"></i>Tomei</span><span><i class="pv"></i>Dia de tomar</span></div></div>';
+  const qt=[...tom].filter(k=>k.startsWith(y+"-"+pad(m+1))).length;
+  h+='<p class="note" style="margin:0">'+qt+(qt===1?' cápsula':' cápsulas')+' em '+MESES[m].toLowerCase()+'</p>';
+  el.innerHTML=h}
+$("pg-rem").addEventListener("click",async e=>{const nv=e.target.closest("[data-rm]");if(nv){remView=new Date(remView.getFullYear(),remView.getMonth()+ +nv.dataset.rm,1);renderRem();return}
+  const d=e.target.closest("[data-rd]");if(!d||!session)return;const k=d.dataset.rd,on=S.remedio.some(r=>r.dia===k);
+  try{on?await delReg("remedio",k):await saveReg("remedio",k,1);renderRem();toast(on?"Desmarcado":"Marcado como tomado")}catch(_){toast("Não salvou. Verifique a internet.")}});
+
 /* ---- Hoje ---- */
 function hojeItems(){const tk=key(today0());let W;try{W=planWeeksMoved()}catch(_){return {items:[],wk:-1,plan:false}}
   for(let i=0;i<W.length;i++){const d=W[i].days.find(x=>key(x.date)===tk);if(d)return {items:d.items,wk:i,plan:true}}return {items:[],wk:-1,plan:false}}
@@ -1724,7 +1759,7 @@ function renderHoje(){
     h+='<span class="h-row"><span class="h-num">'+nf1(pi.last.v)+'<small>kg</small></span><span class="h-s'+(good?' ok':'')+'">'+(pi.meta!=null?sgn(dl)+' kg':(pi.last.dia===tk?'hoje':dmy(pi.last.dia)))+'</span></span>'+
       (pi.meta!=null?'<span class="h-bar"><i style="width:'+pi.pct+'%"></i></span>':'')}
   h+='</button>';
-  if(rm&&rm.show)h+='<div class="h-card h-line"><span class="h-t">'+mi("rem")+'Lembrete</span><button type="button" class="h-ck" id="rem-ck" aria-pressed="'+rm.hoje+'" aria-label="Marcar isotretinoína como tomada"></button></div>';
+  if(rm&&rm.show)h+='<div class="h-card h-line" data-go="rem" style="cursor:pointer"><span class="h-t">'+mi("rem")+'Isotretinoína</span><button type="button" class="h-ck" id="rem-ck" aria-pressed="'+rm.hoje+'" aria-label="Marcar isotretinoína como tomada"></button></div>';
   h+='<div class="h-card"><span class="h-t">'+mi("trein")+'Treinos de hoje</span>';
   if(H.items.length)h+='<ul class="s-list" data-go="plano">'+H.items.map(it=>{const lv=logged(tk,it),on=checks.has(it.id)||!!lv;
       const val=it.k==="run"?(lv?nf(lv)+' km':(it.n?nf(it.n)+' km':'')):it.k==="esc"||EXT[it.k]?(lv?nf(lv)+' min':(it.n?nf(it.n)+' min':'')):'';
@@ -1733,7 +1768,7 @@ function renderHoje(){
   h+='</div>';
   el.innerHTML=h}
 $("pg-hoje").addEventListener("click",e=>{
-  if(e.target.closest("#rem-ck")){e.preventDefault();toggleRem();return}
+  if(e.target.closest("#rem-ck")){e.preventDefault();e.stopPropagation();toggleRem();return}
   const c=e.target.closest("[data-hck]");if(c&&session){e.preventDefault();if(!PITEMS[c.dataset.hck])renderPlan();toggleCheck(c.dataset.hck);return}
   const iv=e.target.closest("[data-iv]");if(iv){e.preventDefault();if(!PITEMS[iv.dataset.iv])renderPlan();openIv(iv.dataset.iv)}});
 

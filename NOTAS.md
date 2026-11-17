@@ -122,3 +122,8 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - **Gráfico do VO2 (opção E):** linha fina com área clarinha embaixo. Os pontos ficam com o mesmo espaço entre si, independentemente da data. O valor aparece em cima de cada ponto, pequeno e cinza, e as datas só nas pontas.
 - **VO2:** sem a linha "próxima: dd/mm". Os lançamentos de teste anteriores a 16/11 foram apagados; ficou só o 40 de 16/11.
 - **Altura:** 168 cm, salva em `saude_metas` 'estatura'. O lançamento do TACF/Meta não pede mais a altura.
+- **Isotretinoína:**
+  - No Hoje, o cartão se chama "Isotretinoína" (antes era "Lembrete"). O círculo marca a dose; tocar no resto do cartão abre a tela da isotretinoína.
+  - A tela tem um calendário do mês: rosa cheio para "Tomei", rosa clarinho para "Dia de tomar", contorno no dia de hoje e setas para trocar de mês. Tocar num dia já passado marca ou desmarca a dose. Embaixo aparece a contagem de cápsulas do mês.
+  - Os dias previstos seguem a regra de 1 cápsula a cada 3 dias, contados da última dose; se estiver atrasada, a contagem recomeça hoje.
+  - As doses de 3, 5, 7, 9 e 11/11 foram importadas do antigo Diário do Roacutan.
