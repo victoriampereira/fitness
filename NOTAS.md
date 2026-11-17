@@ -23,7 +23,7 @@ Resumo do que já foi combinado sobre o app, para retomar o trabalho em qualquer
 
 ## Abas (desde 16/11/2026)
 
-Menu de baixo: **Hoje · Planos · Mês · Peso · Estatísticas**. O endereço continua o mesmo (/fitness/).
+Menu de baixo: **Hoje · Plano · Mês · Peso · Estatísticas** (a aba "Planos" virou "Plano" em 16/11). O endereço continua o mesmo (/fitness/).
 
 - **Hoje (opção B, escolhida em 16/11):** cartões menores e claros (#F7F7F7) com ícones de 18 px. No topo, a data e "semana N". Depois três quadros, um embaixo do outro:
   - **Peso:** último peso, variação desde o início (média de 7 dias) e "%" da meta com barra. Mostra só "40%", sem "do caminho". Tocar abre a aba Peso.
