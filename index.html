@@ -502,6 +502,13 @@ svg.s-ch{display:block;width:100%;height:auto}
 .r-d.hj{box-shadow:inset 0 0 0 1.5px var(--ink)}
 .r-leg{display:flex;gap:16px;font-size:11.5px;color:var(--muted)}.r-leg span{display:flex;align-items:center;gap:6px}
 .r-leg i{width:12px;height:12px;border-radius:4px;display:inline-block}.r-leg i.tk{background:var(--s-rem)}.r-leg i.pv{background:#FBE3EF}
+/* TACF: cor por conceito (tons de azul) */
+:root{--tc-e:#1B2C66;--tc-mb:#27408B;--tc-b:#6D83C5;--tc-s:#B4C1E6;--tc-i:#DADDE6;--tf-e:#fff;--tf-mb:#fff;--tf-b:#1B2C66;--tf-s:#27408B;--tf-i:#555}
+.s-bars{height:96px;align-items:flex-end}.s-bc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%}
+.s-bc em{font-style:normal;font-size:9.5px;color:#8A8A8A;line-height:1}.s-bc i{width:100%;flex:none!important}
+.s-bars i.tc-e{background:var(--tc-e)}.s-bars i.tc-mb{background:var(--tc-mb)}.s-bars i.tc-b{background:var(--tc-b)}.s-bars i.tc-s{background:var(--tc-s)}.s-bars i.tc-i{background:var(--tc-i)}
+.s-tag.tg-e{background:var(--tc-e);color:var(--tf-e)}.s-tag.tg-mb{background:var(--tc-mb);color:var(--tf-mb)}.s-tag.tg-b{background:var(--tc-b);color:var(--tf-b)}.s-tag.tg-s{background:var(--tc-s);color:var(--tf-s)}.s-tag.tg-i{background:var(--tc-i);color:var(--tf-i)}
+.s-v .s-dt{margin-left:auto;align-self:center;width:30px;display:flex;justify-content:center;white-space:nowrap;font-size:12px}
 /* Hoje (opção B): cartões menores e delicados */
 .h-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .h-head b{font-size:15px;font-weight:600}.h-head span{font-size:12px;color:var(--muted)}
@@ -1673,6 +1680,7 @@ const metros=v=>Number(v).toLocaleString("pt-BR");
 const semOrd=t=>{const m=String(t||"").match(/^(\d)\s*\/\s*(\d{2,4})$/);if(!m)return null;const y=+m[2]<100?2000+ +m[2]:+m[2];return y*10+ +m[1]};
 const addMonths=(d,n)=>{const x=new Date(d);const day=x.getDate();x.setDate(1);x.setMonth(x.getMonth()+n);x.setDate(Math.min(day,new Date(x.getFullYear(),x.getMonth()+1,0).getDate()));return x};
 const bomTacf=c=>/excelente|muito bom/i.test(c||"");
+const catTacf=c=>{c=String(c||"").toLowerCase();return /excelente/.test(c)?"e":/muito bom/.test(c)?"mb":/^bom/.test(c)?"b":/satisf/.test(c)&&!/insat/.test(c)?"s":c?"i":""};
 
 async function loadSaude(){
   const [r,t,m]=await Promise.all([sb.from("saude_registros").select("tipo,dia,valor").order("dia"),sb.from("saude_tacf").select("*"),sb.from("saude_metas").select("chave,valor,extra,data")]);
@@ -1819,14 +1827,14 @@ function renderEst(){
   let h='<div class="s-st"><div class="s-t">'+sdot("vo2")+'VO2 máximo<span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máximo">+</button></div>';
   if(!L)h+='<p class="s-empty">Toque no + e lance o VO2 máximo que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
   else{const nx=key(addMonths(kDate(L.dia),1)),d0=V[0];
-    h+='<div class="s-v"><b>'+nf(L.v)+'</b><small>'+dmy(L.dia)+'</small></div>'+(V.length>1?vo2Chart():'')}
+    h+='<div class="s-v"><b>'+nf(L.v)+'</b><small class="s-dt">'+dmy(L.dia)+'</small></div>'+(V.length>1?vo2Chart():'')}
   h+='</div>';
   const T=tacfReal(),LT=T[T.length-1],TM=tacfMeta(),MT=TM&&TM.pontos!=null?{v:+TM.pontos}:null;
   h+='<div class="s-st"><div class="s-t">'+sdot("tacf")+'TACF<span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="tacf" aria-label="Lançar semestre do TACF">+</button></div>';
   if(!LT)h+='<p class="s-empty">Toque no + para lançar o resultado do último TACF.</p>';
-  else{const S8=T.slice(-8),sc=72/100;
-    h+='<div class="s-v"><b>'+nf(LT.pontos)+'</b><small>pts · '+escH(LT.semestre)+'</small>'+(LT.conceito?'<span class="s-tag'+(bomTacf(LT.conceito)?' mb':'')+'">'+escH(LT.conceito)+'</span>':'')+'</div>'+
-      '<div class="s-bars">'+S8.map(x=>'<i class="'+(bomTacf(x.conceito)?'mb':'')+'" style="height:'+Math.max(3,(+x.pontos||0)*sc)+'px" title="'+escH(x.semestre)+': '+nf(x.pontos)+' pts"></i>').join("")+'</div>'+
+  else{const S8=T.slice(-8),sc=70/100;
+    h+='<div class="s-v"><b>'+nf(LT.pontos)+'</b><small class="s-dt">'+escH(LT.semestre)+'</small></div>'+
+      '<div class="s-bars">'+S8.map(x=>'<span class="s-bc"><em>'+(x.pontos!=null?nf(x.pontos):'')+'</em><i class="tc-'+(catTacf(x.conceito)||'b')+'" style="height:'+Math.max(3,(+x.pontos||0)*sc)+'px"></i></span>').join("")+'</div>'+
       '<div class="s-bl">'+S8.map(x=>'<span>'+escH(x.semestre)+'</span>').join("")+'</div>'+
       '<div class="s-due"><span></span><button type="button" data-go="tacf">ver tudo ›</button></div>'}
   h+='</div>';el.innerHTML=h}
@@ -1837,7 +1845,7 @@ function renderTacf(){
   const el=$("pg-tacf");if(!el||page!=="tacf")return;const TM=tacfMeta(),T=(TM?[TM]:[]).concat(tacfReal().reverse());
   let h='<div class="s-th"><button type="button" class="s-back" data-go="est" aria-label="Voltar">‹</button><b>TACF</b><button type="button" class="s-plus" data-dlg="tacf" aria-label="Lançar TACF ou meta">+</button></div>';
   h+='<div>'+T.map(x=>{const det=tacfAberto===x.semestre,meta=x.semestre==="Meta";
-    return '<button type="button" class="s-tr'+(meta?' s-trm':'')+'" data-tf="'+escH(x.semestre)+'" aria-expanded="'+det+'"><b>'+escH(x.semestre)+'</b><span>'+(x.corrida_m?'<span class="s-run">'+metros(x.corrida_m)+' m</span>':'')+'<span class="s-x">'+tacfLinha(x)+'</span></span><span class="s-p"><b>'+(x.pontos!=null?nf(x.pontos):'—')+'</b>'+(x.conceito?'<span class="s-tag'+(bomTacf(x.conceito)?' mb':'')+'">'+escH(x.conceito)+'</span>':'')+'</span></button>'+
+    return '<button type="button" class="s-tr'+(meta?' s-trm':'')+'" data-tf="'+escH(x.semestre)+'" aria-expanded="'+det+'"><b>'+escH(x.semestre)+'</b><span>'+(x.corrida_m?'<span class="s-run">'+metros(x.corrida_m)+' m</span>':'')+'<span class="s-x">'+tacfLinha(x)+'</span></span><span class="s-p"><b>'+(x.pontos!=null?nf(x.pontos):'—')+'</b>'+(x.conceito?'<span class="s-tag tg-'+catTacf(x.conceito)+'">'+escH(x.conceito)+'</span>':'')+'</span></button>'+
       (det?'<div class="s-det'+(meta?' s-trm':'')+'"><div><b>'+(x.corrida_pts!=null?nf(x.corrida_pts):'—')+'</b><span>corrida</span></div><div><b>'+(x.flexoes_pts!=null?nf(x.flexoes_pts):'—')+'</b><span>flexões</span></div><div><b>'+(x.abdominais_pts!=null?nf(x.abdominais_pts):'—')+'</b><span>abdominais</span></div><div><b>'+(x.cintura_pts!=null?nf(x.cintura_pts):'—')+'</b><span>cintura</span></div><button type="button" class="s-link" data-tfe="'+escH(x.semestre)+'">'+(meta?'editar a meta':'editar este semestre')+'</button></div>':'')}).join("")+'</div>';
   el.innerHTML=h}
 function tacfDlg(x,modo){x=x||{};const novo=!x.semestre,meta=x.semestre==="Meta"||(novo&&modo==="meta"),V=(k,dec)=>x[k]!=null?(dec?nf(x[k]):String(x[k])):"";

@@ -127,3 +127,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - A tela tem um calendário do mês: rosa cheio para "Tomei", rosa clarinho para "Dia de tomar", contorno no dia de hoje e setas para trocar de mês. Tocar num dia já passado marca ou desmarca a dose. Embaixo aparece a contagem de cápsulas do mês.
   - Os dias previstos seguem a regra de 1 cápsula a cada 3 dias, contados da última dose; se estiver atrasada, a contagem recomeça hoje.
   - As doses de 3, 5, 7, 9 e 11/11 foram importadas do antigo Diário do Roacutan.
+- **TACF por conceito (opção B, tons de azul-marinho):** Excelente #1B2C66, Muito Bom #27408B, Bom #6D83C5, Satisfatório #B4C1E6 e Insatisfatório #DADDE6. As cores valem para as barras e para as etiquetas da lista.
+  - No cartão de Estatísticas: sem legenda, sem "pts" e sem a etiqueta do conceito. A nota aparece pequena em cima de cada barra.
+  - A data (do TACF e do VO2) fica à direita, centralizada embaixo do "+".
