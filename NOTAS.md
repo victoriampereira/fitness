@@ -114,3 +114,9 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - a linha verde da meta nas barras do TACF;
   - a meta do VO2 (etiqueta e linha);
   - os textos "Toque em um dia…" (Mês), "Toque no círculo…" e a meta da corrida (Planos).
+
+## Ícone, menu e VO2 (16/11, noite)
+
+- **Ícone do app:** opção S, um bonequinho correndo em traço fino, com a cabeça (bolinha) menor e preta cheia. Arquivos: `apple-touch-icon-s.png`, `icon-s-192.png`, `icon-s-512.png` e `favicon-s.png`. O iPhone só troca o ícone ao refazer o atalho na tela de início.
+- **Menu de baixo (opção C):** ícones e nomes finos e pequenos, em cinza-claro. A aba ativa fica em preto, sem laranja.
+- **Gráfico do VO2 (opção E):** linha fina com área clarinha embaixo. Os pontos ficam com o mesmo espaço entre si, independentemente da data. O valor aparece em cima de cada ponto, pequeno e cinza, e as datas só nas pontas.

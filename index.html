@@ -8,9 +8,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Saúde">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-fit.png?v=4">
-<link rel="icon" type="image/png" href="favicon-fit.png?v=4">
-<link rel="manifest" href="manifest.webmanifest?v=4">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-s.png?v=1">
+<link rel="icon" type="image/png" href="favicon-s.png?v=1">
+<link rel="manifest" href="manifest.webmanifest?v=5">
 <title>Saúde</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&family=Inter:ital,wght@1,300&family=Raleway:wght@200&family=Inter:wght@500;600&display=swap">
@@ -487,6 +487,8 @@ svg.s-ch{display:block;width:100%;height:auto}
 .s-seg button{border:none;background:none;border-radius:99px;padding:6px 16px;font:500 12.5px var(--font);color:var(--muted);cursor:pointer}
 .s-seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 #pl-goal{display:none!important}#app>#sync{display:none!important}
+/* menu de baixo (opção C): ícones e nomes finos, ativo em preto */
+@media (max-width:999px){#app>.tabs{border-top-color:#F3F3F3}#app>.tabs .tab{color:#B0B0B0;font-size:9.5px;font-weight:400;gap:4px}#app>.tabs .tab svg{width:21px;height:21px;stroke-width:1.3}#app>.tabs .tab[aria-selected="true"]{color:var(--ink);font-weight:500}}
 /* Hoje (opção B): cartões menores e delicados */
 .h-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .h-head b{font-size:15px;font-weight:600}.h-head span{font-size:12px;color:var(--muted)}
@@ -1769,17 +1771,13 @@ function metaPesoDlg(){const M=METAS.peso||{},pi=pesoInfo();
     METAS.peso?async()=>{await saveMeta("peso",null);renderPeso();toast("Meta removida")}:null)}
 
 /* ---- Estatísticas ---- */
-function vo2Chart(){const V=S.vo2,M=null;if(!V.length)return "";const w=350,h=120,pl=6,pr=34,pt=12,pb=20;
-  const vals=V.map(x=>x.v);if(M&&M.v!=null)vals.push(M.v);const lo=Math.floor(Math.min(...vals))-2,hi=Math.ceil(Math.max(...vals))+2;
-  const t0=kDate(V[0].dia).getTime(),t1=Math.max(kDate(V[V.length-1].dia).getTime(),t0+30*864e5),X=t=>pl+(t-t0)/(t1-t0)*(w-pl-pr),Y=v=>pt+(hi-v)/(hi-lo)*(h-pt-pb);
-  let s='<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Evolução do VO2 máx">';const step=hi-lo>10?4:2;
-  for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step)if(!(M&&M.v!=null&&Math.abs(v-M.v)<(hi-lo)/8))s+='<line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="#E8E8E8"/><text x="'+(w-pr+6)+'" y="'+(Y(v)+4)+'" font-size="10" fill="#A0A0A0">'+v+'</text>';
-  if(M&&M.v!=null)s+='<line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+Y(M.v)+'" y2="'+Y(M.v)+'" stroke="#2FA36B" stroke-dasharray="4 4" stroke-width="1.4"/><text x="'+(w-pr+6)+'" y="'+(Y(M.v)+4)+'" font-size="10" font-weight="700" fill="#2FA36B">meta</text>';
-  if(V.length>1){let d="";V.forEach((q,i)=>{const x=X(kDate(q.dia).getTime()),y=Y(q.v);d+=i?" L"+x+","+Y(V[i-1].v)+" L"+x+","+y:"M"+x+","+y});s+='<path d="'+d+'" fill="none" stroke="#0E9AA7" stroke-width="2.4" stroke-linejoin="round"/>'}
-  V.forEach(q=>{s+='<circle cx="'+X(kDate(q.dia).getTime())+'" cy="'+Y(q.v)+'" r="3.5" fill="#fff" stroke="#0E9AA7" stroke-width="2"/>'});
-  const MS=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];let m=new Date(kDate(V[0].dia).getFullYear(),kDate(V[0].dia).getMonth(),1);
-  const lbl=[];while(m.getTime()<=t1){if(m.getTime()>=t0-15*864e5)lbl.push(m);m=new Date(m.getFullYear(),m.getMonth()+1,1)}
-  const every=Math.ceil(lbl.length/6);lbl.forEach((d,i)=>{if(i%every===0)s+='<text x="'+Math.max(pl,X(Math.max(t0,d.getTime())))+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+MS[d.getMonth()]+'</text>'});
+function vo2Chart(){const V=S.vo2;if(V.length<2)return "";const w=350,h=110,pl=14,pr=14,pt=20,pb=20,n=V.length;
+  const vals=V.map(x=>x.v),lo=Math.min(...vals)-1,hi=Math.max(...vals)+1,X=i=>pl+i*(w-pl-pr)/(n-1),Y=v=>pt+(hi-v)/(hi-lo)*(h-pt-pb);
+  const pts=V.map((q,i)=>X(i).toFixed(1)+","+Y(q.v).toFixed(1));const show=n<=8?V.map((_,i)=>i):[0,n-1].concat(V.map((_,i)=>i).filter(i=>i%Math.ceil(n/6)===0));
+  let s='<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Evolução do VO2 máximo"><defs><linearGradient id="vo2g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E9AA7" stop-opacity=".16"/><stop offset="1" stop-color="#0E9AA7" stop-opacity="0"/></linearGradient></defs>';
+  s+='<path d="M'+X(0)+','+(h-pb)+' L'+pts.join(' L')+' L'+X(n-1)+','+(h-pb)+'Z" fill="url(#vo2g)"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#0E9AA7" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>';
+  V.forEach((q,i)=>{s+='<circle cx="'+X(i)+'" cy="'+Y(q.v)+'" r="2.6" fill="#0E9AA7"/>';if(show.includes(i))s+='<text x="'+X(i)+'" y="'+(Y(q.v)-8)+'" font-size="9.5" fill="#8A8A8A" text-anchor="'+(i===0?'start':i===n-1?'end':'middle')+'">'+nf(q.v)+'</text>'});
+  s+='<text x="'+X(0)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+dmy(V[0].dia)+'</text><text x="'+X(n-1)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0" text-anchor="end">'+dmy(V[n-1].dia)+'</text>';
   return s+'</svg>'}
 function renderEst(){
   const el=$("pg-est");if(!el||page!=="est")return;const V=S.vo2,MV=METAS.vo2,L=V[V.length-1],tk=key(today0());
