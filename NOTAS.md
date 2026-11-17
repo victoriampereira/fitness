@@ -140,3 +140,5 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - No Hoje, tocar num treino abre o lançamento do dia (ou os trechos).
 - "e-mail · Sair" aparece só na aba Estatísticas.
 - A janela do VO2 não tem mais texto de instrução.
+- **Peso dentro de Estatísticas:** a aba Peso saiu do menu, que agora tem 4 abas: Hoje · Plano · Mês · Estatísticas. Em Estatísticas, o primeiro cartão é o Peso: valor, data, minigráfico verde dos últimos 30 lançamentos, "+" e "ver tudo ›", que abrem a tela de Peso com "‹" para voltar. O cartão do Hoje também abre essa tela.
+- A isotretinoína aparece só no Hoje, no dia da dose. Não há outra forma de ver o calendário, por decisão da Victoria.
