@@ -344,7 +344,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 #app>section{grid-column:2;grid-row:1 / span 30}
 #app>#sync{grid-column:1;grid-row:3;text-align:left}
 #app>.foot{grid-column:1;grid-row:4;flex-direction:column;align-items:flex-start}
-#pg-sem,#pg-mes,#pg-conv{max-width:760px}#pg-hoje,#pg-rem,#pg-peso,#pg-est,#pg-tacf{max-width:560px}
+#pg-sem,#pg-mes,#pg-conv{max-width:760px}#pg-hoje,#pg-rem,#pg-peso,#pg-est,#pg-tacf,#pg-aval{max-width:560px}
 .grid .tile{min-height:88px}
 .wkd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;padding-bottom:14px}
 .pd{grid-template-columns:1fr;border-top:none;background:var(--soft);border-radius:14px;padding:12px;align-content:start;gap:10px}
@@ -469,7 +469,7 @@ svg.s-ch{display:block;width:100%;height:auto}
 .s-dlg label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}
 .s-dlg .s-f{display:flex;align-items:center;gap:8px}
 .s-dlg input{flex:1;min-width:0;width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 10px;font:500 16px var(--font)}
-.s-dlg input:focus{outline:none;border-color:var(--ink)}
+.s-dlg input:focus{outline:none;border-color:var(--ink)}.s-dlg input::placeholder{font-size:13px;color:#B5B5B5}
 .s-dlg .s-f em{font-style:normal;font-size:13px;color:var(--muted);min-width:24px}
 .s-dlg .s-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .s-dlg .s-four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.s-dlg .s-four label{font-size:11px}.s-dlg .s-four input{padding:7px 6px;text-align:center}
@@ -522,6 +522,13 @@ svg.s-ch{display:block;width:100%;height:auto}
 .h-prova{background:var(--ink);color:#fff;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:3px;cursor:pointer}
 .h-pt{font-size:15px;font-weight:600}.h-pv{font-size:13px;opacity:.85}.h-pd{font-size:11.5px;opacity:.6;line-height:1.4;margin-top:2px}
 .tile.rm{box-shadow:inset 0 0 0 1.5px #D6409F}.tile.today.rm{box-shadow:inset 0 0 0 1.5px #D6409F,0 0 0 2px var(--bg),0 0 0 3.5px var(--ink)}
+/* avaliação física: tabela (opção C) */
+.av-tb{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.av-tb th{font-size:11px;color:var(--muted);font-weight:500;text-align:right;padding:4px 0 6px}.av-tb th button{all:unset;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.av-tb td{padding:7px 0;border-top:1px solid var(--line);text-align:right}.av-tb td:first-child,.av-tb th:first-child{text-align:left}
+.av-tb td small{font-size:10.5px;color:var(--muted)}.av-tb td.last{font-weight:600}
+.av-tb .mt{color:#1E7B4F;font-weight:600;padding-left:10px;cursor:pointer;min-width:38px}.av-tb th.mt{color:#1E7B4F}
+.av-tb tr.dob td{color:#B23A30;cursor:pointer}.av-tb tr.dob td.mt{color:var(--muted)}.av-tb tr.dob.sub td{font-size:12px;padding:5px 0;cursor:default}.av-tb tr.dob.sub td:first-child{padding-left:10px}
 /* Hoje (opção B): cartões menores e delicados */
 .h-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .h-head b{font-size:15px;font-weight:600}.h-head span{font-size:12px;color:var(--muted)}
@@ -678,6 +685,7 @@ button.h-card{cursor:pointer}
   <section id="pg-est" role="tabpanel" aria-labelledby="tab-est" hidden style="flex-direction:column;gap:14px"></section>
   <section id="pg-tacf" role="tabpanel" aria-labelledby="tab-est" hidden style="flex-direction:column;gap:14px"></section>
   <section id="pg-rem" role="tabpanel" aria-labelledby="tab-hoje" hidden style="flex-direction:column;gap:16px"></section>
+  <section id="pg-aval" role="tabpanel" aria-labelledby="tab-est" hidden style="flex-direction:column;gap:14px"></section>
   <section id="pg-sem" role="tabpanel" hidden style="flex-direction:column;gap:14px">
     <div class="ph"><h2 id="sem-t">Esta semana</h2>
       <div class="nav"><button id="w-prev" aria-label="Semana anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button><button id="w-next" aria-label="Próxima semana"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button></div>
@@ -817,7 +825,7 @@ const SUPABASE_URL="https://ufbmhikchqhstcbhioib.supabase.co";
 const SUPABASE_KEY="sb_publishable_QGj4aoHhWZXbCUBep2tylA_a8NckDy7";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 let session=null,channel=null;
-try{const p=localStorage.getItem("saude-pagina");if(["hoje","rem","plano","mes","peso","est","tacf","conv","ativ"].includes(p))page=p}catch(e){}
+try{const p=localStorage.getItem("saude-pagina");if(["hoje","rem","plano","mes","peso","est","tacf","conv","ativ","aval"].includes(p))page=p}catch(e){}
 
 async function reload(){
   if(!session)return;
@@ -876,11 +884,11 @@ function actsHTML(v){
 function render(){
   const t=today0(),tk=key(t);
   $("hoje").textContent=t.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  const TABOF={rem:"hoje",hoje:"hoje",sem:"hoje",plano:"plano",conv:"plano",ativ:"plano",mes:"mes",peso:"est",est:"est",tacf:"est"};
+  const TABOF={aval:"est",rem:"hoje",hoje:"hoje",sem:"hoje",plano:"plano",conv:"plano",ativ:"plano",mes:"mes",peso:"est",est:"est",tacf:"est"};
   ["hoje","plano","mes","est"].forEach(p=>$("tab-"+p).setAttribute("aria-selected",String(TABOF[page]===p)));
-  ["hoje","rem","sem","mes","plano","ativ","conv","peso","est","tacf"].forEach(p=>{const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});
+  ["hoje","rem","sem","mes","plano","ativ","conv","peso","est","tacf","aval"].forEach(p=>{const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});
   $("app").querySelector(".foot").style.display="none";
-  renderPlanKeep();renderFeed();renderHoje();renderRem();renderPeso();renderEst();renderTacf();
+  renderPlanKeep();renderFeed();renderHoje();renderRem();renderPeso();renderEst();renderTacf();renderAval();
 
   /* semana */
   const wk=[...Array(7)].map((_,i)=>addDays(wStart,i));
@@ -1679,7 +1687,7 @@ function closeFb(){$("fb").hidden=true;$("scrim").classList.remove("open")}
 let tt;function toast(s){const t=$("toast");t.textContent=s;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2400);}
 
 /* ===== saúde: peso, isotretinoína, VO2 máx e TACF ===== */
-let REC=[];let S={peso:[],remedio:[],vo2:[]},TACF=[],METAS={},pesoDia=null,pesoVal=null,tacfAberto=null;
+let REC=[],AVA=[],avDob=false;let S={peso:[],remedio:[],vo2:[]},TACF=[],METAS={},pesoDia=null,pesoVal=null,tacfAberto=null;
 const SIC={
   peso:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.8 10a4.5 4.5 0 0 1 6.4 0M12 10l1.3-1.7"/>',
   rem:'<rect x="3.5" y="9" width="17" height="6.5" rx="3.25" transform="rotate(-35 12 12)"/><path d="M10 8.3l3.8 5.4"/>',
@@ -1703,6 +1711,7 @@ async function loadSaude(){
   const [r,t,m]=await Promise.all([sb.from("saude_registros").select("tipo,dia,valor").order("dia"),sb.from("saude_tacf").select("*"),sb.from("saude_metas").select("chave,valor,extra,data")]);
   if(!r.error){S={peso:[],remedio:[],vo2:[]};r.data.forEach(x=>{if(S[x.tipo])S[x.tipo].push({dia:x.dia,v:x.valor==null?null:+x.valor})})}
   if(!t.error)TACF=t.data.slice().sort((a,b)=>(semOrd(a.semestre)||a.ordem)-(semOrd(b.semestre)||b.ordem));
+  const av=await sb.from("saude_avaliacoes").select("*");if(!av.error)AVA=av.data.slice().sort((a,b)=>a.dia<b.dia?-1:1);
   const rr=await sb.from("saude_recordes").select("prova,distancia_km,tempo_s,dia");if(!rr.error)REC=rr.data.map(x=>({prova:x.prova,km:+x.distancia_km,s:+x.tempo_s,dia:x.dia}));
   if(!m.error){METAS={};m.data.forEach(x=>{METAS[x.chave]={v:x.valor==null?null:+x.valor,x:x.extra==null?null:+x.extra,data:x.data}})}
 }
@@ -1836,13 +1845,13 @@ function metaPesoDlg(){const M=METAS.peso||{},pi=pesoInfo();
 
 /* ---- Estatísticas ---- */
 function vo2Chart(){return lineChart(S.vo2,"#0E9AA7","vo2g")}
-function lineChart(V,cor,gid){if(V.length<2)return "";const w=350,h=110,pl=14,pr=14,pt=20,pb=20,n=V.length;
+function lineChart(V,cor,gid,lab){lab=lab||dmy;if(V.length<2)return "";const w=350,h=110,pl=14,pr=14,pt=20,pb=20,n=V.length;
   const vals=V.map(x=>x.v),lo=Math.min(...vals)-1,hi=Math.max(...vals)+1,X=i=>pl+i*(w-pl-pr)/(n-1),Y=v=>pt+(hi-v)/(hi-lo)*(h-pt-pb);
   const pts=V.map((q,i)=>X(i).toFixed(1)+","+Y(q.v).toFixed(1));const show=n<=8?V.map((_,i)=>i):[0,n-1].concat(V.map((_,i)=>i).filter(i=>i%Math.ceil(n/6)===0));
   let s='<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" role="img" aria-hidden="true"><defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+cor+'" stop-opacity=".16"/><stop offset="1" stop-color="'+cor+'" stop-opacity="0"/></linearGradient></defs>';
   s+='<path d="M'+X(0)+','+(h-pb)+' L'+pts.join(' L')+' L'+X(n-1)+','+(h-pb)+'Z" fill="url(#'+gid+')"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="'+cor+'" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>';
   V.forEach((q,i)=>{s+='<circle cx="'+X(i)+'" cy="'+Y(q.v)+'" r="2.6" fill="'+cor+'"/>';if(show.includes(i))s+='<text x="'+X(i)+'" y="'+(Y(q.v)-8)+'" font-size="9.5" fill="#8A8A8A" text-anchor="'+(i===0?'start':i===n-1?'end':'middle')+'">'+nf(q.v)+'</text>'});
-  s+='<text x="'+X(0)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+dmy(V[0].dia)+'</text><text x="'+X(n-1)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0" text-anchor="end">'+dmy(V[n-1].dia)+'</text>';
+  s+='<text x="'+X(0)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+lab(V[0].dia)+'</text><text x="'+X(n-1)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0" text-anchor="end">'+lab(V[n-1].dia)+'</text>';
   return s+'</svg>'}
 function pesoMini(){const P=S.peso.slice(-30);if(P.length<2)return "";const w=350,h=70,pl=4,pr=4,pt=10,pb=8,vals=P.map(x=>x.v),lo=Math.min(...vals)-.3,hi=Math.max(...vals)+.3,X=i=>pl+i*(w-pl-pr)/(P.length-1),Y=v=>pt+(hi-v)/(hi-lo)*(h-pt-pb);
   const pts=P.map((q,i)=>X(i).toFixed(1)+","+Y(q.v).toFixed(1)).join(" ");return '<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="#2FA36B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+X(P.length-1)+'" cy="'+Y(P[P.length-1].v)+'" r="3" fill="#2FA36B"/></svg>'}
@@ -1850,6 +1859,7 @@ function renderEst(){
   const el=$("pg-est");if(!el||page!=="est")return;const V=S.vo2,MV=METAS.vo2,L=V[V.length-1],tk=key(today0()),PL=S.peso[S.peso.length-1];
   let h='<div class="s-st"><div class="s-t">'+sdot("peso")+'Peso<span style="margin-left:auto"></span><button type="button" class="s-plus" data-go="peso" aria-label="Lançar peso">+</button></div>'+
     (PL?'<div class="s-v" data-go="peso" style="cursor:pointer"><b>'+nf1(PL.v)+'</b><small class="s-dt">'+dmy(PL.dia)+'</small></div><div data-go="peso" style="cursor:pointer">'+lineChart(S.peso.slice(-14),"#2FA36B","pesog")+'</div>':'<p class="s-empty">Toque no + para lançar seu peso.</p>')+'</div>';
+  h+=avCard();
   h+='<div class="s-st"><div class="s-t">'+sdot("vo2")+'VO2 máximo<span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máximo">+</button></div>';
   if(!L)h+='<p class="s-empty">Toque no + e lance o VO2 máximo que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
   else{const nx=key(addMonths(kDate(L.dia),1)),d0=V[0];
@@ -1959,6 +1969,50 @@ function checarRecorde(k,d,antes){
   // corrida mais longa (fica automática; só avisa)
   const outros=REC.map(r=>r.km);Object.entries(days).forEach(([dk,v])=>{if(dk!==k&&+v.km>0&&v.pace)outros.push(+v.km)});
   if(outros.length&&km>Math.max(...outros))toast("Sua corrida mais longa: "+nf(km)+" km")}
+
+
+/* ---- Avaliação física ---- */
+const AVC=[["peso","Peso"," kg"],["imc","IMC",""],["gordura","% gordura","%"],["massa_gorda","Massa gorda"," kg"],["massa_magra","Massa magra"," kg"],["cintura","Cintura"," cm"],["quadril","Quadril"," cm"]];
+const AVD=[["suprailiaca","Suprailíaca"],["peitoral","Peitoral"],["subescapular","Subescapular"],["tricipital","Tricipital"],["axilar","Axilar média"],["abdominal","Abdominal"],["coxa","Coxa"]];
+const MESC=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const myL=k=>{const d=kDate(k);return MESC[d.getMonth()]+"/"+String(d.getFullYear()).slice(2)};
+const avSoma=a=>{const v=AVD.map(([k])=>a[k]).filter(x=>x!=null);return v.length?v.reduce((x,y)=>x+ +y,0):null};
+function avCard(){const L=AVA[AVA.length-1];
+  let h='<div class="s-st"><div class="s-t">'+'<span class="s-dot" style="--c:#6B7A99" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><path d="M8 21l1.5-8L7 9h10l-2.5 4L16 21M9.5 13h5"/></svg></span>Avaliação física<span style="margin-left:auto"></span><button type="button" class="s-plus" data-avn="1" aria-label="Lançar avaliação">+</button></div>';
+  if(!L||L.gordura==null)h+='<p class="s-empty">Toque no + para lançar sua avaliação física.</p>';
+  else{const G=AVA.filter(a=>a.gordura!=null).map(a=>({dia:a.dia,v:+a.gordura}));
+    h+='<div class="s-v" data-go="aval" style="cursor:pointer"><b>'+nf(+L.gordura)+'%</b><small class="s-dt">'+myL(L.dia)+'</small></div><div data-go="aval" style="cursor:pointer">'+lineChart(G,"#6B7A99","avg",myL)+'</div>'}
+  return h+'</div>'}
+function renderAval(){const el=$("pg-aval");if(!el||page!=="aval")return;const A=AVA.slice(-3),hasM=AVC.some(([k])=>METAS["av_"+k]&&METAS["av_"+k].v!=null);
+  const f=(v,u)=>v==null||v===""?'—':nf(+v);
+  let h='<div class="s-th"><button type="button" class="s-back" data-go="est" aria-label="Voltar">‹</button><b>Avaliação física</b><button type="button" class="s-plus" data-avn="1" aria-label="Lançar avaliação">+</button></div>';
+  if(!A.length){el.innerHTML=h+'<p class="s-empty">Toque no + para lançar sua primeira avaliação.</p>';return}
+  h+='<table class="av-tb"><thead><tr><th></th>'+A.map(a=>'<th><button type="button" data-ave="'+a.dia+'">'+myL(a.dia)+'</button></th>').join("")+'<th class="mt">meta</th></tr></thead><tbody>';
+  AVC.forEach(([k,n,u])=>{const M=METAS["av_"+k];h+='<tr data-avm="'+k+'"><td>'+n+(u.trim()&&u.trim()!=="%"?'<small> '+u.trim()+'</small>':'')+'</td>'+A.map((a,i)=>'<td'+(i===A.length-1?' class="last"':'')+'>'+f(a[k])+'</td>').join("")+'<td class="mt">'+(M&&M.v!=null?nf(M.v):'+')+'</td></tr>'});
+  h+='<tr class="dob" data-avdob="1"><td>Soma das dobras<small> mm</small></td>'+A.map((a,i)=>'<td'+(i===A.length-1?' class="last"':'')+'>'+f(avSoma(a))+'</td>').join("")+'<td class="mt">'+(avDob?'⌃':'⌄')+'</td></tr>';
+  if(avDob)AVD.forEach(([k,n])=>{h+='<tr class="dob sub"><td>'+n+'</td>'+A.map(a=>'<td>'+f(a[k])+'</td>').join("")+'<td></td></tr>'});
+  h+='</tbody></table>';
+  el.innerHTML=h}
+$("pg-aval").addEventListener("click",e=>{if(e.target.closest("[data-avdob]")){avDob=!avDob;renderAval();return}
+  const ed=e.target.closest("[data-ave]");if(ed){avDlg(AVA.find(a=>a.dia===ed.dataset.ave));return}
+  const m=e.target.closest("[data-avm]");if(m&&e.target.closest(".mt")){const k=m.dataset.avm,[,n,u]=AVC.find(x=>x[0]===k),M=METAS["av_"+k]||{};
+    dlg("Meta · "+n,[{k:"v",l:"Meta",u:u.trim(),v:M.v!=null?nf(M.v):"",req:1}],async o=>{const v=numIn(o.v);if(v==null||v<=0)return "Coloque um número";await saveMeta("av_"+k,{v});renderAval();toast("Meta salva")},M.v!=null?async()=>{await saveMeta("av_"+k,null);renderAval();toast("Meta removida")}:null)}});
+function avDlg(a){a=a||{};const novo=!a.dia,tk=key(today0()),V=k=>a[k]!=null?nf(+a[k]):"";
+  dlg(novo?"Nova avaliação física":"Avaliação · "+myL(a.dia),[
+    {two:[{k:"dia",l:"Data",t:"date",v:a.dia||tk,max:tk,ro:!novo},{k:"peso",l:"Peso (kg)",v:V("peso")}]},
+    {two:[{k:"gordura",l:"% gordura",v:V("gordura")},{k:"imc",l:"IMC",v:V("imc"),ph:"calcula sozinho"}]},
+    {two:[{k:"massa_gorda",l:"Massa gorda (kg)",v:V("massa_gorda"),ph:"calcula sozinho"},{k:"massa_magra",l:"Massa magra (kg)",v:V("massa_magra"),ph:"calcula sozinho"}]},
+    {two:[{k:"cintura",l:"Cintura (cm)",v:V("cintura")},{k:"quadril",l:"Quadril (cm)",v:V("quadril")}]},
+    {sec:"Dobras cutâneas (mm)"},
+    {four:AVD.slice(0,4).map(([k,n])=>({k,l:n.replace("Subescapular","Subesc.").replace("Suprailíaca","Suprail."),v:V(k)}))},
+    {four:AVD.slice(4).map(([k,n])=>({k,l:n.replace("Axilar média","Axilar"),v:V(k)}))}],
+    async o=>{const n=k=>{const v=numIn(o[k]);return v==null?null:v},dia=novo?(o.dia||tk):a.dia,peso=n("peso"),g=n("gordura"),est=METAS.estatura&&METAS.estatura.v;
+      const R={user_id:session.user.id,dia,peso,gordura:g,imc:n("imc")??(peso&&est?Math.round(peso/((est/100)**2)*100)/100:null),
+        massa_gorda:n("massa_gorda")??(peso&&g!=null?Math.round(peso*g)/100:null),cintura:n("cintura"),quadril:n("quadril"),updated_at:new Date().toISOString()};
+      R.massa_magra=n("massa_magra")??(peso&&R.massa_gorda!=null?Math.round((peso-R.massa_gorda)*100)/100:null);AVD.forEach(([k])=>{R[k]=n(k)});
+      const q=await sb.from("saude_avaliacoes").upsert(R);if(q.error)throw q.error;AVA=AVA.filter(x=>x.dia!==dia).concat([R]).sort((x,y)=>x.dia<y.dia?-1:1);render();toast("Avaliação salva")},
+    novo?null:async()=>{const q=await sb.from("saude_avaliacoes").delete().eq("user_id",session.user.id).eq("dia",a.dia);if(q.error)throw q.error;AVA=AVA.filter(x=>x.dia!==a.dia);render();toast("Avaliação apagada")})}
+document.addEventListener("click",e=>{if(e.target.closest("[data-avn]")&&session){e.preventDefault();avDlg(null)}});
 
 /* ---- janela de formulário ---- */
 let dlgSave=null,dlgDel=null;

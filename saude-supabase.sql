@@ -40,3 +40,12 @@ create table if not exists public.saude_recordes (
   updated_at timestamptz not null default now(),
   primary key (user_id, prova)
 );
+-- avaliações físicas (composição corporal e 7 dobras); metas em saude_metas com chave 'av_<campo>'
+create table if not exists public.saude_avaliacoes (
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  dia date not null,
+  peso numeric, imc numeric, gordura numeric, massa_gorda numeric, massa_magra numeric, cintura numeric, quadril numeric,
+  suprailiaca numeric, peitoral numeric, subescapular numeric, tricipital numeric, axilar numeric, abdominal numeric, coxa numeric,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, dia)
+);

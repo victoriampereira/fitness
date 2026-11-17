@@ -178,3 +178,11 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - sáb 12/12: "Descida do Acatenango"
   - dom 13/12: longão
 - Recordes mais compacto (opção A): linhas mais próximas e tempo em 18 px. A corrida mais longa aparece só como a distância (ex.: "11,5 km") e é trocada quando houver uma corrida maior.
+- **Avaliação física** em Estatísticas, logo depois do Peso:
+  - O cartão mostra só o % de gordura da última avaliação, com a data (ex.: nov/25), e um gráfico igual ao do peso.
+  - Tocar abre a tela no formato de tabela (opção C), com as últimas 3 avaliações lado a lado e a coluna "meta" em verde.
+  - Metas só existem para os itens azuis da planilha (peso, IMC, % gordura, massa gorda, massa magra, cintura e quadril). Tocar na coluna da meta define ou edita; ficam em `saude_metas` com chave `av_<campo>`.
+  - "Soma das dobras" fica em vermelho; tocar abre as 7 dobras.
+  - Tocar na data do topo edita aquela avaliação.
+  - O "+" lança uma nova. IMC (pela altura de 168 cm), massa gorda e massa magra são calculados sozinhos se ficarem em branco.
+  - Dados na tabela `saude_avaliacoes`. Importadas nov/2024 e nov/2025 (do print da planilha), com dia 01.
