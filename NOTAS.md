@@ -130,3 +130,13 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - **TACF por conceito (opção B, tons de azul-marinho):** Excelente #1B2C66, Muito Bom #27408B, Bom #6D83C5, Satisfatório #B4C1E6 e Insatisfatório #DADDE6. As cores valem para as barras e para as etiquetas da lista.
   - No cartão de Estatísticas: sem legenda, sem "pts" e sem a etiqueta do conceito. A nota aparece pequena em cima de cada barra.
   - A data (do TACF e do VO2) fica à direita, centralizada embaixo do "+".
+
+## Revisão final (16/11)
+
+- O título "saúde" fica sempre no topo, em todas as abas (antes descia nas abas curtas).
+- Aviso de erro: se os dados não carregarem, aparece em vermelho "Não foi possível carregar seus dados…". Fora isso, a linha fica escondida.
+- No computador, o check do Plano fica ao lado do ícone e o nome do treino ocupa a largura toda.
+- Tocar numa atividade do Plano abre o card de lançamento (km, pace, escada…) de qualquer dia, inclusive futuro. Corrida com trechos abre a tela de trechos.
+- No Hoje, tocar num treino abre o lançamento do dia (ou os trechos).
+- "e-mail · Sair" aparece só na aba Estatísticas.
+- A janela do VO2 não tem mais texto de instrução.

@@ -150,7 +150,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);background:var(--fill);color:var(--fill-ink);border-radius:99px;padding:11px 18px;font-weight:600;font-size:13px;z-index:40;transition:transform .3s cubic-bezier(.2,.9,.3,1.2);max-width:calc(100% - 40px);text-align:center}
 .toast{visibility:hidden}.toast.show{transform:translate(-50%,0);visibility:visible}
 @media (max-width:370px){.sum b{font-size:20px}.km{font-size:8px}}
-#app{min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));box-sizing:border-box;justify-content:center}
+#app{min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));box-sizing:border-box;justify-content:flex-start}
 .top{flex-direction:column;align-items:center;text-align:center;gap:6px}
 .top h1{margin-left:.45em}
 .tile .ic,.tile .val .ic{width:9px;height:9px}
@@ -486,7 +486,7 @@ svg.s-ch{display:block;width:100%;height:auto}
 .s-seg{display:flex;background:var(--soft);border-radius:99px;padding:3px;gap:2px;align-self:flex-start}
 .s-seg button{border:none;background:none;border-radius:99px;padding:6px 16px;font:500 12.5px var(--font);color:var(--muted);cursor:pointer}
 .s-seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
-#pl-goal{display:none!important}#app>#sync{display:none!important}
+#pl-goal{display:none!important}#app>#sync:not(.err){display:none!important}#app>#sync.err{color:var(--inf);text-align:center}
 /* menu de baixo (opção C): ícones e nomes finos, ativo em preto */
 @media (max-width:999px){#app>.tabs{border-top-color:#F3F3F3}#app>.tabs .tab{color:#B0B0B0;font-size:9.5px;font-weight:400;gap:4px}#app>.tabs .tab svg{width:21px;height:21px;stroke-width:1.3}#app>.tabs .tab[aria-selected="true"]{color:var(--ink);font-weight:500}}
 /* isotretinoína: calendário */
@@ -509,6 +509,10 @@ svg.s-ch{display:block;width:100%;height:auto}
 .s-bars i.tc-e{background:var(--tc-e)}.s-bars i.tc-mb{background:var(--tc-mb)}.s-bars i.tc-b{background:var(--tc-b)}.s-bars i.tc-s{background:var(--tc-s)}.s-bars i.tc-i{background:var(--tc-i)}
 .s-tag.tg-e{background:var(--tc-e);color:var(--tf-e)}.s-tag.tg-mb{background:var(--tc-mb);color:var(--tf-mb)}.s-tag.tg-b{background:var(--tc-b);color:var(--tf-b)}.s-tag.tg-s{background:var(--tc-s);color:var(--tf-s)}.s-tag.tg-i{background:var(--tc-i);color:var(--tf-i)}
 .s-v .s-dt{margin-left:auto;align-self:center;width:30px;display:flex;justify-content:center;white-space:nowrap;font-size:12px}
+@media (min-width:1000px){.wkd .it:not(.rest){grid-template-columns:22px minmax(0,1fr) 22px;grid-template-rows:auto auto auto;row-gap:4px}
+.wkd .it>.ic{grid-column:1;grid-row:1}.wkd .it .ck{grid-column:3;grid-row:1;width:22px;height:22px;align-self:center}
+.wkd .it .px{grid-column:1 / -1;grid-row:2}.wkd .it .sk{grid-column:1 / -1;grid-row:3;text-align:left}
+.wkd .it .px strong{overflow-wrap:anywhere}.editing .wkd .it .ed{grid-column:2 / -1;grid-row:1;justify-self:end}}
 /* Hoje (opção B): cartões menores e delicados */
 .h-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .h-head b{font-size:15px;font-weight:600}.h-head span{font-size:12px;color:var(--muted)}
@@ -809,7 +813,7 @@ try{const p=localStorage.getItem("saude-pagina");if(["hoje","rem","plano","mes",
 async function reload(){
   if(!session)return;
   const {data,error}=await sb.from("fitness_dias").select("dia,inf,sup,abd,km,esc,pace,sens,ext");
-  if(error){console.error(error);$("sync").textContent="Não foi possível carregar seus treinos. Verifique a internet.";if(!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seus treinos. Verifique a internet e abra o app de novo.</p>'}return}
+  if(error){console.error(error);$("sync").textContent="Não foi possível carregar seus dados. Verifique a internet.";$("sync").classList.add("err");if(!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seus treinos. Verifique a internet e abra o app de novo.</p>'}return}
   const m={};data.forEach(r=>{m[r.dia]={inf:r.inf,sup:r.sup,abd:r.abd,km:Number(r.km)||0,esc:Number(r.esc)||0,pace:r.pace||null,sens:r.sens||null,ext:r.ext||{}}});
   days=m;
   const nm=await sb.from("fitness_nomes").select("chave,nome");
@@ -824,7 +828,7 @@ async function reload(){
   const mv=await sb.from("fitness_moves").select("item,para,ordem,excluido");
   if(!mv.error){moves={};mv.data.forEach(r=>{moves[r.item]={para:r.para,ordem:r.ordem,del:!!r.excluido}})}
   await loadSaude();
-  $("sync").textContent="Toque em um dia para lançar o que você fez.";
+  $("sync").classList.remove("err");
   $("who").textContent=(PROFILE&&PROFILE.nome?PROFILE.nome+" · ":"")+(session.user.email||"");
   if(pf.error&&!PROFILE){$("boot").hidden=false;$("boot").innerHTML='<p class="note">Não foi possível carregar seu plano. Verifique a internet e abra o app de novo.</p>';return}
   if(!pf.error&&!PROFILE){showOnb(false);return}
@@ -865,7 +869,7 @@ function render(){
   const TABOF={rem:"hoje",hoje:"hoje",sem:"hoje",plano:"plano",conv:"plano",ativ:"plano",mes:"mes",peso:"peso",est:"est",tacf:"est"};
   ["hoje","plano","mes","peso","est"].forEach(p=>$("tab-"+p).setAttribute("aria-selected",String(TABOF[page]===p)));
   ["hoje","rem","sem","mes","plano","ativ","conv","peso","est","tacf"].forEach(p=>{const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});
-  $("sync").style.display=page==="mes"?"":"none";
+  $("app").querySelector(".foot").style.display=page==="est"?"":"none";
   renderPlanKeep();renderFeed();renderHoje();renderRem();renderPeso();renderEst();renderTacf();
 
   /* semana */
@@ -1398,7 +1402,7 @@ function renderPlan(){
         if(rp&&it.avg&&!it.cooper){const df=Math.round(rp-it.avg);ex+='<em class="ex'+(df>0?' neg':'')+'">real '+mmss(rp)+(Math.abs(df)>=3?' ('+(df<0?'−':'+')+mmss(Math.abs(df))+')':'')+'</em>'}
         if(lv&&it.n&&!it.cooper&&(it.k==="esc"||it.k==="run"||EXT[it.k])){const df=Math.round((lv-it.n)*10)/10;if(Math.abs(df)>=0.1)ex+='<em class="ex'+(df<0?' neg':'')+'">'+(df>0?"+":"−")+nf(Math.abs(df))+(it.k==="run"?" km":" min")+'</em>'}
         const IV=it.k==="run"&&!it.cooper?ivSteps(it.d):null;if(IV){it.iv=IV;const nd=ivDone(id,IV);if(nd&&!on)ex+='<em class="ex neg">'+nd+' de '+ivCount(IV)+'</em>'}
-        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+(it.moved?' moved':'')+'" data-id="'+id+'"'+(!editMode&&IV?' data-iv="'+id+'"':!editMode&&(date<=t||k===tk)?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k]||it.k,"md")+
+        return '<div class="it'+(it.big?' big':'')+(on?' done':'')+(it.moved?' moved':'')+'" data-id="'+id+'"'+(!editMode&&IV?' data-iv="'+id+'"':!editMode?' data-k="'+k+'"':'')+'>'+ic(ICK[it.k]||it.k,"md")+
           '<span class="px"><strong>'+it.t+'</strong>'+(it.d?'<small>'+it.d+'</small>':'')+'</span>'+
           '<span class="sk">'+(it.v||"")+(it.p?'<small>'+it.p+'</small>':'')+ex+'</span>'+
           (editMode?'<span class="ed"><button type="button" class="del" data-del="'+id+'" aria-label="Excluir '+it.t+'">×</button><span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
@@ -1769,9 +1773,9 @@ function renderHoje(){
   h+='</button>';
   if(rm&&rm.show)h+='<div class="h-card h-line" data-go="rem" style="cursor:pointer"><span class="h-t">'+mi("rem")+'Isotretinoína</span><button type="button" class="h-ck" id="rem-ck" aria-pressed="'+rm.hoje+'" aria-label="Marcar isotretinoína como tomada"></button></div>';
   h+='<div class="h-card"><span class="h-t">'+mi("trein")+'Treinos de hoje</span>';
-  if(H.items.length)h+='<ul class="s-list" data-go="plano">'+H.items.map(it=>{const lv=logged(tk,it),on=checks.has(it.id)||!!lv;
+  if(H.items.length)h+='<ul class="s-list">'+H.items.map(it=>{const lv=logged(tk,it),on=checks.has(it.id)||!!lv;
       const val=it.k==="run"?(lv?nf(lv)+' km':(it.n?nf(it.n)+' km':'')):it.k==="esc"||EXT[it.k]?(lv?nf(lv)+' min':(it.n?nf(it.n)+' min':'')):'';
-      return '<li class="'+(on?'done':'')+'"><span>'+escH(it.t.replace(/^Corrida · /,"Corrida "))+(val?' <em>'+val+'</em>':'')+'</span></li>'}).join("")+'</ul>';
+      return '<li class="'+(on?'done':'')+'"'+((PITEMS[it.id]||it).iv?' data-iv="'+it.id+'"':' data-k="'+tk+'"')+'><span>'+escH(it.t.replace(/^Corrida · /,"Corrida "))+(val?' <em>'+val+'</em>':'')+'</span></li>'}).join("")+'</ul>';
   else h+='<p class="s-rest">'+(H.plan?'Descanso':'Nenhum treino no plano para hoje')+'</p>';
   h+='</div>';
   el.innerHTML=h}
@@ -1868,7 +1872,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-dlg]");if(
   if(k==="vo2"){const L=S.vo2[S.vo2.length-1];dlg("VO2 máximo",[{k:"v",l:"Valor do Garmin",u:"ml/kg/min",v:"",ph:L?nf(L.v):"ex.: 42",req:1},{k:"dia",l:"Dia",t:"date",v:tk,max:tk}],
     async o=>{const v=numIn(o.v),dia=o.dia||tk;if(v===0&&S.vo2.some(x=>x.dia===dia)){await delReg("vo2",dia);renderEst();toast("Lançamento apagado");return}
       if(v==null||v<10||v>99)return "Coloque o número do Garmin. Ex.: 42";await saveReg("vo2",dia,v);renderEst();toast("VO2 máximo salvo")},null,
-    L?'Último: '+nf(L.v)+' em '+dmy(L.dia)+'. Para apagar um lançamento, escolha o dia e coloque 0.':'')}
+    '')}
   else if(k==="vo2meta"){const M=METAS.vo2||{};dlg("Meta de VO2 máx",[{k:"v",l:"Meta",u:"ml/kg/min",v:M.v!=null?nf(M.v):"",req:1}],
     async o=>{const v=numIn(o.v);if(v==null||v<10||v>99)return "Meta inválida. Ex.: 45";await saveMeta("vo2",{v});renderEst();toast("Meta salva")},M.v!=null?async()=>{await saveMeta("vo2",null);renderEst();toast("Meta removida")}:null)}
   else if(k==="tacfmeta"){const M=METAS.tacf||{};dlg("Meta do TACF",[{k:"v",l:"Pontuação",u:"pts",v:M.v!=null?nf(M.v):"",req:1},{k:"x",l:"Corrida (opcional)",u:"m",v:M.x!=null?String(M.x):""}],
