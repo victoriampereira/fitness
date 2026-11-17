@@ -416,6 +416,7 @@ button.s-hz{cursor:pointer}
 .s-soft{align-self:center;border:1px solid var(--line);background:none;color:var(--ink);border-radius:99px;padding:9px 30px;font:500 13px var(--font);cursor:pointer}
 .s-link{align-self:center;border:none;background:none;color:var(--muted);font:500 12px var(--font);text-decoration:underline;cursor:pointer;padding:2px}
 .s-link.arm{color:var(--inf);font-weight:700}
+.p-ch{margin-top:0}
 svg.s-ch{display:block;width:100%;height:auto}
 .s-recent{display:flex;flex-direction:column}
 .s-recent h3{font-size:12px;font-weight:600;color:var(--muted);margin:0 0 2px}
@@ -1732,11 +1733,11 @@ function pesoMedia(i){const P=S.peso,t=kDate(P[i].dia).getTime();const s=P.filte
 function pesoInfo(){
   const P=S.peso;if(!P.length)return null;const last=P[P.length-1],media=pesoMedia(P.length-1),M=METAS.peso;
   const meta=M&&M.v!=null?M.v:null,ini=M&&M.x!=null?M.x:P[0].v;
-  let pct=null;if(meta!=null)pct=ini===meta?100:clamp(Math.round((ini-media)/(ini-meta)*100),0,100);
+  let pct=null;if(meta!=null)pct=ini===meta?100:clamp(Math.round((ini-last.v)/(ini-meta)*100),0,100);
   const t1=kDate(last.dia).getTime(),R=P.filter(p=>kDate(p.dia).getTime()>t1-28*864e5);let slope=null;
   if(R.length>=4){const xs=R.map(p=>(kDate(p.dia).getTime()-t1)/864e5),ys=R.map(p=>p.v),mx=xs.reduce((a,b)=>a+b)/xs.length,my=ys.reduce((a,b)=>a+b)/ys.length;
     let nu=0,de=0;xs.forEach((x,i)=>{nu+=(x-mx)*(ys[i]-my);de+=(x-mx)**2});if(de>0&&xs[xs.length-1]-xs[0]>=7)slope=nu/de}
-  let eta=null;if(meta!=null&&slope!=null){const gap=media-meta;if(Math.abs(gap)>0.05&&Math.sign(slope)===-Math.sign(gap)&&Math.abs(slope)>0.004){const n=Math.round(Math.abs(gap/slope));if(n<730)eta=addDays(kDate(last.dia),n)}}
+  let eta=null;if(meta!=null&&slope!=null){const gap=last.v-meta;if(Math.abs(gap)>0.05&&Math.sign(slope)===-Math.sign(gap)&&Math.abs(slope)>0.004){const n=Math.round(Math.abs(gap/slope));if(n<730)eta=addDays(kDate(last.dia),n)}}
   return {last,media,ini,meta,pct,slope,eta}}
 function pesoChart(pi){
   const P=S.peso;if(P.length<2)return "";const t1=kDate(P[P.length-1].dia).getTime(),from=t1-30*864e5;
@@ -1791,7 +1792,7 @@ function renderHoje(){
   let h='<div class="h-head"><b>'+wd.charAt(0).toUpperCase()+wd.slice(1)+', '+t.getDate()+'/'+pad(t.getMonth()+1)+'</b></div>';
   h+='<button type="button" class="h-card" data-go="peso"><span class="h-row"><span class="h-t">'+mi("peso")+'Peso</span><span class="h-s">'+(pi&&pi.meta!=null?pi.pct+'%':'')+'</span></span>';
   if(!pi)h+='<span class="h-row"><span class="h-s">Toque para lançar seu peso</span></span>';
-  else{const dl=pi.media-pi.ini,good=pi.meta==null||Math.sign(dl)===Math.sign(pi.meta-pi.ini);
+  else{const dl=pi.last.v-pi.ini,good=pi.meta==null||Math.sign(dl)===Math.sign(pi.meta-pi.ini);
     h+='<span class="h-row"><span class="h-num">'+nf1(pi.last.v)+'<small>kg</small></span><span class="h-s'+(good?' ok':'')+'">'+(pi.meta!=null?sgn(dl)+' kg':(pi.last.dia===tk?'hoje':dmy(pi.last.dia)))+'</span></span>'+
       (pi.meta!=null?'<span class="h-bar"><i style="width:'+pi.pct+'%"></i></span>':'')}
   h+='</button>';
@@ -1819,13 +1820,13 @@ function renderPeso(){
   const meta=pi&&pi.meta!=null?pi.meta:(METAS.peso&&METAS.peso.v!=null?METAS.peso.v:null);
   let h='<div class="s-th"><button type="button" class="s-back" data-go="est" aria-label="Voltar">‹</button><b>Peso</b></div><div class="p-trio"><div><b>'+(pi?nf1(pi.last.v):'—')+'</b><span>atual</span></div>'+
     '<button type="button" id="pw-meta"><b>'+(meta!=null?nf1(meta):'+')+'</b><span>'+(meta!=null?'meta':'definir meta')+'</span></button>'+
-    '<div><b>'+(pi&&meta!=null?nf1(Math.abs(pi.media-meta)):'—')+'</b><span>falta</span></div></div>';
+    '<div><b>'+(pi&&meta!=null?nf1(Math.abs(pi.last.v-meta)):'—')+'</b><span>falta</span></div></div>';
   if(pi&&pi.eta)h+='<p class="p-eta">no ritmo atual, meta por volta de '+dmy(key(pi.eta))+'</p>';
   const d=kDate(pesoDia),lab=pesoDia===tk?'hoje':DW[d.getDay()].toLowerCase()+', '+dmy(pesoDia);
   h+='<div class="p-in"><label class="p-day">'+lab+' · <u>outro dia</u><input type="date" id="pw-date" max="'+tk+'" value="'+pesoDia+'" aria-label="Escolher o dia da pesagem"></label>'+
     '<div class="p-step"><label><input id="pw-v" type="text" inputmode="decimal" autocomplete="off" value="'+(pesoVal!=null?nf1(pesoVal):'')+'" placeholder="0,0" aria-label="Peso em kg"><em>kg</em></label></div>'+
     '<button type="button" class="p-link" id="pw-save">'+(ex?'atualizar':'salvar')+'</button>'+(ex?'<button type="button" class="s-link" id="pw-del">apagar este dia</button>':'')+'</div>';
-  if(pi)h+=pesoChart(pi);
+  if(pi)h+='<div class="p-ch">'+lineChart(S.peso.slice(-30),"#2FA36B","pgp")+'</div>';
   el.innerHTML=h}
 $("pg-peso").addEventListener("click",async e=>{
   const st=e.target.closest("[data-ps]");if(st){const v=numIn($("pw-v").value)??pesoVal??60;pesoVal=Math.round((v+ +st.dataset.ps)*10)/10;$("pw-v").value=nf1(pesoVal);return}

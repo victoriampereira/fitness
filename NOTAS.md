@@ -190,3 +190,7 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Meta de peso → meta de IMC (peso ÷ 1,68²).
   - Meta de % gordura → metas de massa gorda e massa magra. Usa a meta de peso; sem ela, o peso da última avaliação.
   - Se mudar a meta de peso com % gordura definida, as massas são recalculadas.
+- Tela do Peso:
+  - O gráfico agora é igual ao do cartão de Estatísticas: pesos reais dos últimos 30 registros, em verde.
+  - Saiu a média de 7 dias, a linha da meta e a projeção.
+  - "Falta", % da meta e variação usam o último peso lançado (antes usavam a média de 7 dias, por isso não batiam).
