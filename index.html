@@ -369,6 +369,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .s-head span{font-size:12px;color:var(--muted)}
 .s-hz{all:unset;box-sizing:border-box;width:100%;background:var(--soft);border-radius:18px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center;font-family:var(--font);color:var(--ink)}
 button.s-hz{cursor:pointer}
+.o2{font-size:.62em;vertical-align:baseline;position:relative;top:.28em;margin:0 .03em;line-height:0}
 .s-t{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;grid-column:1/-1}
 .s-t em{margin-left:auto;font-style:normal;font-size:11.5px;font-weight:500;color:var(--muted)}
 .s-big{font-size:34px;font-weight:600;letter-spacing:-.03em;line-height:1}
@@ -1860,8 +1861,8 @@ function renderEst(){
   let h='<div class="s-st"><div class="s-t">'+sdot("peso")+'Peso<span style="margin-left:auto"></span><button type="button" class="s-plus" data-go="peso" aria-label="Lançar peso">+</button></div>'+
     (PL?'<div class="s-v" data-go="peso" style="cursor:pointer"><b>'+nf1(PL.v)+'</b><small class="s-dt">'+dmy(PL.dia)+'</small></div><div data-go="peso" style="cursor:pointer">'+lineChart(S.peso.slice(-14),"#2FA36B","pesog")+'</div>':'<p class="s-empty">Toque no + para lançar seu peso.</p>')+'</div>';
   h+=avCard();
-  h+='<div class="s-st"><div class="s-t">'+sdot("vo2")+'VO2 máximo<span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máximo">+</button></div>';
-  if(!L)h+='<p class="s-empty">Toque no + e lance o VO2 máximo que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
+  h+='<div class="s-st"><div class="s-t">'+sdot("vo2")+'<span>VO<sub class="o2">2</sub> Máximo</span><span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máximo">+</button></div>';
+  if(!L)h+='<p class="s-empty">Toque no + e lance o VO₂ Máximo que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
   else{const nx=key(addMonths(kDate(L.dia),1)),d0=V[0];
     h+='<div class="s-v"><b>'+nf(L.v)+'</b><small class="s-dt">'+dmy(L.dia)+'</small></div>'+(V.length>1?vo2Chart():'')}
   h+='</div>';
@@ -1902,11 +1903,11 @@ function tacfDlg(x,modo){x=x||{};const novo=!x.semestre,meta=x.semestre==="Meta"
       const r=await sb.from("saude_tacf").upsert(R);if(r.error)throw r.error;TACF=TACF.filter(t=>t.semestre!==sem).concat([{...x,...R}]).sort((a,b)=>(semOrd(a.semestre)||a.ordem||0)-(semOrd(b.semestre)||b.ordem||0));render();toast(meta?"Meta salva":"TACF salvo")},
     novo?null:async()=>{const r=await sb.from("saude_tacf").delete().eq("user_id",session.user.id).eq("semestre",x.semestre);if(r.error)throw r.error;TACF=TACF.filter(t=>t.semestre!==x.semestre);tacfAberto=null;render();toast(meta?"Meta apagada":"Semestre apagado")},seg)}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-dlg]");if(!b||!session)return;e.preventDefault();const k=b.dataset.dlg,tk=key(today0());
-  if(k==="vo2"){const L=S.vo2[S.vo2.length-1];dlg("VO2 máximo",[{k:"v",l:"Valor do Garmin",u:"ml/kg/min",v:"",ph:L?nf(L.v):"ex.: 42",req:1},{k:"dia",l:"Dia",t:"date",v:tk,max:tk}],
+  if(k==="vo2"){const L=S.vo2[S.vo2.length-1];dlg('VO<sub class="o2">2</sub> Máximo',[{k:"v",l:"Valor do Garmin",u:"ml/kg/min",v:"",ph:L?nf(L.v):"ex.: 42",req:1},{k:"dia",l:"Dia",t:"date",v:tk,max:tk}],
     async o=>{const v=numIn(o.v),dia=o.dia||tk;if(v===0&&S.vo2.some(x=>x.dia===dia)){await delReg("vo2",dia);renderEst();toast("Lançamento apagado");return}
-      if(v==null||v<10||v>99)return "Coloque o número do Garmin. Ex.: 42";await saveReg("vo2",dia,v);renderEst();toast("VO2 máximo salvo")},null,
+      if(v==null||v<10||v>99)return "Coloque o número do Garmin. Ex.: 42";await saveReg("vo2",dia,v);renderEst();toast("VO₂ Máximo salvo")},null,
     '')}
-  else if(k==="vo2meta"){const M=METAS.vo2||{};dlg("Meta de VO2 máx",[{k:"v",l:"Meta",u:"ml/kg/min",v:M.v!=null?nf(M.v):"",req:1}],
+  else if(k==="vo2meta"){const M=METAS.vo2||{};dlg('Meta de VO<sub class="o2">2</sub> Máximo',[{k:"v",l:"Meta",u:"ml/kg/min",v:M.v!=null?nf(M.v):"",req:1}],
     async o=>{const v=numIn(o.v);if(v==null||v<10||v>99)return "Meta inválida. Ex.: 45";await saveMeta("vo2",{v});renderEst();toast("Meta salva")},M.v!=null?async()=>{await saveMeta("vo2",null);renderEst();toast("Meta removida")}:null)}
   else if(k==="tacfmeta"){const M=METAS.tacf||{};dlg("Meta do TACF",[{k:"v",l:"Pontuação",u:"pts",v:M.v!=null?nf(M.v):"",req:1},{k:"x",l:"Corrida (opcional)",u:"m",v:M.x!=null?String(M.x):""}],
     async o=>{const v=numIn(o.v),x=numIn(o.x);if(v==null||v<=0||v>100)return "Pontuação entre 1 e 100";await saveMeta("tacf",{v,x:x==null?null:Math.round(x)});render();toast("Meta salva")},M.v!=null?async()=>{await saveMeta("tacf",null);render();toast("Meta removida")}:null)}
@@ -1978,14 +1979,14 @@ const MESC=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","d
 const myL=k=>{const d=kDate(k);return MESC[d.getMonth()]+"/"+String(d.getFullYear()).slice(2)};
 const avSoma=a=>{const v=AVD.map(([k])=>a[k]).filter(x=>x!=null);return v.length?v.reduce((x,y)=>x+ +y,0):null};
 function avCard(){const L=AVA[AVA.length-1];
-  let h='<div class="s-st"><div class="s-t">'+'<span class="s-dot" style="--c:#6B7A99" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><path d="M8 21l1.5-8L7 9h10l-2.5 4L16 21M9.5 13h5"/></svg></span>Avaliação física<span style="margin-left:auto"></span><button type="button" class="s-plus" data-avn="1" aria-label="Lançar avaliação">+</button></div>';
+  let h='<div class="s-st"><div class="s-t">'+'<span class="s-dot" style="--c:#6B7A99" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><path d="M8 21l1.5-8L7 9h10l-2.5 4L16 21M9.5 13h5"/></svg></span>Avaliação Física<span style="margin-left:auto"></span><button type="button" class="s-plus" data-avn="1" aria-label="Lançar avaliação">+</button></div>';
   if(!L||L.gordura==null)h+='<p class="s-empty">Toque no + para lançar sua avaliação física.</p>';
   else{const G=AVA.filter(a=>a.gordura!=null).map(a=>({dia:a.dia,v:+a.gordura}));
     h+='<div class="s-v" data-go="aval" style="cursor:pointer"><b>'+nf(+L.gordura)+'%</b><small class="s-dt">'+myL(L.dia)+'</small></div><div data-go="aval" style="cursor:pointer">'+lineChart(G,"#6B7A99","avg",myL)+'</div>'}
   return h+'</div>'}
 function renderAval(){const el=$("pg-aval");if(!el||page!=="aval")return;const A=AVA.slice(-3),hasM=AVC.some(([k])=>METAS["av_"+k]&&METAS["av_"+k].v!=null);
   const f=(v,u)=>v==null||v===""?'—':nf(+v);
-  let h='<div class="s-th"><button type="button" class="s-back" data-go="est" aria-label="Voltar">‹</button><b>Avaliação física</b><button type="button" class="s-plus" data-avn="1" aria-label="Lançar avaliação">+</button></div>';
+  let h='<div class="s-th"><button type="button" class="s-back" data-go="est" aria-label="Voltar">‹</button><b>Avaliação Física</b><button type="button" class="s-plus" data-avn="1" aria-label="Lançar avaliação">+</button></div>';
   if(!A.length){el.innerHTML=h+'<p class="s-empty">Toque no + para lançar sua primeira avaliação.</p>';return}
   h+='<table class="av-tb"><thead><tr><th></th>'+A.map(a=>'<th><button type="button" data-ave="'+a.dia+'">'+myL(a.dia)+'</button></th>').join("")+'<th class="mt">meta</th></tr></thead><tbody>';
   AVC.forEach(([k,n,u])=>{const M=METAS["av_"+k];h+='<tr data-avm="'+k+'"><td>'+n+(u.trim()&&u.trim()!=="%"?'<small> '+u.trim()+'</small>':'')+'</td>'+A.map((a,i)=>'<td'+(i===A.length-1?' class="last"':'')+'>'+f(a[k])+'</td>').join("")+'<td class="mt">'+(M&&M.v!=null?nf(M.v):'+')+'</td></tr>'});
@@ -1998,7 +1999,7 @@ $("pg-aval").addEventListener("click",e=>{if(e.target.closest("[data-avdob]")){a
   const m=e.target.closest("[data-avm]");if(m&&e.target.closest(".mt")){const k=m.dataset.avm,[,n,u]=AVC.find(x=>x[0]===k),M=METAS["av_"+k]||{};
     dlg("Meta · "+n,[{k:"v",l:"Meta",u:u.trim(),v:M.v!=null?nf(M.v):"",req:1}],async o=>{const v=numIn(o.v);if(v==null||v<=0)return "Coloque um número";await saveMeta("av_"+k,{v});renderAval();toast("Meta salva")},M.v!=null?async()=>{await saveMeta("av_"+k,null);renderAval();toast("Meta removida")}:null)}});
 function avDlg(a){a=a||{};const novo=!a.dia,tk=key(today0()),V=k=>a[k]!=null?nf(+a[k]):"";
-  dlg(novo?"Nova avaliação física":"Avaliação · "+myL(a.dia),[
+  dlg(novo?"Nova Avaliação Física":"Avaliação · "+myL(a.dia),[
     {two:[{k:"dia",l:"Data",t:"date",v:a.dia||tk,max:tk,ro:!novo},{k:"peso",l:"Peso (kg)",v:V("peso")}]},
     {two:[{k:"gordura",l:"% gordura",v:V("gordura")},{k:"imc",l:"IMC",v:V("imc"),ph:"calcula sozinho"}]},
     {two:[{k:"massa_gorda",l:"Massa gorda (kg)",v:V("massa_gorda"),ph:"calcula sozinho"},{k:"massa_magra",l:"Massa magra (kg)",v:V("massa_magra"),ph:"calcula sozinho"}]},
