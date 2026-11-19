@@ -194,3 +194,9 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - O gráfico agora é igual ao do cartão de Estatísticas: pesos reais dos últimos 30 registros, em verde.
   - Saiu a média de 7 dias, a linha da meta e a projeção.
   - "Falta", % da meta e variação usam o último peso lançado (antes usavam a média de 7 dias, por isso não batiam).
+- Escada HIIT até o Acatenango:
+  - Toda escada de 19/11 a 10/12 virou "Escada · HIIT" de 30 min: 3 blocos de 5 min vel. 5, 2 min vel. 10, 2 min vel. 14 e 1 min vel. 16.
+  - As sessões caem em 21/11, 23/11, 25/11, 27/11, 30/11, 2/12, 4/12, 7/12 e 9/12.
+  - Tocar abre as bolinhas igual à corrida, com cronômetro ▶ em cada trecho.
+  - Ao marcar as 12, lança 30 min de escada no dia.
+  - Código: HIIT_DE/HIIT_ATE/HIIT_S e escIv().
