@@ -294,6 +294,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .iv-r.nx{background:var(--soft)}
 .iv-r .lb{font-size:14px;font-weight:600}
 .iv-ds{display:flex;gap:20px}
+body.dlg-top .s-dlg{z-index:46}body.dlg-top .scrim{z-index:45}
+.iv-sp{all:unset;cursor:pointer;font-size:10.5px;color:var(--muted);white-space:nowrap;border-bottom:1px dotted #C4C4C4;line-height:1.3;margin-top:-1px}.iv-c.f .iv-sp{color:var(--run);border-bottom-color:currentColor;opacity:.85}.iv-sp.mx{font-weight:600;color:var(--ink)}.iv-c.f .iv-sp.mx{color:var(--run);opacity:1}
 .iv-l.hi .iv-r{grid-template-columns:1fr;gap:8px;padding:10px 12px}.iv-l.hi .iv-ds{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding-right:22px;margin-left:-6px}.iv-l.hi .iv-d span{width:34px;height:34px}.iv-l.hi .tmb{left:calc(50% + 21px);top:6px;width:24px;height:24px}.iv-l.hi .tmb svg{width:9px;height:9px}
 .iv-d{all:unset;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted);white-space:nowrap;cursor:pointer}
 .iv-d:focus-visible span{outline:2px solid var(--ink);outline-offset:2px}
@@ -1105,7 +1107,7 @@ const ICK={run:"run",esc:"esc",inf:"inf",sup:"sup",abd:"abd"};
 // 19/11: toda escada até a subida do Acatenango vira o HIIT de 30 min (3 × 5 min vel. 5, 2 min vel. 10, 2 min vel. 14, 1 min vel. 16), com bolinhas
 const HIIT_DE="2026-11-19",HIIT_ATE="2026-12-11",HIIT_S=[[5,5],[2,10],[2,14],[1,16]];
 const HIIT={t:"Escada · HIIT",n:30,v:"30 min",hiit:true,d:"3 × ("+HIIT_S.map(([m,v])=>m+" min vel. "+v).join(" / ")+")"};
-function escIv(){let n=0;const G=[];for(let b=1;b<=3;b++)G.push({t:"Bloco "+b,s:HIIT_S.map(([m,v])=>({lb:m+" min",sp:"vel. "+v,rest:true,lv:v<14,f:v>=14,n:n++}))});return G}
+function escIv(){let n=0;const G=[];for(let b=1;b<=3;b++)G.push({t:"Bloco "+b,s:HIIT_S.map(([m,v])=>({lb:m+" min",sp:"vel. "+v,vel:v,rest:true,lv:v<14,f:v>=14,n:n++}))});return G}
 function planWeeks(){
   let z,fill;
   const run=(r,big)=>{const st=runStats(r[2]);return {k:"run",t:big?r[0]:"Corrida · "+r[0],d:fill(r[1]),avg:st.avg,n:Math.round(st.km*10)/10,v:nf(Math.round(st.km*10)/10)+" km",p:(st.mixed?"média ":"")+mmss(st.avg)+"/km",big}};
@@ -1316,6 +1318,17 @@ async function ivFinish(id){const it=PITEMS[id];if(!it||!session)return;
   if(!checks.has(id)){checks.add(id);await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id})}
   try{await saveDay(k,d)}catch(e){toast("Não atualizou o dia. Verifique a internet.")}}
 let ivOpen=null;
+/* escada HIIT: tocar na velocidade muda o trecho (e o mesmo trecho nos blocos seguintes ainda não feitos) */
+document.addEventListener("click",e=>{const b=e.target.closest("[data-ivsp]");if(!b||!session||!ivOpen)return;const id=ivOpen,it=PITEMS[id];if(!it||!it.iv)return;
+  const n=+b.dataset.ivsp;let gi=-1,j=-1;it.iv.forEach((g,a)=>g.s.forEach((x,c)=>{if(x.n===n){gi=a;j=c}}));if(gi<0)return;const x=it.iv[gi].s[j],kv=id+"#"+n+"#v";
+  const alvo=it.iv.slice(gi).map(g=>g.s[j]).filter((y,q)=>q===0||!checks.has(id+"#"+y.n)).map(y=>id+"#"+y.n+"#v");
+  document.body.classList.add("dlg-top");dlg("Velocidade · "+x.lb,[{k:"v",l:(alvo.length>1?"Blocos "+alvo.map(k=>1+it.iv.findIndex(g=>g.s.some(y=>id+"#"+y.n+"#v"===k))).join(", ").replace(/, (\d+)$/," e $1"):it.iv[gi].t),v:nf(ivVal[kv]||x.vel),req:1}],
+    async o=>{const v=numIn(o.v);if(v==null||v<=0||v>30)return "Coloque a velocidade. Ex.: 15";
+      const plano=v===x.vel,old={};alvo.forEach(k=>{old[k]=ivVal[k];if(plano)delete ivVal[k];else ivVal[k]=v});renderIv();
+      const r=plano?await sb.from("fitness_checks").delete().eq("user_id",session.user.id).in("item",alvo)
+                   :await sb.from("fitness_checks").upsert(alvo.map(k=>({user_id:session.user.id,item:k,vel:v})));
+      if(r.error){alvo.forEach(k=>{if(old[k])ivVal[k]=old[k];else delete ivVal[k]});renderIv();return "Não salvou. Verifique a internet."}
+      toast(alvo.length>1?"Velocidade alterada neste e nos próximos blocos":"Velocidade alterada")})});
 /* cronômetro regressivo para os trechos de tempo */
 const TPLAY='<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1l7 4-7 4z"/></svg>',TPAUSE='<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1h2v8H2zM6 1h2v8H6z"/></svg>',TSTOP='<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5h7v7h-7z"/></svg>';
 let TM=null,tmInt=null,tmAC=null,tmLock=null;
@@ -1359,8 +1372,9 @@ function renderIv(){const it=PITEMS[ivOpen];if(!it||!it.iv){closeIv();return}
       const k_=ivOpen+"#"+x.n,P=ivParse(x)||{},ps=ivSec(x.pc),kmh=ps?(Math.round(36000/ps)/10).toLocaleString("pt-BR"):"";
       const R=ivReal(ivOpen,x),isT=P.t!=null,cur=isT?(ivKm[k_]!=null||ivVal[k_]?nf(Math.round(R.dk*100)/100):""):(ivSeg[k_]!=null||ivVal[k_]?mmss(R.dt):""),
         ph=isT?(ps?nf(Math.round(P.t/ps*100)/100):"km"):(ps?mmss(P.d*ps):"tempo");
-      return '<div class="iv-c'+(x.f?' f':'')+'"><button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b></div>'+(x.sp?'<em class="iv-pk">'+x.sp+'</em>':x.stop?'<em class="iv-pk">parado</em>':x.pc?'<em class="iv-pk">'+x.pc+(kmh?' · '+kmh+' km/h':'')+'</em>':'')+'</button>'+
-        (ivDur(x)?'<button type="button" class="tmb" data-tm="'+x.n+'" aria-label="Cronômetro de '+x.lb+'">'+TPLAY+'</button>':'')+
+      return '<div class="iv-c'+(x.f?' f':'')+'"><button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b></div>'+(x.sp?'':x.stop?'<em class="iv-pk">parado</em>':x.pc?'<em class="iv-pk">'+x.pc+(kmh?' · '+kmh+' km/h':'')+'</em>':'')+'</button>'+
+        (x.sp?'<button type="button" class="iv-sp'+(ivVal[k_+"#v"]?' mx':'')+'" data-ivsp="'+x.n+'" aria-label="Alterar velocidade de '+g.t+', '+x.lb+'">vel. '+nf(ivVal[k_+"#v"]||x.vel)+'</button>':'')+
+        (ivDur(x)?'<button type="button" class="tmb" data-tm=""'+x.n+'" aria-label="Cronômetro de '+x.lb+'">'+TPLAY+'</button>':'')+
         (x.rest?'':'<label class="iv-v"><input class="iv-in" data-ivp="'+x.n+'" data-kind="'+(isT?'km':'t')+'" type="text" inputmode="'+(isT?'decimal':'numeric')+'" autocomplete="off" placeholder="'+ph+'" value="'+cur+'" aria-label="'+(isT?'Distância feita em km':'Tempo feito')+' em '+g.t+', '+x.lb+'"><small>'+(isT?'km':'min')+'</small></label>')+'</div>'}).join('')+'</div></div>').join('')+'</div>'+
     '<div class="iv-sum" id="iv-sum"></div>'+
     '<div class="iv-note">'+(dn===tot?'Treino completo!':it.hiit?'Toque no ▶ para cronometrar cada trecho e na bolinha quando terminar.':'Toque na bolinha ao terminar o trecho. Nos trechos de tempo, coloque a distância que você fez; nos de distância, o tempo. Em cinza está o previsto. Nos descansos, use só o cronômetro.')+'</div>';
@@ -2040,7 +2054,7 @@ function dlg(title,fields,onSave,onDel,hint){
     '<p class="s-msg" id="dlg-msg" role="status"></p><div class="s-act">'+(onDel?'<button type="button" class="s-link" id="dlg-del">apagar</button>':'<button type="button" class="s-link" id="dlg-x">cancelar</button>')+'<button type="submit" class="save">Salvar</button></div>';
   dlgSave=onSave;dlgDel=onDel;$("dlg").hidden=false;$("scrim").classList.add("open");
   const first=$("dlg").querySelector("input:not([readonly])");if(first&&!first.value)setTimeout(()=>first.focus(),60)}
-function closeDlg(){$("dlg").hidden=true;$("scrim").classList.remove("open");dlgSave=dlgDel=null}
+function closeDlg(){document.body.classList.remove("dlg-top");$("dlg").hidden=true;$("scrim").classList.remove("open");dlgSave=dlgDel=null}
 $("dlg").addEventListener("submit",async e=>{e.preventDefault();if(!dlgSave)return;const o={};new FormData($("dlg")).forEach((v,k)=>{o[k]=String(v).trim()});
   try{const err=await dlgSave(o);if(err){$("dlg-msg").textContent=err;return}closeDlg()}catch(_){$("dlg-msg").textContent="Não salvou. Verifique a internet."}});
 $("dlg").addEventListener("click",async e=>{if(e.target.id==="dlg-x"){closeDlg();return}
