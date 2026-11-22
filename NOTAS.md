@@ -274,3 +274,8 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Iogurte light mamão e laranja (165 g = 68 kcal).
   - Proteína estimada (exceto Yopro: 15 g por 250 ml).
   - Categorias novas: Pratos prontos, Molhos e pastas, Doces e lanches. Ordem no app: Laticínios, Proteínas, Pães e grãos, Frutas, Verduras e legumes, Pratos prontos, Molhos e pastas, Doces e lanches, Outros.
+
+## 22/11 — v108
+- Dieta: refeição aberta e vazia não mostra mais "Nada lançado."
+- Correção: se o app ficava aberto de um dia para o outro, Dieta e Peso continuavam no dia anterior; agora o "hoje" acompanha a virada da meia-noite (dDiaHj/pesoDiaHj).
+- Alimentos salvos (via SQL): Bombom Sonho de Valsa, Ouro Branco (un), Feijão preto temperado cozido (125 g).

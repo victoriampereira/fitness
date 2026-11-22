@@ -1771,7 +1771,7 @@ function closeFb(){$("fb").hidden=true;$("scrim").classList.remove("open")}
 let tt;function toast(s){const t=$("toast");t.textContent=s;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2400);}
 
 /* ===== saúde: peso, isotretinoína, VO2 máx e TACF ===== */
-let REC=[],AVA=[],avDob=false;let S={peso:[],remedio:[],vo2:[]},TACF=[],METAS={},pesoDia=null,pesoVal=null,tacfAberto=null;
+let REC=[],AVA=[],avDob=false;let S={peso:[],remedio:[],vo2:[]},TACF=[],METAS={},pesoDia=null,pesoDiaHj=null,pesoVal=null,tacfAberto=null;
 const SIC={
   peso:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.8 10a4.5 4.5 0 0 1 6.4 0M12 10l1.3-1.7"/>',
   rem:'<rect x="3.5" y="9" width="17" height="6.5" rx="3.25" transform="rotate(-35 12 12)"/><path d="M10 8.3l3.8 5.4"/>',
@@ -1898,7 +1898,7 @@ $("pg-hoje").addEventListener("click",e=>{
 /* ---- Peso ---- */
 function renderPeso(){
   const el=$("pg-peso");if(!el||page!=="peso")return;if(el.contains(document.activeElement)&&document.activeElement.id==="pw-v")return;
-  const pi=pesoInfo(),tk=key(today0());if(!pesoDia)pesoDia=tk;const ex=S.peso.find(p=>p.dia===pesoDia);
+  const pi=pesoInfo(),tk=key(today0());const pPrev=pesoDiaHj;pesoDiaHj=tk;if(!pesoDia||pesoDia===pPrev){if(pesoDia!==tk)pesoVal=null;pesoDia=tk}const ex=S.peso.find(p=>p.dia===pesoDia);
   if(pesoVal==null)pesoVal=ex?ex.v:(pi?pi.last.v:null);
   const meta=pi&&pi.meta!=null?pi.meta:(METAS.peso&&METAS.peso.v!=null?METAS.peso.v:null);
   let h='<div class="s-th"><button type="button" class="s-back" data-go="est" aria-label="Voltar">‹</button><b>Peso</b></div><div class="p-trio"><div><b>'+(pi?nf1(pi.last.v):'—')+'</b><span>atual</span></div>'+
@@ -2125,7 +2125,7 @@ function avDlg(a){a=a||{};const novo=!a.dia,tk=key(today0()),V=k=>a[k]!=null?nf(
 document.addEventListener("click",e=>{if(e.target.closest("[data-avn]")&&session){e.preventDefault();avDlg(null)}});
 
 /* ---- Dieta (opção E): cartão por refeição, "Repetir de ontem", medidas em g/ml; dados em saude_dieta e saude_alimentos ---- */
-let DIETA=[],ALIM=[],dDia=null,dfSt=null;
+let DIETA=[],ALIM=[],dDia=null,dDiaHj=null,dfSt=null;
 const REF=["Café da Manhã","Almoço","Lanche","Jantar"];let dOpen=new Set();try{dOpen=new Set(JSON.parse(localStorage.getItem("dieta-abertas")||"[]"))}catch(_){}
 // unidade "un": kcal100/prot100 guardam o valor de 1 unidade
 const dBase=u=>u==="un"?1:100,dK=r=>r.qtd*r.kcal100/dBase(r.unidade),dP=r=>r.qtd*r.prot100/dBase(r.unidade),dUn=(q,u)=>u==="un"?(q==1?"unidade":"unidades"):u;
@@ -2134,7 +2134,7 @@ const semAc=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase
 function dItens(dia,ref){return DIETA.filter(r=>r.dia===dia&&(ref==null||r.refeicao===ref)).sort((a,b)=>a.ordem-b.ordem||(a.created_at<b.created_at?-1:1))}
 function dFonte(ref){const d0=dDia;for(let i=1;i<=14;i++){const k=key(addDays(new Date(d0+"T12:00"),-i));const L=dItens(k,ref);if(L.length)return {k,L,i}}return null}
 function renderDieta(){
-  const el=$("pg-dieta");if(!el||page!=="dieta")return;const tk=key(today0());if(!dDia)dDia=tk;
+  const el=$("pg-dieta");if(!el||page!=="dieta")return;const tk=key(today0());const dPrev=dDiaHj;dDiaHj=tk;if(!dDia||dDia===dPrev)dDia=tk;
   const L=dItens(dDia),K=L.reduce((a,r)=>a+dK(r),0),P=L.reduce((a,r)=>a+dP(r),0),M=METAS.dieta||{};
   const dt=new Date(dDia+"T12:00").toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"}).replace(".","");
   const card=(lab,v,m,u,c)=>'<button type="button" class="d-sum" data-dmeta><span>'+lab+'</span><b>'+nf(r0(v))+'</b><small>'+(m?' / '+nf(m)+' '+u:' '+u)+'</small>'+(m?'<i class="d-bar"><i style="width:'+Math.min(100,v/m*100)+'%;background:'+c+'"></i></i>':'')+'</button>';
@@ -2145,7 +2145,7 @@ function renderDieta(){
       '<span class="d-kc">'+nf(r0(k))+'<small>kcal</small></span><button type="button" class="d-add" data-dadd="'+ref+'" aria-label="Incluir em '+nm+'">+</button></div>'+
       (op?(I.length?'<div class="d-its">'+I.map(r=>'<div class="d-sw"><button type="button" class="d-del" data-ddel="'+r.id+'" tabindex="-1">Excluir</button><button type="button" class="d-it" data-dit="'+r.id+'"><span class="d-nm">'+escH(r.nome)+'</span><b class="d-q">'+fmtQ(r)+'</b><small>'+nf(r0(dK(r)))+' kcal</small></button></div>').join('')+'</div>'
         :F?'<div class="d-ont">'+(F.i===1?"Ontem":"Em "+dm(F.k))+': '+escH(F.L.map(r=>r.nome).join(", "))+'</div><div class="d-bt"><button type="button" class="d-chip" data-drep="'+ref+'">Repetir '+(F.i===1?"ontem":"de "+dm(F.k))+'</button></div>'
-        :'<div class="d-ont">Nada lançado.</div>'):'')+'</div>'});
+        :''):'')+'</div>'});
   el.innerHTML=h}
 function dRings(K,P,M){const C=2*Math.PI,L=C*48;
   const one=(lab,v,m,c,u)=>{const f=m?Math.min(1,v/m):0,over=m&&v>m,cc=over&&u==="kcal"?"#E5484D":c;
