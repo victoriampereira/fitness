@@ -544,8 +544,8 @@ button.h-card{cursor:pointer}
 .h-t{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600}
 .h-ic{width:18px;height:18px;border-radius:50%;background:var(--c);display:inline-grid;place-items:center;flex:none}
 .h-ic svg{width:11px;height:11px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.h-s{font-size:12px;color:var(--muted)}.h-s.ok{color:var(--s-ok)}
-.h-num{font-size:24px;font-weight:500;letter-spacing:-.02em;line-height:1}.h-num small{font-size:12px;color:var(--muted);margin-left:2px;font-weight:500}
+.h-s{font-size:12px;color:var(--muted)}.h-s.ok{color:var(--s-ok)}.h-s.bad{color:#D9534F}
+.h-num{font-size:19px;font-weight:500;letter-spacing:-.02em;line-height:1}.h-num small{font-size:11px;color:var(--muted);margin-left:2px;font-weight:500}
 .h-bar{height:3px;background:#EDEDED;border-radius:9px;position:relative;overflow:hidden}.h-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--s-peso);border-radius:9px}
 .h-ck{width:26px;height:26px;border-radius:50%;border:1.5px solid #E7A9CB;background:#fff;padding:0;cursor:pointer;display:grid;place-items:center}
 .h-ck::after{content:"";width:9px;height:5px;border:solid transparent;border-width:0 0 2px 2px;transform:rotate(-45deg) translate(1px,-1px)}
@@ -1777,8 +1777,9 @@ const SIC={
   rem:'<rect x="3.5" y="9" width="17" height="6.5" rx="3.25" transform="rotate(-35 12 12)"/><path d="M10 8.3l3.8 5.4"/>',
   trein:'<path d="M3 8c2 0 2-3 4.5-3S10 11 12.5 11 15 5 17.5 5 20 8 21 8M3 17c2 0 2-3 4.5-3s2.5 6 5 6 2.5-6 5-6 2.5 3 3.5 3"/>',
   vo2:'<path d="M3 12h4l2-5 3 10 2-5h7"/>',
-  tacf:'<circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/>'};
-const SCOL={peso:"var(--s-peso)",rem:"var(--s-rem)",trein:"var(--run)",vo2:"var(--s-vo2)",tacf:"var(--s-tacf)"};
+  tacf:'<circle cx="12" cy="9" r="5"/><path d="M8.5 13l-1.5 8 5-3 5 3-1.5-8"/>',
+  dieta:'<path d="M12 7.5c-1.6-1.1-5.2-1.6-6.6 1.6-1.5 3.3.2 9.4 2.7 11.2 1.5 1 2.6.2 3.9.2s2.4.8 3.9-.2c2.5-1.8 4.2-7.9 2.7-11.2-1.4-3.2-5-2.7-6.6-1.6zM12 7.5c0-2.2 1-3.7 3-4.5"/>'};
+const SCOL={peso:"var(--s-peso)",rem:"var(--s-rem)",trein:"var(--run)",vo2:"var(--s-vo2)",tacf:"var(--s-tacf)",dieta:"#2FA36B"};
 const sdot=k=>'<span class="s-dot" style="--c:'+SCOL[k]+'" aria-hidden="true"><svg viewBox="0 0 24 24">'+SIC[k]+'</svg></span>';
 const nf1=v=>Number(v).toLocaleString("pt-BR",{minimumFractionDigits:0,maximumFractionDigits:1,useGrouping:false});
 const sgn=v=>(v<-0.05?"−":v>0.05?"+":"")+nf1(Math.abs(v));
@@ -1879,6 +1880,10 @@ function renderHoje(){
     h+='<span class="h-row"><span class="h-num">'+nf1(pi.last.v)+'<small>kg</small></span><span class="h-s'+(good?' ok':'')+'">'+(pi.meta!=null?sgn(dl)+' kg':(pi.last.dia===tk?'hoje':dmy(pi.last.dia)))+'</span></span>'+
       (pi.meta!=null?'<span class="h-bar"><i style="width:'+pi.pct+'%"></i></span>':'')}
   h+='</button>';
+  {const Ld=dItens(tk),Kd=Ld.reduce((a,r)=>a+dK(r),0),Pd=Ld.reduce((a,r)=>a+dP(r),0),Md=METAS.dieta||{},fk=Md.v?Md.v-Kd:null;
+    h+='<button type="button" class="h-card" data-go="dieta"><span class="h-row"><span class="h-t">'+mi("dieta")+'Dieta</span><span class="h-s'+(fk!=null&&fk<0?' bad':'')+'">'+(fk==null?'sem meta':fk>=0?'faltam '+nf(r0(fk))+' kcal':nf(r0(-fk))+' kcal a mais')+'</span></span>'+
+      '<span class="h-row"><span class="h-num">'+nf(r0(Kd))+'<small>'+(Md.v?'/ '+nf(Md.v)+' kcal':'kcal')+'</small></span></span>'+(Md.v?'<span class="h-bar"><i style="width:'+Math.min(100,Kd/Md.v*100)+'%;background:'+(fk<0?'#D9534F':'#2FA36B')+'"></i></span>':'')+
+      '<span class="h-row"><span class="h-num">'+nf(r0(Pd))+'<small>'+(Md.x?'/ '+nf(Md.x)+' g de proteína':'g de proteína')+'</small></span></span>'+(Md.x?'<span class="h-bar"><i style="width:'+Math.min(100,Pd/Md.x*100)+'%;background:#3B6FD8"></i></span>':'')+'</button>'}
   if(rm&&rm.show)h+='<div class="h-card h-line" data-go="rem" style="cursor:pointer"><span class="h-t">'+mi("rem")+'Isotretinoína</span><button type="button" class="h-ck" id="rem-ck" aria-pressed="'+rm.hoje+'" aria-label="Marcar isotretinoína como tomada"></button></div>';
   h+='<div class="h-card"><span class="h-t">'+mi("trein")+'Treinos</span>';
   const PR=H.items.filter(it=>it.big&&!it.cooper);

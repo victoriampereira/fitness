@@ -284,3 +284,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - Ícone da aba Dieta: maçã.
 - Dieta: botão "Hoje" ao lado das setas quando está em outro dia.
 - Dieta: "Copiar para…" em refeição com itens (escolhe a refeição e o dia, até hoje); dInsert(rows,dia) aceita o dia.
+
+## 22/11 — v110
+- Aba Hoje: cartão "Dieta" abaixo do Peso (calorias e proteína de hoje com barras; toque abre a Dieta). Fonte dos números do Hoje (.h-num) reduzida de 24 para 19 px.
