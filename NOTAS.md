@@ -204,3 +204,4 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Tocar no "vel. X" (sublinhado pontilhado) muda a velocidade daquele trecho e do mesmo trecho nos blocos seguintes ainda não marcados.
   - Valor alterado fica em negrito. Voltar ao valor do plano desfaz a mudança.
   - Guardado em fitness_checks com item "<id>#<n>#v" (campo vel).
+- Plano: semana com todos os treinos feitos fica verde (título e km reais), mesmo antes de virar no domingo às 18h. Classe .wk.fin.

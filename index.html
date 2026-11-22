@@ -178,7 +178,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-of
 .wk[open] summary::before{transform:rotate(90deg)}
 .wk summary .wt{flex:1;min-width:0}
 .wk.cur summary .wt{color:var(--run)}
-.wk summary .wt .wkm{display:inline-block;margin-left:7px;font-size:10.5px;font-weight:600;color:var(--ink);background:var(--soft);border-radius:99px;padding:2px 8px}.wk summary .wt .wkm.ok{background:#E3F4EA;color:#1E7B4F}.wk.cur summary .wt .wkm{background:var(--run);color:#fff}
+.wk summary .wt .wkm{display:inline-block;margin-left:7px;font-size:10.5px;font-weight:600;color:var(--ink);background:var(--soft);border-radius:99px;padding:2px 8px}.wk summary .wt .wkm.ok{background:#E3F4EA;color:#1E7B4F}.wk.cur summary .wt .wkm{background:var(--run);color:#fff}.wk.fin summary .wt{color:#1E7B4F}.wk.fin summary .wt .wkm{background:#E3F4EA;color:#1E7B4F}
 .pd{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;padding:8px 2px;border-top:1px solid var(--line)}
 .pd.today{box-shadow:inset 3px 0 0 var(--run);padding-left:8px}
 .pd .sd{display:block;font-size:17px;font-weight:600;line-height:1;letter-spacing:-.02em}
@@ -1455,7 +1455,8 @@ function renderPlan(){
           (editMode?'<span class="ed"><button type="button" class="del" data-del="'+id+'" aria-label="Excluir '+it.t+'">×</button><span class="hd" data-drag="'+id+'" aria-label="Arrastar '+it.t+'">≡</span></span></div>':'<button type="button" class="ck" data-ck="'+id+'" aria-pressed="'+on+'" aria-label="Marcar '+it.t+' como feito"></button></div>')}).join("")
         :'<div class="it rest">Descanso</div>';
       return '<div class="pd'+(k===tk?' today':'')+'" data-day="'+k+'"><div><span class="sd">'+date.getDate()+'</span><span class="sw">'+(k===tk?"Hoje":DW[date.getDay()])+'</span></div><div class="pdi">'+its+'</div></div>'}).join("");
-    return '<details class="wk'+(i===cur?' cur':'')+'"'+((savedOpen?savedOpen.includes(i):i===openIdx)?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(past?'<b class="wkm ok">'+realS+' km</b>':wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
+    const fin=tot>0&&done===tot;
+    return '<details class="wk'+(i===cur?' cur':'')+(fin?' fin':'')+'"'+((savedOpen?savedOpen.includes(i):i===openIdx)?' open':'')+'><summary><span class="wt">Semana '+(i+1)+' · '+w.t+(past||fin?'<b class="wkm ok">'+realS+' km</b>':wkm?'<b class="wkm">'+wkmS+' km</b>':'')+'</span><span>'+rng+'</span></summary><div class="wkd">'+body+'</div></details>'}).join("");
   if(ivOpen&&$("iv")&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#iv .iv-in")))renderIv();
   if($("pl-sem"))$("pl-sem").textContent=cur>=0?"semana "+(cur+1)+" de "+W.length:(t<W[0].mon?"começa seg, 19 out":"");
 }
