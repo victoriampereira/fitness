@@ -279,3 +279,8 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - Dieta: refeição aberta e vazia não mostra mais "Nada lançado."
 - Correção: se o app ficava aberto de um dia para o outro, Dieta e Peso continuavam no dia anterior; agora o "hoje" acompanha a virada da meia-noite (dDiaHj/pesoDiaHj).
 - Alimentos salvos (via SQL): Bombom Sonho de Valsa, Ouro Branco (un), Feijão preto temperado cozido (125 g).
+
+## 22/11 — v109
+- Ícone da aba Dieta: maçã.
+- Dieta: botão "Hoje" ao lado das setas quando está em outro dia.
+- Dieta: "Copiar para…" em refeição com itens (escolhe a refeição e o dia, até hoje); dInsert(rows,dia) aceita o dia.

@@ -621,7 +621,7 @@ button.h-card{cursor:pointer}
 #app>.tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
 .d-hd h2{font-size:22px;font-weight:600;margin:0;letter-spacing:-.01em}
 .d-dt{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-top:2px}.d-dt span{text-transform:none}.d-dt span:first-letter{text-transform:uppercase}
-.d-dt button{all:unset;cursor:pointer;font-size:17px;line-height:1;padding:2px 6px;color:var(--muted)}.d-dt button:disabled{opacity:.25;cursor:default}
+.d-dt button{all:unset;cursor:pointer;font-size:17px;line-height:1;padding:2px 6px;color:var(--muted)}.d-dt button:disabled{opacity:.25;cursor:default}.d-dt .d-hj{font-size:12px;font-weight:600;color:#2FA36B;border:1px solid #CFE8DA;border-radius:99px;padding:3px 10px;margin-left:4px}
 .d-sums{display:flex;gap:10px}.d-sum{all:unset;box-sizing:border-box;cursor:pointer;flex:1;background:#F7F7F7;border-radius:14px;padding:11px 13px;display:flex;flex-wrap:wrap;align-items:baseline;font-family:var(--font)}
 .d-sum span{width:100%;font-size:11px;color:var(--muted);margin-bottom:2px}.d-sum b{font-size:24px;font-weight:600;letter-spacing:-.02em}.d-sum small{font-size:12px;color:var(--muted);margin-left:4px}
 .d-bar{display:block;width:100%;height:4px;background:#E7E7E7;border-radius:4px;margin-top:8px;overflow:hidden}.d-bar i{display:block;height:100%;border-radius:4px}
@@ -629,7 +629,7 @@ button.h-card{cursor:pointer}
 .d-rt{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px}.d-rt b{font-weight:600}.d-rt span{font-size:12.5px;color:var(--muted)}
 .d-its{font-size:13px;color:var(--muted);line-height:1.6}.d-it{all:unset;cursor:pointer;font-family:var(--font)}.d-it b{font-weight:500;color:var(--ink)}.d-sep{margin:0 5px;color:#C4C4C4}
 .d-ont{font-size:12.5px;color:#A5A5A5}
-.d-bt{display:flex;gap:8px;margin-top:2px}.d-chip{all:unset;cursor:pointer;border:1px solid #E0E0E0;background:#fff;border-radius:99px;padding:5px 11px;font-size:12px;font-weight:500;font-family:var(--font)}
+.d-bt{display:flex;gap:8px;margin-top:2px}.d-its+.d-bt,.d-its>.d-bt{margin-top:6px}.d-chip{all:unset;cursor:pointer;border:1px solid #E0E0E0;background:#fff;border-radius:99px;padding:5px 11px;font-size:12px;font-weight:500;font-family:var(--font)}
 .df{gap:12px}.df-sr input,.df-q input{all:unset;box-sizing:border-box;width:100%;border:1px solid #E2E2E2;border-radius:12px;padding:11px 13px;font-size:16px;font-family:var(--font)}
 .df-l{display:flex;flex-direction:column}.df-h{font-size:11.5px;color:var(--muted);margin:10px 0 6px;text-transform:uppercase;letter-spacing:.06em}
 #df-res>.df-h:first-child{margin-top:2px}.df-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -735,7 +735,7 @@ button.h-card{cursor:pointer}
   <nav class="tabs" role="tablist" aria-label="Visão">
     <button class="tab" role="tab" id="tab-hoje" aria-selected="true" aria-controls="pg-hoje"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>Hoje</button>
     <button class="tab" role="tab" id="tab-plano" aria-selected="false" aria-controls="pg-plano"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.8h6V4M8.5 15v2.5M12 12v5.5M15.5 13.5v4"/></svg>Plano</button>
-    <button class="tab" role="tab" id="tab-dieta" aria-selected="false" aria-controls="pg-dieta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v7.5M5 3v5a2 2 0 0 0 4 0V3M7 10.5V21M17 21V3c-2.2 1.2-3.3 4.2-3.3 8.5H17"/></svg>Dieta</button>
+    <button class="tab" role="tab" id="tab-dieta" aria-selected="false" aria-controls="pg-dieta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7.5c-1.6-1.1-5.2-1.6-6.6 1.6-1.5 3.3.2 9.4 2.7 11.2 1.5 1 2.6.2 3.9.2s2.4.8 3.9-.2c2.5-1.8 4.2-7.9 2.7-11.2-1.4-3.2-5-2.7-6.6-1.6zM12 7.5c0-2.2 1-3.7 3-4.5"/></svg>Dieta</button>
     <button class="tab" role="tab" id="tab-mes" aria-selected="false" aria-controls="pg-mes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9.3h16M4 14.6h16M9.3 4v16M14.6 4v16"/></svg>Mês</button>
     <button class="tab" role="tab" id="tab-est" aria-selected="false" aria-controls="pg-est"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-8M10 20V5M15 20v-6M20 20V9"/></svg>Estatísticas</button>
   </nav>
@@ -2138,12 +2138,12 @@ function renderDieta(){
   const L=dItens(dDia),K=L.reduce((a,r)=>a+dK(r),0),P=L.reduce((a,r)=>a+dP(r),0),M=METAS.dieta||{};
   const dt=new Date(dDia+"T12:00").toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"}).replace(".","");
   const card=(lab,v,m,u,c)=>'<button type="button" class="d-sum" data-dmeta><span>'+lab+'</span><b>'+nf(r0(v))+'</b><small>'+(m?' / '+nf(m)+' '+u:' '+u)+'</small>'+(m?'<i class="d-bar"><i style="width:'+Math.min(100,v/m*100)+'%;background:'+c+'"></i></i>':'')+'</button>';
-  let h='<div class="d-hd"><h2>Dieta</h2><div class="d-dt"><button type="button" data-dnav="-1" aria-label="Dia anterior">‹</button><span>'+(dDia===tk?"Hoje, ":"")+dt+'</span><button type="button" data-dnav="1" aria-label="Próximo dia"'+(dDia>=tk?' disabled':'')+'>›</button></div></div>'+
+  let h='<div class="d-hd"><h2>Dieta</h2><div class="d-dt"><button type="button" data-dnav="-1" aria-label="Dia anterior">‹</button><span>'+(dDia===tk?"Hoje, ":"")+dt+'</span><button type="button" data-dnav="1" aria-label="Próximo dia"'+(dDia>=tk?' disabled':'')+'>›</button>'+(dDia!==tk?'<button type="button" class="d-hj" data-dhj>Hoje</button>':'')+'</div></div>'+
     dRings(K,P,M);
   REF.forEach((nm,ref)=>{const I=dItens(dDia,ref),k=I.reduce((a,r)=>a+dK(r),0),F=I.length?null:dFonte(ref),op=dOpen.has(ref);
     h+='<div class="d-ref"><div class="d-rt"><button type="button" class="d-tg" data-dtg="'+ref+'" aria-expanded="'+op+'">'+nm+'<span class="d-cv'+(op?' op':'')+'" aria-hidden="true"></span></button>'+
       '<span class="d-kc">'+nf(r0(k))+'<small>kcal</small></span><button type="button" class="d-add" data-dadd="'+ref+'" aria-label="Incluir em '+nm+'">+</button></div>'+
-      (op?(I.length?'<div class="d-its">'+I.map(r=>'<div class="d-sw"><button type="button" class="d-del" data-ddel="'+r.id+'" tabindex="-1">Excluir</button><button type="button" class="d-it" data-dit="'+r.id+'"><span class="d-nm">'+escH(r.nome)+'</span><b class="d-q">'+fmtQ(r)+'</b><small>'+nf(r0(dK(r)))+' kcal</small></button></div>').join('')+'</div>'
+      (op?(I.length?'<div class="d-its">'+I.map(r=>'<div class="d-sw"><button type="button" class="d-del" data-ddel="'+r.id+'" tabindex="-1">Excluir</button><button type="button" class="d-it" data-dit="'+r.id+'"><span class="d-nm">'+escH(r.nome)+'</span><b class="d-q">'+fmtQ(r)+'</b><small>'+nf(r0(dK(r)))+' kcal</small></button></div>').join('')+'<div class="d-bt"><button type="button" class="d-chip" data-dcopy="'+ref+'">Copiar para…</button></div></div>'
         :F?'<div class="d-ont">'+(F.i===1?"Ontem":"Em "+dm(F.k))+': '+escH(F.L.map(r=>r.nome).join(", "))+'</div><div class="d-bt"><button type="button" class="d-chip" data-drep="'+ref+'">Repetir '+(F.i===1?"ontem":"de "+dm(F.k))+'</button></div>'
         :''):'')+'</div>'});
   el.innerHTML=h}
@@ -2161,7 +2161,7 @@ function dRing(K,P,M){const mk=M.v||0,mp=M.x||0,C=2*Math.PI;
     '<text x="60" y="58" text-anchor="middle" font-size="19" font-weight="600" fill="#141414">'+(mk?nf(Math.abs(r0(fk))):nf(r0(K)))+'</text><text x="60" y="73" text-anchor="middle" font-size="9" fill="#8A8A8A">'+(mk?(fk>=0?'kcal faltam':'kcal a mais'):'kcal')+'</text></svg>'+
     '<div class="d-lgs">'+ln("Calorias",K,mk,"kcal",fk,"#2FA36B")+ln("Proteína",P,mp,"g",fp,"#3B6FD8")+'<span class="d-mt">'+(mk?'meta':'+ meta')+'</span></div></button>'}
 function dm(k){const d=new Date(k+"T12:00");return d.getDate()+"/"+(d.getMonth()+1)}
-async function dInsert(rows){rows.forEach(r=>dOpen.add(r.refeicao));try{localStorage.setItem("dieta-abertas",JSON.stringify([...dOpen]))}catch(_){}const ord=Date.now();rows=rows.map((r,i)=>({dia:dDia,refeicao:r.refeicao,nome:r.nome,qtd:r.qtd,unidade:r.unidade,kcal100:r.kcal100,prot100:r.prot100,alimento:r.alimento||null,ordem:ord+i}));
+async function dInsert(rows,dia0){const dia=dia0||dDia;rows.forEach(r=>dOpen.add(r.refeicao));try{localStorage.setItem("dieta-abertas",JSON.stringify([...dOpen]))}catch(_){}const ord=Date.now();rows=rows.map((r,i)=>({dia:dia,refeicao:r.refeicao,nome:r.nome,qtd:r.qtd,unidade:r.unidade,kcal100:r.kcal100,prot100:r.prot100,alimento:r.alimento||null,ordem:ord+i}));
   const res=await sb.from("saude_dieta").insert(rows).select();if(res.error)throw res.error;DIETA.push(...(res.data||rows.map((r,i)=>({...r,id:"tmp"+ord+i}))));renderDieta()}
 /* arrastar o alimento para a esquerda mostra o botão Excluir */
 let dSw=null,dSwOpen=null,dSwMoved=false;const D_W=84;
@@ -2185,12 +2185,23 @@ document.addEventListener("click",async e=>{
   if(e.target.closest("[data-dmeta]")){const M=METAS.dieta||{};dlg("Meta da dieta",[{two:[{k:"v",l:"Calorias",u:"kcal",v:M.v!=null?nf(M.v):"",req:1},{k:"x",l:"Proteína",u:"g",v:M.x!=null?nf(M.x):""}]}],
     async o=>{const v=numIn(o.v),x=numIn(o.x);if(v==null||v<500||v>6000)return "Coloque a meta de calorias. Ex.: 1700";if(o.x&&(x==null||x<=0||x>400))return "Proteína inválida";
       await saveMeta("dieta",{v,x:x??null});renderDieta();toast("Meta salva")},METAS.dieta?async()=>{await saveMeta("dieta",null);renderDieta()}:null);return}
+  if(e.target.closest("[data-dhj]")){dDia=key(today0());renderDieta();return}
+  const cp=e.target.closest("[data-dcopy]");if(cp){dCopy(+cp.dataset.dcopy);return}
   const rp=e.target.closest("[data-drep]");if(rp){const ref=+rp.dataset.drep,F=dFonte(ref);if(!F)return;rp.disabled=true;
     try{await dInsert(F.L.map(r=>({...r,refeicao:ref})));toast(REF[ref]+" repetido")}catch(_){rp.disabled=false;toast("Não salvou. Verifique a internet.")}return}
   const tg=e.target.closest("[data-dtg]");if(tg){const r=+tg.dataset.dtg;dOpen.has(r)?dOpen.delete(r):dOpen.add(r);try{localStorage.setItem("dieta-abertas",JSON.stringify([...dOpen]))}catch(_){}renderDieta();return}
   const ad=e.target.closest("[data-dadd]");if(ad){dfOpen({ref:+ad.dataset.dadd,q:""});return}
   const it=e.target.closest("[data-dit]");if(it){const r=DIETA.find(x=>String(x.id)===it.dataset.dit);if(r)dfOpen({ref:r.refeicao,edit:r,sel:{nome:r.nome,kcal100:+r.kcal100,prot100:+r.prot100,unidade:r.unidade,alimento:r.alimento},qtd:+r.qtd,un:r.unidade});return}
 });
+/* copiar uma refeição (com os itens) para outro dia e/ou outra refeição */
+let dcRef=0;
+function dCopy(ref){const L=dItens(dDia,ref);if(!L.length)return;dcRef=ref;const tk=key(today0());
+  const seg='<span class="s-seg">'+REF.map((n,i)=>'<button type="button" data-dcp="'+i+'" aria-pressed="'+(i===ref)+'">'+(i===0?"Café":n)+'</button>').join("")+'</span>';
+  dlg("Copiar "+REF[ref],[{k:"dia",l:"Para o dia",t:"date",v:tk,max:tk}],async o=>{
+    if(!o.dia||o.dia>tk)return "Escolha um dia até hoje.";
+    if(o.dia===dDia&&dcRef===ref)return "Escolha outro dia ou outra refeição.";
+    await dInsert(L.map(r=>({...r,refeicao:dcRef})),o.dia);dDia=o.dia;renderDieta();toast(REF[dcRef]+" copiado para "+dm(o.dia))},null,seg)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-dcp]");if(!b)return;dcRef=+b.dataset.dcp;b.parentNode.querySelectorAll("[data-dcp]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))});
 /* ---- janela de incluir alimento ---- */
 function dfFreq(ref){const m=new Map();DIETA.slice().sort((a,b)=>a.dia<b.dia?-1:1).forEach(r=>{const k=semAc(r.nome);const o=m.get(k)||{nome:r.nome,kcal100:+r.kcal100,prot100:+r.prot100,unidade:r.unidade,alimento:r.alimento,n:0,nr:0,qtd:+r.qtd};o.n++;if(r.refeicao===ref)o.nr++;o.qtd=+r.qtd;o.unidade=r.unidade;o.kcal100=+r.kcal100;o.prot100=+r.prot100;o.alimento=r.alimento;m.set(k,o)});
   m.forEach((o,k)=>{const a=ALIM.find(x=>semAc(x.nome)===k);if(a){if(a.unidade!==o.unidade&&(a.unidade==="un"||o.unidade==="un"))o.qtd=a.porcao?+a.porcao:null;o.kcal100=+a.kcal;o.prot100=+a.prot;o.unidade=a.unidade;o.alimento="meu:"+a.id;if(a.porcao)o.qtd=+a.porcao;o.cat=a.categoria||null}});
