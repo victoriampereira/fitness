@@ -657,6 +657,17 @@ button.h-card{cursor:pointer}
 .d-nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .d-q{font-weight:500;font-size:12.5px;border:1px solid #E0E0E0;background:#fff;border-radius:8px;padding:2px 8px;white-space:nowrap}
 .d-it small{font-size:11.5px;color:var(--muted);width:56px;text-align:right;flex:none}
+.pk-lg{display:flex;gap:12px;font-size:10.5px;color:var(--muted);margin-top:2px}.pk-lg span{display:flex;align-items:center;gap:5px}.pk-lg i{width:7px;height:7px;border-radius:50%;display:inline-block}.pk-lg i.ln{width:12px;height:2px;border-radius:2px;background:#2FA36B}
+
+.d-rings{position:relative;background:#F7F7F7;border-radius:16px;padding:14px 10px 12px;display:flex;justify-content:space-around}
+.d-mp{all:unset;cursor:pointer;position:absolute;right:10px;top:8px;width:30px;height:30px;display:grid;place-items:center;font-size:22px;font-weight:300;color:var(--ink);font-family:var(--font)}
+.d-r1{display:flex;flex-direction:column;align-items:center;gap:1px}.d-r1 svg{width:104px;height:104px;margin-bottom:3px}.d-r1 b{font-size:12.5px;font-weight:600}.d-r1 small{font-size:11.5px;color:var(--muted)}
+.d-rt{display:flex;align-items:center;gap:10px}
+.d-tg{all:unset;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:14.5px;font-weight:600;font-family:var(--font);flex:1;min-width:0;padding:2px 0}
+.d-cv{width:7px;height:7px;border-right:1.5px solid #A0A0A0;border-bottom:1.5px solid #A0A0A0;transform:rotate(45deg) translateY(-2px);transition:transform .15s}.d-cv.op{transform:rotate(-135deg) translate(-1px,-1px)}
+.d-kc{text-align:right;font-size:15px;font-weight:600;line-height:1.05}.d-kc small{display:block;font-size:10.5px;font-weight:400;color:var(--muted)}
+.d-add{all:unset;cursor:pointer;font-size:26px;line-height:1;color:#2FA36B;font-weight:400;width:26px;text-align:center;font-family:var(--font)}
+.d-ref .d-its{margin-top:4px}
 </style>
 </head>
 <body>
@@ -1896,7 +1907,7 @@ function renderPeso(){
   h+='<div class="p-in"><label class="p-day">'+lab+' · <u>outro dia</u><input type="date" id="pw-date" max="'+tk+'" value="'+pesoDia+'" aria-label="Escolher o dia da pesagem"></label>'+
     '<div class="p-step"><label><input id="pw-v" type="text" inputmode="decimal" autocomplete="off" value="'+(pesoVal!=null?nf1(pesoVal):'')+'" placeholder="0,0" aria-label="Peso em kg"><em>kg</em></label></div>'+
     '<button type="button" class="p-link" id="pw-save">'+(ex?'atualizar':'salvar')+'</button>'+(ex?'<button type="button" class="s-link" id="pw-del">apagar este dia</button>':'')+'</div>';
-  if(pi)h+='<div class="p-ch">'+lineChart(S.peso.slice(-30),"#2FA36B","pgp")+'</div>';
+  if(pi)h+='<div class="p-ch">'+(pkChart(30,"pgp")||lineChart(S.peso.slice(-30),"#2FA36B","pgp"))+'</div>';
   el.innerHTML=h}
 $("pg-peso").addEventListener("click",async e=>{
   const st=e.target.closest("[data-ps]");if(st){const v=numIn($("pw-v").value)??pesoVal??60;pesoVal=Math.round((v+ +st.dataset.ps)*10)/10;$("pw-v").value=nf1(pesoVal);return}
@@ -1927,10 +1938,30 @@ function lineChart(V,cor,gid,lab){lab=lab||dmy;if(V.length<2)return "";const w=3
   return s+'</svg>'}
 function pesoMini(){const P=S.peso.slice(-30);if(P.length<2)return "";const w=350,h=70,pl=4,pr=4,pt=10,pb=8,vals=P.map(x=>x.v),lo=Math.min(...vals)-.3,hi=Math.max(...vals)+.3,X=i=>pl+i*(w-pl-pr)/(P.length-1),Y=v=>pt+(hi-v)/(hi-lo)*(h-pt-pb);
   const pts=P.map((q,i)=>X(i).toFixed(1)+","+Y(q.v).toFixed(1)).join(" ");return '<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="#2FA36B" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+X(P.length-1)+'" cy="'+Y(P[P.length-1].v)+'" r="3" fill="#2FA36B"/></svg>'}
+/* peso (linha verde) + calorias do dia (pontinhos azuis dentro da meta, vermelhos acima; número na mesma cor) — opção C */
+function pkChart(nd,gid){const tk=key(today0());let D=[...Array(nd)].map((_,i)=>key(addDays(today0(),i-nd+1)));
+  {const f=D.findIndex(d=>S.peso.some(x=>x.dia===d)||(d!==tk&&DIETA.some(r=>r.dia===d)));if(f>0)D=D.slice(Math.min(f,D.length-7));nd=D.length}
+  const W=S.peso.filter(x=>x.dia>=D[0]&&x.dia<=tk),KC=D.map(d=>{if(d===tk)return null;const L=DIETA.filter(r=>r.dia===d);return L.length?Math.round(L.reduce((a,r)=>a+dK(r),0)):null});
+  const hasK=KC.some(v=>v!=null);if(W.length<2&&!hasK)return W.length?"":"";
+  const mk=(METAS.dieta||{}).v||null,w=350,h=hasK?170:110,pl=14,pr=hasK?34:14,pt=20,pb=20,n=nd,X=i=>pl+i*(w-pl-pr)/(n-1),kb=hasK?pt+58:0;
+  let s='<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" role="img" aria-hidden="true">';
+  if(hasK){const kv=KC.filter(v=>v!=null).concat(mk?[mk]:[]),lo=Math.min(...kv),hi=Math.max(...kv)+1,YK=v=>pt+(hi-v)/(hi-lo)*(kb-pt);
+    const tks=[...new Set([lo,hi].map(v=>Math.round(v/100)*100))];tks.forEach(v=>{s+='<text x="'+(w-2)+'" y="'+(YK(v)+3)+'" font-size="8.5" fill="#B0B0B0" text-anchor="end">'+nf(v)+'</text>'});
+    if(mk)s+='<line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+YK(mk)+'" y2="'+YK(mk)+'" stroke="#C9C9C9" stroke-dasharray="3 3"/>';
+    var kdots='';KC.forEach((v,i)=>{if(v==null)return;const c=mk&&v>mk?"#E5484D":"#3B6FD8";kdots+='<circle cx="'+X(i)+'" cy="'+YK(v)+'" r="3.4" fill="'+c+'"/>';
+      if(n<=16||i>=n-7)kdots+='<text x="'+X(i)+'" y="'+(YK(v)-7)+'" font-size="8.5" fill="'+c+'" text-anchor="'+(i===n-1?'end':i===0?'start':'middle')+'">'+nf(v)+'</text>'})}
+  if(W.length>=1){const vals=W.map(x=>x.v),lo=Math.min(...vals)-.3,hi=Math.max(...vals)+.3,iOf=d=>D.indexOf(d),top=hasK?kb+22:pt,YW=v=>top+(hi-v)/(hi-lo)*(h-top-pb);
+    const pts=W.map(q=>X(iOf(q.dia)).toFixed(1)+","+YW(q.v).toFixed(1));
+    s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA36B" stop-opacity=".16"/><stop offset="1" stop-color="#2FA36B" stop-opacity="0"/></linearGradient></defs>';
+    if(W.length>1)s+='<path d="M'+X(iOf(W[0].dia))+','+(h-pb)+' L'+pts.join(' L')+' L'+X(iOf(W[W.length-1].dia))+','+(h-pb)+'Z" fill="url(#'+gid+')"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#2FA36B" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>';
+    W.forEach((q,j)=>{const x=X(iOf(q.dia)),y=YW(q.v);s+='<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="#2FA36B"/>';if(j===W.length-1||j===0)s+='<text x="'+x+'" y="'+(y-8)+'" font-size="9.5" font-weight="600" fill="#2FA36B" text-anchor="'+(j===0&&W.length>1?'start':'end')+'">'+nf(q.v)+'</text>'})}
+  if(hasK)s+=kdots;
+  s+='<text x="'+X(0)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+dmy(D[0])+'</text><text x="'+X(n-1)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0" text-anchor="end">'+dmy(tk)+'</text>';
+  return s+'</svg>'+(hasK?'<div class="pk-lg"><span><i class="ln"></i>peso</span><span><i style="background:#3B6FD8"></i>kcal</span>'+(mk?'<span><i style="background:#E5484D"></i>acima da meta</span>':'')+'</div>':'')}
 function renderEst(){
   const el=$("pg-est");if(!el||page!=="est")return;const V=S.vo2,MV=METAS.vo2,L=V[V.length-1],tk=key(today0()),PL=S.peso[S.peso.length-1];
   let h='<div class="s-st"><div class="s-t">'+sdot("peso")+'Peso<span style="margin-left:auto"></span><button type="button" class="s-plus" data-go="peso" aria-label="Lançar peso">+</button></div>'+
-    (PL?'<div class="s-v" data-go="peso" style="cursor:pointer"><b>'+nf1(PL.v)+'</b><small class="s-dt">'+dmy(PL.dia)+'</small></div><div data-go="peso" style="cursor:pointer">'+lineChart(S.peso.slice(-14),"#2FA36B","pesog")+'</div>':'<p class="s-empty">Toque no + para lançar seu peso.</p>')+'</div>';
+    (PL?'<div class="s-v" data-go="peso" style="cursor:pointer"><b>'+nf1(PL.v)+'</b><small class="s-dt">'+dmy(PL.dia)+'</small></div><div data-go="peso" style="cursor:pointer">'+(pkChart(14,"pesog")||lineChart(S.peso.slice(-14),"#2FA36B","pesog"))+'</div>':'<p class="s-empty">Toque no + para lançar seu peso.</p>')+'</div>';
   h+=avCard();
   h+='<div class="s-st"><div class="s-t">'+sdot("vo2")+'<span>VO<sub class="o2">2</sub> Máximo</span><span style="margin-left:auto"></span><button type="button" class="s-plus" data-dlg="vo2" aria-label="Lançar VO2 máximo">+</button></div>';
   if(!L)h+='<p class="s-empty">Toque no + e lance o VO₂ Máximo que aparece no Garmin. Depois é só atualizar uma vez por mês.</p>';
@@ -2093,7 +2124,7 @@ document.addEventListener("click",e=>{if(e.target.closest("[data-avn]")&&session
 
 /* ---- Dieta (opção E): cartão por refeição, "Repetir de ontem", medidas em g/ml; dados em saude_dieta e saude_alimentos ---- */
 let DIETA=[],ALIM=[],dDia=null,dfSt=null;
-const REF=["Café da manhã","Almoço","Lanche","Jantar"];
+const REF=["Café da Manhã","Almoço","Lanche","Jantar"];let dOpen=new Set();try{dOpen=new Set(JSON.parse(localStorage.getItem("dieta-abertas")||"[]"))}catch(_){}
 // unidade "un": kcal100/prot100 guardam o valor de 1 unidade
 const dBase=u=>u==="un"?1:100,dK=r=>r.qtd*r.kcal100/dBase(r.unidade),dP=r=>r.qtd*r.prot100/dBase(r.unidade),dUn=(q,u)=>u==="un"?(q==1?"unidade":"unidades"):u;
 const r0=x=>Math.round(x),fmtQ=r=>nf(Math.round(r.qtd*10)/10)+" "+(r.unidade==="un"?"un":r.unidade);
@@ -2106,14 +2137,20 @@ function renderDieta(){
   const dt=new Date(dDia+"T12:00").toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"}).replace(".","");
   const card=(lab,v,m,u,c)=>'<button type="button" class="d-sum" data-dmeta><span>'+lab+'</span><b>'+nf(r0(v))+'</b><small>'+(m?' / '+nf(m)+' '+u:' '+u)+'</small>'+(m?'<i class="d-bar"><i style="width:'+Math.min(100,v/m*100)+'%;background:'+c+'"></i></i>':'')+'</button>';
   let h='<div class="d-hd"><h2>Dieta</h2><div class="d-dt"><button type="button" data-dnav="-1" aria-label="Dia anterior">‹</button><span>'+(dDia===tk?"Hoje, ":"")+dt+'</span><button type="button" data-dnav="1" aria-label="Próximo dia"'+(dDia>=tk?' disabled':'')+'>›</button></div></div>'+
-    dRing(K,P,M);
-  REF.forEach((nm,ref)=>{const I=dItens(dDia,ref),k=I.reduce((a,r)=>a+dK(r),0),p=I.reduce((a,r)=>a+dP(r),0),F=dFonte(ref);
-    const fl=F?(F.i===1?"ontem":"de "+dm(F.k)):"";
-    h+='<div class="d-ref"><div class="d-rt"><b>'+nm+'</b><span>'+(I.length?nf(r0(k))+' kcal · '+nf(r0(p))+' g':'—')+'</span></div>'+
-      (I.length?'<div class="d-its">'+I.map(r=>'<div class="d-sw"><button type="button" class="d-del" data-ddel="'+r.id+'" tabindex="-1">Excluir</button><button type="button" class="d-it" data-dit="'+r.id+'"><span class="d-nm">'+escH(r.nome)+'</span><b class="d-q">'+fmtQ(r)+'</b><small>'+nf(r0(dK(r)))+' kcal</small></button></div>').join('')+'</div>'
-        :F?'<div class="d-ont">'+(F.i===1?"Ontem":"Em "+dm(F.k))+': '+escH(F.L.map(r=>r.nome).join(", "))+'</div>':'')+
-      '<div class="d-bt">'+(F&&!I.length?'<button type="button" class="d-chip" data-drep="'+ref+'">Repetir '+fl+'</button>':'')+'<button type="button" class="d-chip" data-dadd="'+ref+'">+ incluir</button></div></div>'});
+    dRings(K,P,M);
+  REF.forEach((nm,ref)=>{const I=dItens(dDia,ref),k=I.reduce((a,r)=>a+dK(r),0),F=I.length?null:dFonte(ref),op=dOpen.has(ref);
+    h+='<div class="d-ref"><div class="d-rt"><button type="button" class="d-tg" data-dtg="'+ref+'" aria-expanded="'+op+'">'+nm+'<span class="d-cv'+(op?' op':'')+'" aria-hidden="true"></span></button>'+
+      '<span class="d-kc">'+nf(r0(k))+'<small>kcal</small></span><button type="button" class="d-add" data-dadd="'+ref+'" aria-label="Incluir em '+nm+'">+</button></div>'+
+      (op?(I.length?'<div class="d-its">'+I.map(r=>'<div class="d-sw"><button type="button" class="d-del" data-ddel="'+r.id+'" tabindex="-1">Excluir</button><button type="button" class="d-it" data-dit="'+r.id+'"><span class="d-nm">'+escH(r.nome)+'</span><b class="d-q">'+fmtQ(r)+'</b><small>'+nf(r0(dK(r)))+' kcal</small></button></div>').join('')+'</div>'
+        :F?'<div class="d-ont">'+(F.i===1?"Ontem":"Em "+dm(F.k))+': '+escH(F.L.map(r=>r.nome).join(", "))+'</div><div class="d-bt"><button type="button" class="d-chip" data-drep="'+ref+'">Repetir '+(F.i===1?"ontem":"de "+dm(F.k))+'</button></div>'
+        :'<div class="d-ont">Nada lançado.</div>'):'')+'</div>'});
   el.innerHTML=h}
+function dRings(K,P,M){const C=2*Math.PI,L=C*48;
+  const one=(lab,v,m,c,u)=>{const f=m?Math.min(1,v/m):0,over=m&&v>m,cc=over&&u==="kcal"?"#E5484D":c;
+    return '<div class="d-r1"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="48" fill="none" stroke="#E6E6E6" stroke-width="9"/>'+(f>0?'<circle cx="60" cy="60" r="48" fill="none" stroke="'+cc+'" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(L*f).toFixed(1)+' '+L.toFixed(1)+'" transform="rotate(-90 60 60)"/>':'')+
+      '<text x="60" y="61" text-anchor="middle" font-size="'+(r0(v)>=1000?21:24)+'" font-weight="600" fill="#141414">'+nf(r0(v))+'</text><text x="60" y="78" text-anchor="middle" font-size="10.5" fill="#8A8A8A">'+u+'</text></svg>'+
+      '<b>'+lab+'</b><small>'+(m?(v<=m?'faltam '+nf(r0(m-v))+' '+u:nf(r0(v-m))+' '+u+' a mais'):'sem meta')+'</small></div>'};
+  return '<div class="d-rings"><button type="button" class="d-mp" data-dmeta aria-label="Meta da dieta">+</button>'+one("Calorias",K,M.v,"#2FA36B","kcal")+one("Proteína",P,M.x,"#3B6FD8","g")+'</div>'}
 function dRing(K,P,M){const mk=M.v||0,mp=M.x||0,C=2*Math.PI;
   const arc=(r,v,m,c,w)=>{const f=m?Math.min(1,v/m):0,L=C*r;return '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="#EDEDED" stroke-width="'+w+'"/>'+(f>0?'<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+c+'" stroke-width="'+w+'" stroke-linecap="round" stroke-dasharray="'+(L*f).toFixed(1)+' '+L.toFixed(1)+'" transform="rotate(-90 60 60)"/>':'')};
   const fk=mk-K,fp=mp-P;
@@ -2122,7 +2159,7 @@ function dRing(K,P,M){const mk=M.v||0,mp=M.x||0,C=2*Math.PI;
     '<text x="60" y="58" text-anchor="middle" font-size="19" font-weight="600" fill="#141414">'+(mk?nf(Math.abs(r0(fk))):nf(r0(K)))+'</text><text x="60" y="73" text-anchor="middle" font-size="9" fill="#8A8A8A">'+(mk?(fk>=0?'kcal faltam':'kcal a mais'):'kcal')+'</text></svg>'+
     '<div class="d-lgs">'+ln("Calorias",K,mk,"kcal",fk,"#2FA36B")+ln("Proteína",P,mp,"g",fp,"#3B6FD8")+'<span class="d-mt">'+(mk?'meta':'+ meta')+'</span></div></button>'}
 function dm(k){const d=new Date(k+"T12:00");return d.getDate()+"/"+(d.getMonth()+1)}
-async function dInsert(rows){const ord=Date.now();rows=rows.map((r,i)=>({dia:dDia,refeicao:r.refeicao,nome:r.nome,qtd:r.qtd,unidade:r.unidade,kcal100:r.kcal100,prot100:r.prot100,alimento:r.alimento||null,ordem:ord+i}));
+async function dInsert(rows){rows.forEach(r=>dOpen.add(r.refeicao));try{localStorage.setItem("dieta-abertas",JSON.stringify([...dOpen]))}catch(_){}const ord=Date.now();rows=rows.map((r,i)=>({dia:dDia,refeicao:r.refeicao,nome:r.nome,qtd:r.qtd,unidade:r.unidade,kcal100:r.kcal100,prot100:r.prot100,alimento:r.alimento||null,ordem:ord+i}));
   const res=await sb.from("saude_dieta").insert(rows).select();if(res.error)throw res.error;DIETA.push(...(res.data||rows.map((r,i)=>({...r,id:"tmp"+ord+i}))));renderDieta()}
 /* arrastar o alimento para a esquerda mostra o botão Excluir */
 let dSw=null,dSwOpen=null,dSwMoved=false;const D_W=84;
@@ -2148,6 +2185,7 @@ document.addEventListener("click",async e=>{
       await saveMeta("dieta",{v,x:x??null});renderDieta();toast("Meta salva")},METAS.dieta?async()=>{await saveMeta("dieta",null);renderDieta()}:null);return}
   const rp=e.target.closest("[data-drep]");if(rp){const ref=+rp.dataset.drep,F=dFonte(ref);if(!F)return;rp.disabled=true;
     try{await dInsert(F.L.map(r=>({...r,refeicao:ref})));toast(REF[ref]+" repetido")}catch(_){rp.disabled=false;toast("Não salvou. Verifique a internet.")}return}
+  const tg=e.target.closest("[data-dtg]");if(tg){const r=+tg.dataset.dtg;dOpen.has(r)?dOpen.delete(r):dOpen.add(r);try{localStorage.setItem("dieta-abertas",JSON.stringify([...dOpen]))}catch(_){}renderDieta();return}
   const ad=e.target.closest("[data-dadd]");if(ad){dfOpen({ref:+ad.dataset.dadd,q:""});return}
   const it=e.target.closest("[data-dit]");if(it){const r=DIETA.find(x=>String(x.id)===it.dataset.dit);if(r)dfOpen({ref:r.refeicao,edit:r,sel:{nome:r.nome,kcal100:+r.kcal100,prot100:+r.prot100,unidade:r.unidade,alimento:r.alimento},qtd:+r.qtd,un:r.unidade});return}
 });

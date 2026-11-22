@@ -241,3 +241,11 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Para esses alimentos, kcal/prot em saude_alimentos e kcal100/prot100 em saude_dieta guardam o valor de 1 unidade (dBase).
   - Atalhos 1–6 em vez de 50–250.
   - Ovo: 1 un = 73,5 kcal e 6,3 g de proteína; costume 4 un.
+- Dieta, opção C (22/11):
+  - Topo com dois círculos, Calorias e Proteína: consumido no centro e "faltam X" embaixo. O "+" no canto define as metas.
+  - Refeições "Café da Manhã/Almoço/Lanche/Jantar" com setinha ao lado do nome (abre e fecha a lista, lembrado em localStorage "dieta-abertas"), kcal à direita e "+" verde.
+  - Refeição vazia aberta mostra "Ontem: …" e "Repetir ontem".
+- Gráfico do peso com calorias (pkChart), em Estatísticas (14 dias) e na tela Peso (30 dias):
+  - Linha verde do peso embaixo. Pontinhos das calorias do dia em cima: azuis dentro da meta, vermelhos acima, com o número na mesma cor.
+  - Linha tracejada da meta. O dia de hoje fica de fora até acabar.
+  - Começa no primeiro dia com dados.
