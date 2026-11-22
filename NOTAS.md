@@ -234,3 +234,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Tocar no círculo ou em "meta" define as metas de kcal e de proteína.
   - Alimentos em lista com bolinha verde, quantidade em caixinha e kcal. Tocar abre a quantidade.
   - Incluídos em 22/11: Arroz parboilizado cozido (109 g = 134 kcal, prot. 2,5/100 g) e Ovo inteiro (4 grandes = 294 kcal; registrado como 200 g, 147 kcal e 12,6 g prot./100 g).
+- Dieta:
+  - Saiu a bolinha verde.
+  - Arrastar o alimento para a esquerda mostra o botão vermelho "Excluir" (pointer events, touch-action:pan-y). Tocar fora ou na linha fecha.
