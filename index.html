@@ -616,6 +616,31 @@ button.h-card{cursor:pointer}
 .msg.err{color:var(--inf)}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
 .foot button{border:none;background:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;padding:6px 0}
+
+/* dieta (opção E) */
+#app>.tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
+.d-hd h2{font-size:22px;font-weight:600;margin:0;letter-spacing:-.01em}
+.d-dt{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-top:2px}.d-dt span{text-transform:none}.d-dt span:first-letter{text-transform:uppercase}
+.d-dt button{all:unset;cursor:pointer;font-size:17px;line-height:1;padding:2px 6px;color:var(--muted)}.d-dt button:disabled{opacity:.25;cursor:default}
+.d-sums{display:flex;gap:10px}.d-sum{all:unset;box-sizing:border-box;cursor:pointer;flex:1;background:#F7F7F7;border-radius:14px;padding:11px 13px;display:flex;flex-wrap:wrap;align-items:baseline;font-family:var(--font)}
+.d-sum span{width:100%;font-size:11px;color:var(--muted);margin-bottom:2px}.d-sum b{font-size:24px;font-weight:600;letter-spacing:-.02em}.d-sum small{font-size:12px;color:var(--muted);margin-left:4px}
+.d-bar{display:block;width:100%;height:4px;background:#E7E7E7;border-radius:4px;margin-top:8px;overflow:hidden}.d-bar i{display:block;height:100%;border-radius:4px}
+.d-ref{background:#F7F7F7;border-radius:14px;padding:11px 14px;display:flex;flex-direction:column;gap:6px}
+.d-rt{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px}.d-rt b{font-weight:600}.d-rt span{font-size:12.5px;color:var(--muted)}
+.d-its{font-size:13px;color:var(--muted);line-height:1.6}.d-it{all:unset;cursor:pointer;font-family:var(--font)}.d-it b{font-weight:500;color:var(--ink)}.d-sep{margin:0 5px;color:#C4C4C4}
+.d-ont{font-size:12.5px;color:#A5A5A5}
+.d-bt{display:flex;gap:8px;margin-top:2px}.d-chip{all:unset;cursor:pointer;border:1px solid #E0E0E0;background:#fff;border-radius:99px;padding:5px 11px;font-size:12px;font-weight:500;font-family:var(--font)}
+.df{gap:12px}.df-sr input,.df-q input{all:unset;box-sizing:border-box;width:100%;border:1px solid #E2E2E2;border-radius:12px;padding:11px 13px;font-size:16px;font-family:var(--font)}
+.df-l{display:flex;flex-direction:column}.df-h{font-size:12px;color:var(--muted);margin:2px 0 2px}.df-e{font-size:13px;color:var(--muted);margin:6px 0}
+.df-r{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line);font-family:var(--font);font-size:14px}.df-r small{font-size:12px;color:var(--muted)}.df-r em{font-style:normal;font-size:10.5px;color:#2FA36B;border:1px solid #BFE3CD;border-radius:99px;padding:0 6px;margin-left:4px}
+.df-on{all:unset;cursor:pointer;font-size:13px;color:var(--ink);text-decoration:underline;text-decoration-color:#CFCFCF;text-underline-offset:3px;padding:6px 0;font-family:var(--font)}
+.df-n{all:unset;box-sizing:border-box;width:100%;font-size:22px;font-weight:600;margin:4px 0 0;letter-spacing:-.01em;font-family:var(--font);border-bottom:1px dashed transparent;padding-bottom:2px}.df-n:focus{border-bottom-color:#CFCFCF}.df-s{font-size:12.5px;color:var(--muted);margin:0}
+.df-q{display:flex;gap:8px;align-items:center}.df-q input{font-size:22px;font-weight:600;flex:1}
+.df-u{display:flex;background:#F2F2F2;border-radius:99px;padding:3px}.df-u button{all:unset;cursor:pointer;padding:7px 14px;border-radius:99px;font-size:13px;color:var(--muted);font-family:var(--font)}.df-u button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.df-ch{display:flex;gap:6px;flex-wrap:wrap}.df-ch button{all:unset;cursor:pointer;border:1px solid #E2E2E2;border-radius:99px;padding:5px 12px;font-size:12.5px;font-family:var(--font)}
+.df-tot{display:flex;gap:10px}.df-tot div{flex:1;background:#F7F7F7;border-radius:14px;padding:11px 13px}.df-tot b{font-size:22px;font-weight:600;display:block}.df-tot span{font-size:11.5px;color:var(--muted)}
+.df-tot div+div b{color:#3B6FD8}
+.df-ac{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
 </style>
 </head>
 <body>
@@ -681,12 +706,14 @@ button.h-card{cursor:pointer}
   <nav class="tabs" role="tablist" aria-label="Visão">
     <button class="tab" role="tab" id="tab-hoje" aria-selected="true" aria-controls="pg-hoje"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>Hoje</button>
     <button class="tab" role="tab" id="tab-plano" aria-selected="false" aria-controls="pg-plano"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.8h6V4M8.5 15v2.5M12 12v5.5M15.5 13.5v4"/></svg>Plano</button>
+    <button class="tab" role="tab" id="tab-dieta" aria-selected="false" aria-controls="pg-dieta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v7.5M5 3v5a2 2 0 0 0 4 0V3M7 10.5V21M17 21V3c-2.2 1.2-3.3 4.2-3.3 8.5H17"/></svg>Dieta</button>
     <button class="tab" role="tab" id="tab-mes" aria-selected="false" aria-controls="pg-mes"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9.3h16M4 14.6h16M9.3 4v16M14.6 4v16"/></svg>Mês</button>
     <button class="tab" role="tab" id="tab-est" aria-selected="false" aria-controls="pg-est"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-8M10 20V5M15 20v-6M20 20V9"/></svg>Estatísticas</button>
   </nav>
 
   <section id="pg-hoje" role="tabpanel" aria-labelledby="tab-hoje" style="display:flex;flex-direction:column;gap:14px"></section>
   <section id="pg-peso" role="tabpanel" aria-labelledby="tab-peso" hidden style="flex-direction:column;gap:18px"></section>
+  <section id="pg-dieta" role="tabpanel" aria-labelledby="tab-dieta" hidden style="flex-direction:column;gap:12px"></section>
   <section id="pg-est" role="tabpanel" aria-labelledby="tab-est" hidden style="flex-direction:column;gap:14px"></section>
   <section id="pg-tacf" role="tabpanel" aria-labelledby="tab-est" hidden style="flex-direction:column;gap:14px"></section>
   <section id="pg-rem" role="tabpanel" aria-labelledby="tab-hoje" hidden style="flex-direction:column;gap:16px"></section>
@@ -787,6 +814,7 @@ button.h-card{cursor:pointer}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="tacf-calc.js?v=1"></script>
+<script src="taco.js?v=1" defer></script>
 <script>
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,"0");
@@ -830,7 +858,7 @@ const SUPABASE_URL="https://ufbmhikchqhstcbhioib.supabase.co";
 const SUPABASE_KEY="sb_publishable_QGj4aoHhWZXbCUBep2tylA_a8NckDy7";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
 let session=null,channel=null;
-try{const p=localStorage.getItem("saude-pagina");if(["hoje","rem","plano","mes","peso","est","tacf","conv","ativ","aval"].includes(p))page=p}catch(e){}
+try{const p=localStorage.getItem("saude-pagina");if(["hoje","rem","plano","mes","peso","est","tacf","conv","ativ","aval","dieta"].includes(p))page=p}catch(e){}
 
 async function reload(){
   if(!session)return;
@@ -889,11 +917,11 @@ function actsHTML(v){
 function render(){
   const t=today0(),tk=key(t);
   $("hoje").textContent=t.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  const TABOF={aval:"est",rem:"hoje",hoje:"hoje",sem:"hoje",plano:"plano",conv:"plano",ativ:"plano",mes:"mes",peso:"est",est:"est",tacf:"est"};
-  ["hoje","plano","mes","est"].forEach(p=>$("tab-"+p).setAttribute("aria-selected",String(TABOF[page]===p)));
-  ["hoje","rem","sem","mes","plano","ativ","conv","peso","est","tacf","aval"].forEach(p=>{const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});
+  const TABOF={aval:"est",rem:"hoje",hoje:"hoje",sem:"hoje",plano:"plano",conv:"plano",ativ:"plano",mes:"mes",peso:"est",est:"est",tacf:"est",dieta:"dieta"};
+  ["hoje","plano","dieta","mes","est"].forEach(p=>$("tab-"+p).setAttribute("aria-selected",String(TABOF[page]===p)));
+  ["hoje","rem","sem","mes","plano","ativ","conv","peso","est","tacf","aval","dieta"].forEach(p=>{const sec=$("pg-"+p);sec.hidden=page!==p;sec.style.display=page===p?"flex":""});
   $("app").querySelector(".foot").style.display="none";
-  renderPlanKeep();renderFeed();renderHoje();renderRem();renderPeso();renderEst();renderTacf();renderAval();
+  renderPlanKeep();renderFeed();renderHoje();renderRem();renderPeso();renderEst();renderTacf();renderAval();renderDieta();
 
   /* semana */
   const wk=[...Array(7)].map((_,i)=>addDays(wStart,i));
@@ -1633,7 +1661,7 @@ function renderPlanKeep(){const sig=isLegacy()?"L":[PROFILE.inicio,PROFILE.seman
 
 /* abas e navegação */
 function setPage(p){const ch=page!==p;page=p;try{localStorage.setItem("saude-pagina",p)}catch(e){}render();if(ch)window.scrollTo(0,0)}
-["hoje","plano","mes","est"].forEach(p=>{$("tab-"+p).onclick=()=>setPage(p)});
+["hoje","plano","dieta","mes","est"].forEach(p=>{$("tab-"+p).onclick=()=>setPage(p)});
 document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g&&!e.defaultPrevented){e.preventDefault();setPage(g.dataset.go)}});
 $("w-prev").onclick=()=>{wStart=addDays(wStart,-7);render()};
 $("w-next").onclick=()=>{wStart=addDays(wStart,7);render()};
@@ -1739,6 +1767,7 @@ async function loadSaude(){
   if(!r.error){S={peso:[],remedio:[],vo2:[]};r.data.forEach(x=>{if(S[x.tipo])S[x.tipo].push({dia:x.dia,v:x.valor==null?null:+x.valor})})}
   if(!t.error)TACF=t.data.slice().sort((a,b)=>(semOrd(a.semestre)||a.ordem)-(semOrd(b.semestre)||b.ordem));
   const av=await sb.from("saude_avaliacoes").select("*");if(!av.error)AVA=av.data.slice().sort((a,b)=>a.dia<b.dia?-1:1);
+  const [dd,al]=await Promise.all([sb.from("saude_dieta").select("*").gte("dia",key(addDays(today0(),-120))),sb.from("saude_alimentos").select("*")]);if(!dd.error)DIETA=dd.data;if(!al.error)ALIM=al.data;
   const rr=await sb.from("saude_recordes").select("prova,distancia_km,tempo_s,dia");if(!rr.error)REC=rr.data.map(x=>({prova:x.prova,km:+x.distancia_km,s:+x.tempo_s,dia:x.dia}));
   if(!m.error){METAS={};m.data.forEach(x=>{METAS[x.chave]={v:x.valor==null?null:+x.valor,x:x.extra==null?null:+x.extra,data:x.data}})}
 }
@@ -2045,6 +2074,98 @@ function avDlg(a){a=a||{};const novo=!a.dia,tk=key(today0()),V=k=>a[k]!=null?nf(
       const q=await sb.from("saude_avaliacoes").upsert(R);if(q.error)throw q.error;AVA=AVA.filter(x=>x.dia!==dia).concat([R]).sort((x,y)=>x.dia<y.dia?-1:1);render();toast("Avaliação salva")},
     novo?null:async()=>{const q=await sb.from("saude_avaliacoes").delete().eq("user_id",session.user.id).eq("dia",a.dia);if(q.error)throw q.error;AVA=AVA.filter(x=>x.dia!==a.dia);render();toast("Avaliação apagada")})}
 document.addEventListener("click",e=>{if(e.target.closest("[data-avn]")&&session){e.preventDefault();avDlg(null)}});
+
+/* ---- Dieta (opção E): cartão por refeição, "Repetir de ontem", medidas em g/ml; dados em saude_dieta e saude_alimentos ---- */
+let DIETA=[],ALIM=[],dDia=null,dfSt=null;
+const REF=["Café da manhã","Almoço","Lanche","Jantar"];
+const dK=r=>r.qtd*r.kcal100/100,dP=r=>r.qtd*r.prot100/100;
+const r0=x=>Math.round(x),fmtQ=r=>nf(Math.round(r.qtd*10)/10)+" "+r.unidade;
+const semAc=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function dItens(dia,ref){return DIETA.filter(r=>r.dia===dia&&(ref==null||r.refeicao===ref)).sort((a,b)=>a.ordem-b.ordem||(a.created_at<b.created_at?-1:1))}
+function dFonte(ref){const d0=dDia;for(let i=1;i<=14;i++){const k=key(addDays(new Date(d0+"T12:00"),-i));const L=dItens(k,ref);if(L.length)return {k,L,i}}return null}
+function renderDieta(){
+  const el=$("pg-dieta");if(!el||page!=="dieta")return;const tk=key(today0());if(!dDia)dDia=tk;
+  const L=dItens(dDia),K=L.reduce((a,r)=>a+dK(r),0),P=L.reduce((a,r)=>a+dP(r),0),M=METAS.dieta||{};
+  const dt=new Date(dDia+"T12:00").toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"}).replace(".","");
+  const card=(lab,v,m,u,c)=>'<button type="button" class="d-sum" data-dmeta><span>'+lab+'</span><b>'+nf(r0(v))+'</b><small>'+(m?' / '+nf(m)+' '+u:' '+u)+'</small>'+(m?'<i class="d-bar"><i style="width:'+Math.min(100,v/m*100)+'%;background:'+c+'"></i></i>':'')+'</button>';
+  let h='<div class="d-hd"><h2>Dieta</h2><div class="d-dt"><button type="button" data-dnav="-1" aria-label="Dia anterior">‹</button><span>'+(dDia===tk?"Hoje, ":"")+dt+'</span><button type="button" data-dnav="1" aria-label="Próximo dia"'+(dDia>=tk?' disabled':'')+'>›</button></div></div>'+
+    '<div class="d-sums">'+card("Calorias",K,M.v,"kcal","#2FA36B")+card("Proteína",P,M.x,"g","#3B6FD8")+'</div>';
+  REF.forEach((nm,ref)=>{const I=dItens(dDia,ref),k=I.reduce((a,r)=>a+dK(r),0),p=I.reduce((a,r)=>a+dP(r),0),F=dFonte(ref);
+    const fl=F?(F.i===1?"ontem":"de "+dm(F.k)):"";
+    h+='<div class="d-ref"><div class="d-rt"><b>'+nm+'</b><span>'+(I.length?nf(r0(k))+' kcal · '+nf(r0(p))+' g':'—')+'</span></div>'+
+      (I.length?'<div class="d-its">'+I.map(r=>'<button type="button" class="d-it" data-dit="'+r.id+'">'+escH(r.nome)+' <b>'+fmtQ(r)+'</b></button>').join('<span class="d-sep">·</span>')+'</div>'
+        :F?'<div class="d-ont">'+(F.i===1?"Ontem":"Em "+dm(F.k))+': '+escH(F.L.map(r=>r.nome).join(", "))+'</div>':'')+
+      '<div class="d-bt">'+(F&&!I.length?'<button type="button" class="d-chip" data-drep="'+ref+'">Repetir '+fl+'</button>':'')+'<button type="button" class="d-chip" data-dadd="'+ref+'">+ incluir</button></div></div>'});
+  el.innerHTML=h}
+function dm(k){const d=new Date(k+"T12:00");return d.getDate()+"/"+(d.getMonth()+1)}
+async function dInsert(rows){const ord=Date.now();rows=rows.map((r,i)=>({dia:dDia,refeicao:r.refeicao,nome:r.nome,qtd:r.qtd,unidade:r.unidade,kcal100:r.kcal100,prot100:r.prot100,alimento:r.alimento||null,ordem:ord+i}));
+  const res=await sb.from("saude_dieta").insert(rows).select();if(res.error)throw res.error;DIETA.push(...(res.data||rows.map((r,i)=>({...r,id:"tmp"+ord+i}))));renderDieta()}
+document.addEventListener("click",async e=>{
+  const nv=e.target.closest("[data-dnav]");if(nv){const d=key(addDays(new Date(dDia+"T12:00"),+nv.dataset.dnav));if(d<=key(today0())){dDia=d;renderDieta()}return}
+  if(e.target.closest("[data-dmeta]")){const M=METAS.dieta||{};dlg("Meta da dieta",[{two:[{k:"v",l:"Calorias",u:"kcal",v:M.v!=null?nf(M.v):"",req:1},{k:"x",l:"Proteína",u:"g",v:M.x!=null?nf(M.x):""}]}],
+    async o=>{const v=numIn(o.v),x=numIn(o.x);if(v==null||v<500||v>6000)return "Coloque a meta de calorias. Ex.: 1700";if(o.x&&(x==null||x<=0||x>400))return "Proteína inválida";
+      await saveMeta("dieta",{v,x:x??null});renderDieta();toast("Meta salva")},METAS.dieta?async()=>{await saveMeta("dieta",null);renderDieta()}:null);return}
+  const rp=e.target.closest("[data-drep]");if(rp){const ref=+rp.dataset.drep,F=dFonte(ref);if(!F)return;rp.disabled=true;
+    try{await dInsert(F.L.map(r=>({...r,refeicao:ref})));toast(REF[ref]+" repetido")}catch(_){rp.disabled=false;toast("Não salvou. Verifique a internet.")}return}
+  const ad=e.target.closest("[data-dadd]");if(ad){dfOpen({ref:+ad.dataset.dadd,q:""});return}
+  const it=e.target.closest("[data-dit]");if(it){const r=DIETA.find(x=>String(x.id)===it.dataset.dit);if(r)dfOpen({ref:r.refeicao,edit:r,sel:{nome:r.nome,kcal100:+r.kcal100,prot100:+r.prot100,unidade:r.unidade,alimento:r.alimento},qtd:+r.qtd,un:r.unidade});return}
+});
+/* ---- janela de incluir alimento ---- */
+function dfFreq(ref){const m=new Map();DIETA.slice().sort((a,b)=>a.dia<b.dia?-1:1).forEach(r=>{const k=semAc(r.nome);const o=m.get(k)||{nome:r.nome,kcal100:+r.kcal100,prot100:+r.prot100,unidade:r.unidade,alimento:r.alimento,n:0,nr:0,qtd:+r.qtd};o.n++;if(r.refeicao===ref)o.nr++;o.qtd=+r.qtd;o.unidade=r.unidade;m.set(k,o)});
+  return [...m.values()].sort((a,b)=>b.nr-a.nr||b.n-a.n)}
+function dfBusca(q){const W=semAc(q).split(/\s+/).filter(Boolean);if(!W.length)return [];const ok=n=>{const s=semAc(n);return W.every(w=>s.includes(w))};
+  const seen=new Set(),out=[];const push=o=>{const k=semAc(o.nome);if(seen.has(k))return;seen.add(k);out.push(o)};
+  dfFreq(dfSt.ref).filter(o=>ok(o.nome)).forEach(o=>push({...o,tag:"usado"}));
+  ALIM.filter(a=>ok(a.nome)).forEach(a=>push({nome:a.nome,kcal100:+a.kcal,prot100:+a.prot,unidade:a.unidade,alimento:"meu:"+a.id,qtd:a.porcao?+a.porcao:null,tag:"meu"}));
+  (window.TACO||[]).map((t,i)=>[t,i]).filter(([t])=>ok(t[0])).sort((a,b)=>{const sa=semAc(a[0][0]).startsWith(W[0])?0:1,sb2=semAc(b[0][0]).startsWith(W[0])?0:1;return sa-sb2||a[0][0].length-b[0][0].length})
+    .slice(0,40).forEach(([t,i])=>push({nome:t[0],kcal100:t[1],prot100:t[2],unidade:t[3]?"ml":"g",alimento:"taco:"+i}));
+  return out}
+const dfRow=(o,i)=>'<button type="button" class="df-r" data-dfi="'+i+'"><span>'+escH(o.nome)+(o.tag==="meu"?' <em>meu</em>':'')+'</span><small>'+(o.qtd?nf(o.qtd)+' '+o.unidade+' · '+nf(r0(o.qtd*o.kcal100/100))+' kcal':nf(r0(o.kcal100))+' kcal · '+nf(Math.round(o.prot100*10)/10)+' g prot. / 100 '+o.unidade)+'</small></button>';
+function dfOpen(st){dfSt=st;let el=$("df");if(!el){el=document.createElement("div");el.id="df";el.className="iv df";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");document.body.appendChild(el)}
+  el.hidden=false;document.body.style.overflow="hidden";dfRender(true)}
+function dfClose(){const el=$("df");if(el)el.hidden=true;document.body.style.overflow="";dfSt=null}
+function dfRender(focus){const el=$("df"),st=dfSt;if(!el||!st)return;
+  if(st.sel){const o=st.sel,q=st.qtd||0,un=st.un||o.unidade;
+    el.innerHTML='<div class="iv-top"><button type="button" data-dfx="'+(st.edit?'x':'b')+'">‹ '+(st.edit?REF[st.ref]:'Voltar')+'</button></div><input class="df-n" id="df-nm" type="text" autocomplete="off" value="'+escH(st.nome!=null?st.nome:o.nome)+'" aria-label="Nome do alimento (toque para mudar)">'+
+      '<p class="df-s">'+nf(r0(o.kcal100))+' kcal · '+nf(Math.round(o.prot100*10)/10)+' g de proteína em 100 '+un+'</p>'+
+      '<div class="df-q"><input id="df-qt" type="text" inputmode="decimal" autocomplete="off" value="'+(q?nf(q):'')+'" aria-label="Quantidade"><span class="df-u">'+["g","ml"].map(u=>'<button type="button" data-dfu="'+u+'" class="'+(u===un?'on':'')+'">'+u+'</button>').join('')+'</span></div>'+
+      '<div class="df-ch">'+[50,100,150,200,250].map(v=>'<button type="button" data-dfq="'+v+'">'+v+'</button>').join('')+'</div>'+
+      '<div class="df-tot"><div><b id="df-k">'+nf(r0(q*o.kcal100/100))+'</b><span>kcal</span></div><div><b id="df-p">'+nf(Math.round(q*o.prot100/10)/10)+'</b><span>g de proteína</span></div></div>'+
+      '<div class="df-ac">'+(st.edit?'<button type="button" class="s-link" data-dfdel>apagar</button>':'<span></span>')+'<button type="button" class="save" data-dfok>'+(st.edit?'Salvar':'Incluir')+'</button></div>';
+    if(focus)setTimeout(()=>{const i=$("df-qt");if(i){i.focus();i.select()}},60);return}
+  const q=st.q||"",R=q.trim()?dfBusca(q):dfFreq(st.ref).slice(0,15);st.list=R;
+  el.innerHTML='<div class="iv-top"><button type="button" data-dfx="x">‹ '+REF[st.ref]+'</button></div>'+
+    '<div class="df-sr"><input id="df-q" type="search" placeholder="Buscar alimento" autocomplete="off" value="'+escH(q)+'" aria-label="Buscar alimento"></div>'+
+    '<div class="df-l">'+(R.length?(q.trim()?'':'<p class="df-h">Mais usados</p>')+R.map(dfRow).join(''):q.trim()?'<p class="df-e">Nada encontrado aqui.</p>':'')+'</div>'+
+    (q.trim().length>=3?'<button type="button" class="df-on" data-dfon>Buscar produtos de mercado (Open Food Facts)</button><div id="df-off"></div>':'')+
+    '<button type="button" class="df-on" data-dfnew>+ Cadastrar alimento</button>';
+  if(focus)setTimeout(()=>{const i=$("df-q");if(i&&!R.length)i.focus()},60)}
+function dfCalc(){const st=dfSt;if(!st||!st.sel)return;const q=numIn($("df-qt").value)||0;st.qtd=q;$("df-k").textContent=nf(r0(q*st.sel.kcal100/100));$("df-p").textContent=nf(Math.round(q*st.sel.prot100/10)/10)}
+document.addEventListener("input",e=>{if(e.target.id==="df-q"&&dfSt){dfSt.q=e.target.value;const pos=e.target.selectionStart;dfRender();const i=$("df-q");i.focus();try{i.setSelectionRange(pos,pos)}catch(_){}}
+  if(e.target.id==="df-qt")dfCalc();if(e.target.id==="df-nm"&&dfSt)dfSt.nome=e.target.value});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="df-qt"){e.preventDefault();const b=document.querySelector("[data-dfok]");if(b)b.click()}});
+document.addEventListener("click",async e=>{const el=$("df");if(!el||el.hidden||!el.contains(e.target))return;const st=dfSt;
+  const x=e.target.closest("[data-dfx]");if(x){if(x.dataset.dfx==="b"){st.sel=null;st.nome=null;dfRender()}else dfClose();return}
+  const r=e.target.closest("[data-dfi]");if(r){const o=(st.list||[])[+r.dataset.dfi];if(!o)return;st.sel=o;st.nome=null;st.un=o.unidade;st.qtd=o.qtd||100;dfRender(true);return}
+  const u=e.target.closest("[data-dfu]");if(u){st.un=u.dataset.dfu;st.nome=$("df-nm").value;const q=$("df-qt").value;dfRender();$("df-qt").value=q;dfCalc();return}
+  const qb=e.target.closest("[data-dfq]");if(qb){$("df-qt").value=qb.dataset.dfq;dfCalc();return}
+  if(e.target.closest("[data-dfok]")){const q=numIn($("df-qt").value);if(!q||q<=0||q>5000){toast("Coloque a quantidade");return}const o=st.sel,nm=(st.nome!=null?st.nome:o.nome).trim()||o.nome;
+    try{if(st.edit){const r=st.edit,up={qtd:q,unidade:st.un||o.unidade,nome:nm};const res=await sb.from("saude_dieta").update(up).eq("id",r.id);if(res.error)throw res.error;Object.assign(r,up);dfClose();renderDieta()}
+      else{await dInsert([{refeicao:st.ref,nome:nm,qtd:q,unidade:st.un||o.unidade,kcal100:o.kcal100,prot100:o.prot100,alimento:o.alimento}]);dfClose();toast(nm+" incluído")}}catch(_){toast("Não salvou. Verifique a internet.")}return}
+  const dl=e.target.closest("[data-dfdel]");if(dl){if(!dl.classList.contains("arm")){dl.classList.add("arm");dl.textContent="toque de novo para apagar";return}
+    const r=st.edit;const res=await sb.from("saude_dieta").delete().eq("id",r.id);if(res.error){toast("Não apagou. Verifique a internet.");return}DIETA=DIETA.filter(y=>y!==r);dfClose();renderDieta();return}
+  if(e.target.closest("[data-dfnew]")){const nm=(st.q||"").trim();document.body.classList.add("dlg-top");
+    dlg("Cadastrar alimento",[{k:"nome",l:"Nome",t:"text",v:nm,req:1},{k:"un",l:"Medida",t:"text",v:"g",list:"d-un"},{two:[{k:"kcal",l:"Calorias em 100",u:"kcal",v:""},{k:"prot",l:"Proteína em 100",u:"g",v:""}]},{k:"porcao",l:"Quantidade de costume (opcional)",v:""}],
+      async o=>{const n=o.nome.trim(),k=numIn(o.kcal),p=numIn(o.prot)??0,un=/ml/i.test(o.un)?"ml":"g",pc=numIn(o.porcao);if(!n)return "Coloque o nome";if(k==null||k<0||k>950)return "Coloque as calorias em 100 "+un;
+        const res=await sb.from("saude_alimentos").insert({nome:n,kcal:k,prot:p,unidade:un,porcao:pc}).select();if(res.error)throw res.error;const a=(res.data&&res.data[0])||{id:"tmp",nome:n,kcal:k,prot:p,unidade:un,porcao:pc};ALIM.push(a);
+        st.sel={nome:n,kcal100:k,prot100:p,unidade:un,alimento:"meu:"+a.id};st.nome=null;st.un=un;st.qtd=pc||100;dfRender(true)});
+    if(!$("d-un")){const dlx=document.createElement("datalist");dlx.id="d-un";dlx.innerHTML='<option value="g"><option value="ml">';document.body.appendChild(dlx)}return}
+  const on=e.target.closest("[data-dfon]");if(on){const box=$("df-off");on.disabled=true;box.innerHTML='<p class="df-e">Buscando…</p>';
+    try{const u="https://world.openfoodfacts.org/cgi/search.pl?search_simple=1&json=1&page_size=25&fields=product_name,brands,nutriments,quantity&search_terms="+encodeURIComponent(st.q.trim());
+      const js=await (await fetch(u)).json();const P=(js.products||[]).filter(p=>p.product_name&&p.nutriments&&p.nutriments["energy-kcal_100g"]!=null).map(p=>({nome:p.product_name+(p.brands?" ("+String(p.brands).split(",")[0]+")":""),kcal100:+p.nutriments["energy-kcal_100g"]||0,prot100:+p.nutriments.proteins_100g||0,unidade:/ml|l\b/i.test(p.quantity||"")?"ml":"g",alimento:"off"}));
+      const base=st.list.length;st.list=st.list.concat(P);box.innerHTML=P.length?P.map((o,i)=>dfRow(o,base+i)).join(''):'<p class="df-e">Nada encontrado.</p>'}
+    catch(_){box.innerHTML='<p class="df-e">Sem conexão com a busca online.</p>';on.disabled=false}return}
+});
 
 /* ---- janela de formulário ---- */
 let dlgSave=null,dlgDel=null;

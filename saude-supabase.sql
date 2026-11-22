@@ -49,3 +49,10 @@ create table if not exists public.saude_avaliacoes (
   updated_at timestamptz not null default now(),
   primary key (user_id, dia)
 );
+-- dieta: alimentos cadastrados (por 100 g/ml) e diário (cada alimento comido, com kcal/proteína por 100 copiados)
+create table if not exists public.saude_alimentos (id uuid primary key default gen_random_uuid(), user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  nome text not null, kcal numeric not null default 0, prot numeric not null default 0, unidade text not null default 'g', porcao numeric, created_at timestamptz not null default now());
+create table if not exists public.saude_dieta (id uuid primary key default gen_random_uuid(), user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  dia date not null, refeicao smallint not null, nome text not null, qtd numeric not null, unidade text not null default 'g',
+  kcal100 numeric not null default 0, prot100 numeric not null default 0, alimento text, ordem numeric not null default 0, created_at timestamptz not null default now());
+-- meta da dieta em saude_metas: chave 'dieta', valor = kcal, extra = proteína (g)

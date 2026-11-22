@@ -205,3 +205,15 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Valor alterado fica em negrito. Voltar ao valor do plano desfaz a mudança.
   - Guardado em fitness_checks com item "<id>#<n>#v" (campo vel).
 - Plano: semana com todos os treinos feitos fica verde (título e km reais), mesmo antes de virar no domingo às 18h. Classe .wk.fin.
+- Aba Dieta (opção E, 5ª aba entre Plano e Mês):
+  - Calorias e proteína contra meta fixa. Tocar nos cartões define a meta (saude_metas 'dieta': valor kcal, extra proteína).
+  - 4 cartões: Café da manhã, Almoço, Lanche e Jantar.
+    - Refeição vazia mostra o que foi comido no último dia com ela (até 14 dias) e o botão "Repetir ontem/de dd/m".
+    - "+ incluir" abre a busca. Sem texto, mostra os mais usados daquela refeição.
+    - A busca procura nos já usados, nos cadastrados (saude_alimentos) e na TACO (taco.js, 591 alimentos por 100 g/ml).
+    - Também dá para buscar online no Open Food Facts ou cadastrar um alimento.
+  - Tela da quantidade:
+    - Nome editável (para encurtar os nomes da TACO), quantidade em g ou ml, atalhos 50–250 e kcal/proteína ao vivo.
+    - Tocar num alimento lançado edita ou apaga.
+  - Setas ‹ › na data navegam pelos dias.
+  - Dados em saude_dieta (kcal100/prot100 copiados no lançamento). O app carrega os últimos 120 dias.

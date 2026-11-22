@@ -1,6 +1,6 @@
 // Fitness: cache leve para abrir rápido e funcionar como app instalado.
-const CACHE = "fitness-v97";
-const SHELL = ["./", "index.html", "tacf-calc.js", "manifest.webmanifest", "icon-a-192.png", "icon-a-512.png", "apple-touch-icon-a.png", "favicon-a.png"];
+const CACHE = "fitness-v98";
+const SHELL = ["./", "index.html", "tacf-calc.js", "taco.js", "manifest.webmanifest", "icon-a-192.png", "icon-a-512.png", "apple-touch-icon-a.png", "favicon-a.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
