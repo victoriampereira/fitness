@@ -220,3 +220,12 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - Dieta:
   - A busca não recria mais o campo a cada letra: só a lista é atualizada, com atraso de 180 ms. Isso deixava o teclado lento no iPhone.
   - Na tela da quantidade, "alterar" muda kcal/proteína em 100 g/ml. Isso vira (ou atualiza) um alimento seu em saude_alimentos e passa a valer nas próximas vezes, inclusive nos "mais usados".
+- Dieta (22/11, pedido dela):
+  - Saíram "+ Cadastrar alimento" e "alterar". Os alimentos dela são incluídos por mim direto em saude_alimentos, com os dados dos prints do FatSecret: kcal por 100 = kcal da porção ÷ porção; porcao = medida de costume.
+  - Sem busca, a lista mostra "Seus alimentos": os mais usados e depois os cadastrados.
+  - Incluídos em 22/11:
+    - Leite semidesnatado: 400 ml = 158 kcal.
+    - Leite desnatado: 300 ml = 92 kcal.
+    - Pão francês: 70 g = 192 kcal.
+    - Mussarela: 40 g = 128 kcal.
+    - Proteína estimada (leites 3,1 g/100 ml; pão 8; mussarela 22,6), porque o print não mostrava.
