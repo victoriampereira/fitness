@@ -642,6 +642,20 @@ button.h-card{cursor:pointer}
 .df-tot{display:flex;gap:10px}.df-tot div{flex:1;background:#F7F7F7;border-radius:14px;padding:11px 13px}.df-tot b{font-size:22px;font-weight:600;display:block}.df-tot span{font-size:11.5px;color:var(--muted)}
 .df-tot div+div b{color:#3B6FD8}
 .df-ac{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+
+.d-ring{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:16px;background:#F7F7F7;border-radius:16px;padding:12px 16px;font-family:var(--font)}
+.d-ring svg{width:116px;height:116px;flex:none}
+.d-lgs{display:flex;flex-direction:column;gap:9px;flex:1;min-width:0}
+.d-lg{display:flex;flex-direction:column;gap:1px}.d-lg span{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px}.d-lg span i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.d-lg b{font-size:18px;font-weight:600;letter-spacing:-.01em}.d-lg small{font-size:11.5px;color:var(--muted)}.d-lg b em{font-style:normal;font-weight:400;font-size:12px;color:var(--muted);margin-left:5px}
+.d-mt{align-self:flex-start;font-size:12px;border:1px solid #DADADA;background:#fff;border-radius:99px;padding:3px 10px}
+.d-its{display:flex;flex-direction:column}
+.d-it{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid #ECECEC;font-family:var(--font);font-size:13.5px;color:var(--ink)}
+.d-it:last-child{border-bottom:none}
+.d-dot{width:6px;height:6px;border-radius:50%;background:#2FA36B;flex:none}
+.d-nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d-q{font-weight:500;font-size:12.5px;border:1px solid #E0E0E0;background:#fff;border-radius:8px;padding:2px 8px;white-space:nowrap}
+.d-it small{font-size:11.5px;color:var(--muted);width:56px;text-align:right;flex:none}
 </style>
 </head>
 <body>
@@ -2090,14 +2104,21 @@ function renderDieta(){
   const dt=new Date(dDia+"T12:00").toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"short"}).replace(".","");
   const card=(lab,v,m,u,c)=>'<button type="button" class="d-sum" data-dmeta><span>'+lab+'</span><b>'+nf(r0(v))+'</b><small>'+(m?' / '+nf(m)+' '+u:' '+u)+'</small>'+(m?'<i class="d-bar"><i style="width:'+Math.min(100,v/m*100)+'%;background:'+c+'"></i></i>':'')+'</button>';
   let h='<div class="d-hd"><h2>Dieta</h2><div class="d-dt"><button type="button" data-dnav="-1" aria-label="Dia anterior">‹</button><span>'+(dDia===tk?"Hoje, ":"")+dt+'</span><button type="button" data-dnav="1" aria-label="Próximo dia"'+(dDia>=tk?' disabled':'')+'>›</button></div></div>'+
-    '<div class="d-sums">'+card("Calorias",K,M.v,"kcal","#2FA36B")+card("Proteína",P,M.x,"g","#3B6FD8")+'</div>';
+    dRing(K,P,M);
   REF.forEach((nm,ref)=>{const I=dItens(dDia,ref),k=I.reduce((a,r)=>a+dK(r),0),p=I.reduce((a,r)=>a+dP(r),0),F=dFonte(ref);
     const fl=F?(F.i===1?"ontem":"de "+dm(F.k)):"";
     h+='<div class="d-ref"><div class="d-rt"><b>'+nm+'</b><span>'+(I.length?nf(r0(k))+' kcal · '+nf(r0(p))+' g':'—')+'</span></div>'+
-      (I.length?'<div class="d-its">'+I.map(r=>'<button type="button" class="d-it" data-dit="'+r.id+'">'+escH(r.nome)+' <b>'+fmtQ(r)+'</b></button>').join('<span class="d-sep">·</span>')+'</div>'
+      (I.length?'<div class="d-its">'+I.map(r=>'<button type="button" class="d-it" data-dit="'+r.id+'"><i class="d-dot"></i><span class="d-nm">'+escH(r.nome)+'</span><b class="d-q">'+fmtQ(r)+'</b><small>'+nf(r0(dK(r)))+' kcal</small></button>').join('')+'</div>'
         :F?'<div class="d-ont">'+(F.i===1?"Ontem":"Em "+dm(F.k))+': '+escH(F.L.map(r=>r.nome).join(", "))+'</div>':'')+
       '<div class="d-bt">'+(F&&!I.length?'<button type="button" class="d-chip" data-drep="'+ref+'">Repetir '+fl+'</button>':'')+'<button type="button" class="d-chip" data-dadd="'+ref+'">+ incluir</button></div></div>'});
   el.innerHTML=h}
+function dRing(K,P,M){const mk=M.v||0,mp=M.x||0,C=2*Math.PI;
+  const arc=(r,v,m,c,w)=>{const f=m?Math.min(1,v/m):0,L=C*r;return '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="#EDEDED" stroke-width="'+w+'"/>'+(f>0?'<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+c+'" stroke-width="'+w+'" stroke-linecap="round" stroke-dasharray="'+(L*f).toFixed(1)+' '+L.toFixed(1)+'" transform="rotate(-90 60 60)"/>':'')};
+  const fk=mk-K,fp=mp-P;
+  const ln=(lab,v,m,u,f,c)=>'<div class="d-lg"><span><i style="background:'+c+'"></i>'+lab+'</span><b>'+(m?nf(r0(Math.abs(f)))+' '+u+'<em>'+(f>=0?'faltam':'a mais')+'</em>':nf(r0(v))+' '+u)+'</b><small>'+(m?nf(r0(v))+' de '+nf(m)+' '+u:'sem meta')+'</small></div>';
+  return '<button type="button" class="d-ring" data-dmeta aria-label="Meta da dieta"><svg viewBox="0 0 120 120" aria-hidden="true">'+arc(52,K,mk,fk<0?"#D9534F":"#2FA36B",9)+arc(38,P,mp,"#3B6FD8",7)+
+    '<text x="60" y="58" text-anchor="middle" font-size="19" font-weight="600" fill="#141414">'+(mk?nf(Math.abs(r0(fk))):nf(r0(K)))+'</text><text x="60" y="73" text-anchor="middle" font-size="9" fill="#8A8A8A">'+(mk?(fk>=0?'kcal faltam':'kcal a mais'):'kcal')+'</text></svg>'+
+    '<div class="d-lgs">'+ln("Calorias",K,mk,"kcal",fk,"#2FA36B")+ln("Proteína",P,mp,"g",fp,"#3B6FD8")+'<span class="d-mt">'+(mk?'meta':'+ meta')+'</span></div></button>'}
 function dm(k){const d=new Date(k+"T12:00");return d.getDate()+"/"+(d.getMonth()+1)}
 async function dInsert(rows){const ord=Date.now();rows=rows.map((r,i)=>({dia:dDia,refeicao:r.refeicao,nome:r.nome,qtd:r.qtd,unidade:r.unidade,kcal100:r.kcal100,prot100:r.prot100,alimento:r.alimento||null,ordem:ord+i}));
   const res=await sb.from("saude_dieta").insert(rows).select();if(res.error)throw res.error;DIETA.push(...(res.data||rows.map((r,i)=>({...r,id:"tmp"+ord+i}))));renderDieta()}

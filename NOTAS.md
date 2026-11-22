@@ -229,3 +229,8 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
     - Pão francês: 70 g = 192 kcal.
     - Mussarela: 40 g = 128 kcal.
     - Proteína estimada (leites 3,1 g/100 ml; pão 8; mussarela 22,6), porque o print não mostrava.
+- Dieta:
+  - Topo virou um círculo: anel verde de kcal (vermelho se passar) e anel azul de proteína, com quanto falta em cada um.
+  - Tocar no círculo ou em "meta" define as metas de kcal e de proteína.
+  - Alimentos em lista com bolinha verde, quantidade em caixinha e kcal. Tocar abre a quantidade.
+  - Incluídos em 22/11: Arroz parboilizado cozido (109 g = 134 kcal, prot. 2,5/100 g) e Ovo inteiro (4 grandes = 294 kcal; registrado como 200 g, 147 kcal e 12,6 g prot./100 g).
