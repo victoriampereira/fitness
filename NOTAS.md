@@ -217,3 +217,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
     - Tocar num alimento lançado edita ou apaga.
   - Setas ‹ › na data navegam pelos dias.
   - Dados em saude_dieta (kcal100/prot100 copiados no lançamento). O app carrega os últimos 120 dias.
+- Dieta:
+  - A busca não recria mais o campo a cada letra: só a lista é atualizada, com atraso de 180 ms. Isso deixava o teclado lento no iPhone.
+  - Na tela da quantidade, "alterar" muda kcal/proteína em 100 g/ml. Isso vira (ou atualiza) um alimento seu em saude_alimentos e passa a valer nas próximas vezes, inclusive nos "mais usados".

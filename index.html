@@ -634,6 +634,7 @@ button.h-card{cursor:pointer}
 .df-l{display:flex;flex-direction:column}.df-h{font-size:12px;color:var(--muted);margin:2px 0 2px}.df-e{font-size:13px;color:var(--muted);margin:6px 0}
 .df-r{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line);font-family:var(--font);font-size:14px}.df-r small{font-size:12px;color:var(--muted)}.df-r em{font-style:normal;font-size:10.5px;color:#2FA36B;border:1px solid #BFE3CD;border-radius:99px;padding:0 6px;margin-left:4px}
 .df-on{all:unset;cursor:pointer;font-size:13px;color:var(--ink);text-decoration:underline;text-decoration-color:#CFCFCF;text-underline-offset:3px;padding:6px 0;font-family:var(--font)}
+.df-s{all:unset;cursor:pointer;font-size:12.5px;color:var(--muted);font-family:var(--font)}.df-s u{color:var(--ink);text-decoration-color:#CFCFCF;text-underline-offset:3px;margin-left:4px}
 .df-n{all:unset;box-sizing:border-box;width:100%;font-size:22px;font-weight:600;margin:4px 0 0;letter-spacing:-.01em;font-family:var(--font);border-bottom:1px dashed transparent;padding-bottom:2px}.df-n:focus{border-bottom-color:#CFCFCF}.df-s{font-size:12.5px;color:var(--muted);margin:0}
 .df-q{display:flex;gap:8px;align-items:center}.df-q input{font-size:22px;font-weight:600;flex:1}
 .df-u{display:flex;background:#F2F2F2;border-radius:99px;padding:3px}.df-u button{all:unset;cursor:pointer;padding:7px 14px;border-radius:99px;font-size:13px;color:var(--muted);font-family:var(--font)}.df-u button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
@@ -2111,7 +2112,8 @@ document.addEventListener("click",async e=>{
   const it=e.target.closest("[data-dit]");if(it){const r=DIETA.find(x=>String(x.id)===it.dataset.dit);if(r)dfOpen({ref:r.refeicao,edit:r,sel:{nome:r.nome,kcal100:+r.kcal100,prot100:+r.prot100,unidade:r.unidade,alimento:r.alimento},qtd:+r.qtd,un:r.unidade});return}
 });
 /* ---- janela de incluir alimento ---- */
-function dfFreq(ref){const m=new Map();DIETA.slice().sort((a,b)=>a.dia<b.dia?-1:1).forEach(r=>{const k=semAc(r.nome);const o=m.get(k)||{nome:r.nome,kcal100:+r.kcal100,prot100:+r.prot100,unidade:r.unidade,alimento:r.alimento,n:0,nr:0,qtd:+r.qtd};o.n++;if(r.refeicao===ref)o.nr++;o.qtd=+r.qtd;o.unidade=r.unidade;m.set(k,o)});
+function dfFreq(ref){const m=new Map();DIETA.slice().sort((a,b)=>a.dia<b.dia?-1:1).forEach(r=>{const k=semAc(r.nome);const o=m.get(k)||{nome:r.nome,kcal100:+r.kcal100,prot100:+r.prot100,unidade:r.unidade,alimento:r.alimento,n:0,nr:0,qtd:+r.qtd};o.n++;if(r.refeicao===ref)o.nr++;o.qtd=+r.qtd;o.unidade=r.unidade;o.kcal100=+r.kcal100;o.prot100=+r.prot100;o.alimento=r.alimento;m.set(k,o)});
+  m.forEach((o,k)=>{const a=ALIM.find(x=>semAc(x.nome)===k);if(a){o.kcal100=+a.kcal;o.prot100=+a.prot;o.alimento="meu:"+a.id}});
   return [...m.values()].sort((a,b)=>b.nr-a.nr||b.n-a.n)}
 function dfBusca(q){const W=semAc(q).split(/\s+/).filter(Boolean);if(!W.length)return [];const ok=n=>{const s=semAc(n);return W.every(w=>s.includes(w))};
   const seen=new Set(),out=[];const push=o=>{const k=semAc(o.nome);if(seen.has(k))return;seen.add(k);out.push(o)};
@@ -2127,27 +2129,38 @@ function dfClose(){const el=$("df");if(el)el.hidden=true;document.body.style.ove
 function dfRender(focus){const el=$("df"),st=dfSt;if(!el||!st)return;
   if(st.sel){const o=st.sel,q=st.qtd||0,un=st.un||o.unidade;
     el.innerHTML='<div class="iv-top"><button type="button" data-dfx="'+(st.edit?'x':'b')+'">‹ '+(st.edit?REF[st.ref]:'Voltar')+'</button></div><input class="df-n" id="df-nm" type="text" autocomplete="off" value="'+escH(st.nome!=null?st.nome:o.nome)+'" aria-label="Nome do alimento (toque para mudar)">'+
-      '<p class="df-s">'+nf(r0(o.kcal100))+' kcal · '+nf(Math.round(o.prot100*10)/10)+' g de proteína em 100 '+un+'</p>'+
+      '<button type="button" class="df-s" data-dfval>'+nf(r0(o.kcal100))+' kcal · '+nf(Math.round(o.prot100*10)/10)+' g de proteína em 100 '+un+' <u>alterar</u></button>'+
       '<div class="df-q"><input id="df-qt" type="text" inputmode="decimal" autocomplete="off" value="'+(q?nf(q):'')+'" aria-label="Quantidade"><span class="df-u">'+["g","ml"].map(u=>'<button type="button" data-dfu="'+u+'" class="'+(u===un?'on':'')+'">'+u+'</button>').join('')+'</span></div>'+
       '<div class="df-ch">'+[50,100,150,200,250].map(v=>'<button type="button" data-dfq="'+v+'">'+v+'</button>').join('')+'</div>'+
       '<div class="df-tot"><div><b id="df-k">'+nf(r0(q*o.kcal100/100))+'</b><span>kcal</span></div><div><b id="df-p">'+nf(Math.round(q*o.prot100/10)/10)+'</b><span>g de proteína</span></div></div>'+
       '<div class="df-ac">'+(st.edit?'<button type="button" class="s-link" data-dfdel>apagar</button>':'<span></span>')+'<button type="button" class="save" data-dfok>'+(st.edit?'Salvar':'Incluir')+'</button></div>';
     if(focus)setTimeout(()=>{const i=$("df-qt");if(i){i.focus();i.select()}},60);return}
-  const q=st.q||"",R=q.trim()?dfBusca(q):dfFreq(st.ref).slice(0,15);st.list=R;
+  const q=st.q||"";
   el.innerHTML='<div class="iv-top"><button type="button" data-dfx="x">‹ '+REF[st.ref]+'</button></div>'+
-    '<div class="df-sr"><input id="df-q" type="search" placeholder="Buscar alimento" autocomplete="off" value="'+escH(q)+'" aria-label="Buscar alimento"></div>'+
-    '<div class="df-l">'+(R.length?(q.trim()?'':'<p class="df-h">Mais usados</p>')+R.map(dfRow).join(''):q.trim()?'<p class="df-e">Nada encontrado aqui.</p>':'')+'</div>'+
+    '<div class="df-sr"><input id="df-q" type="search" placeholder="Buscar alimento" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" value="'+escH(q)+'" aria-label="Buscar alimento"></div><div id="df-res"></div>';
+  dfLista();if(focus)setTimeout(()=>{const i=$("df-q");if(i&&!st.list.length)i.focus()},60)}
+function dfLista(){const st=dfSt,box=$("df-res");if(!st||!box)return;const q=st.q||"",R=q.trim()?dfBusca(q):dfFreq(st.ref).slice(0,15);st.list=R;
+  box.innerHTML='<div class="df-l">'+(R.length?(q.trim()?'':'<p class="df-h">Mais usados</p>')+R.map(dfRow).join(''):q.trim()?'<p class="df-e">Nada encontrado aqui.</p>':'')+'</div>'+
     (q.trim().length>=3?'<button type="button" class="df-on" data-dfon>Buscar produtos de mercado (Open Food Facts)</button><div id="df-off"></div>':'')+
-    '<button type="button" class="df-on" data-dfnew>+ Cadastrar alimento</button>';
-  if(focus)setTimeout(()=>{const i=$("df-q");if(i&&!R.length)i.focus()},60)}
+    '<button type="button" class="df-on" data-dfnew>+ Cadastrar alimento</button>'}
+let dfT=0;
 function dfCalc(){const st=dfSt;if(!st||!st.sel)return;const q=numIn($("df-qt").value)||0;st.qtd=q;$("df-k").textContent=nf(r0(q*st.sel.kcal100/100));$("df-p").textContent=nf(Math.round(q*st.sel.prot100/10)/10)}
-document.addEventListener("input",e=>{if(e.target.id==="df-q"&&dfSt){dfSt.q=e.target.value;const pos=e.target.selectionStart;dfRender();const i=$("df-q");i.focus();try{i.setSelectionRange(pos,pos)}catch(_){}}
+document.addEventListener("input",e=>{if(e.target.id==="df-q"&&dfSt){dfSt.q=e.target.value;clearTimeout(dfT);dfT=setTimeout(dfLista,180)}
   if(e.target.id==="df-qt")dfCalc();if(e.target.id==="df-nm"&&dfSt)dfSt.nome=e.target.value});
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="df-qt"){e.preventDefault();const b=document.querySelector("[data-dfok]");if(b)b.click()}});
 document.addEventListener("click",async e=>{const el=$("df");if(!el||el.hidden||!el.contains(e.target))return;const st=dfSt;
   const x=e.target.closest("[data-dfx]");if(x){if(x.dataset.dfx==="b"){st.sel=null;st.nome=null;dfRender()}else dfClose();return}
   const r=e.target.closest("[data-dfi]");if(r){const o=(st.list||[])[+r.dataset.dfi];if(!o)return;st.sel=o;st.nome=null;st.un=o.unidade;st.qtd=o.qtd||100;dfRender(true);return}
   const u=e.target.closest("[data-dfu]");if(u){st.un=u.dataset.dfu;st.nome=$("df-nm").value;const q=$("df-qt").value;dfRender();$("df-qt").value=q;dfCalc();return}
+  if(e.target.closest("[data-dfval]")){const o=st.sel,un=st.un||o.unidade;st.nome=$("df-nm").value;st.qtd=numIn($("df-qt").value)||st.qtd;document.body.classList.add("dlg-top");
+    dlg("Valores em 100 "+un,[{two:[{k:"kcal",l:"Calorias",u:"kcal",v:nf(Math.round(o.kcal100*10)/10)},{k:"prot",l:"Proteína",u:"g",v:nf(Math.round(o.prot100*10)/10)}]}],
+      async f=>{const k=numIn(f.kcal),p=numIn(f.prot)??0;if(k==null||k<0||k>950)return "Coloque as calorias em 100 "+un;
+        const nm=(st.nome||o.nome).trim()||o.nome,ex=ALIM.find(a=>semAc(a.nome)===semAc(nm));let a;
+        if(ex){const r=await sb.from("saude_alimentos").update({kcal:k,prot:p,unidade:un}).eq("id",ex.id);if(r.error)throw r.error;Object.assign(ex,{kcal:k,prot:p,unidade:un});a=ex}
+        else{const r=await sb.from("saude_alimentos").insert({nome:nm,kcal:k,prot:p,unidade:un,porcao:st.qtd||null}).select();if(r.error)throw r.error;a=(r.data&&r.data[0])||{id:"tmp",nome:nm,kcal:k,prot:p,unidade:un};ALIM.push(a)}
+        st.sel={...o,kcal100:k,prot100:p,unidade:un,alimento:"meu:"+a.id};
+        if(st.edit){const r=await sb.from("saude_dieta").update({kcal100:k,prot100:p}).eq("id",st.edit.id);if(!r.error)Object.assign(st.edit,{kcal100:k,prot100:p});renderDieta()}
+        dfRender();toast("Valores salvos para "+nm)});return}
   const qb=e.target.closest("[data-dfq]");if(qb){$("df-qt").value=qb.dataset.dfq;dfCalc();return}
   if(e.target.closest("[data-dfok]")){const q=numIn($("df-qt").value);if(!q||q<=0||q>5000){toast("Coloque a quantidade");return}const o=st.sel,nm=(st.nome!=null?st.nome:o.nome).trim()||o.nome;
     try{if(st.edit){const r=st.edit,up={qtd:q,unidade:st.un||o.unidade,nome:nm};const res=await sb.from("saude_dieta").update(up).eq("id",r.id);if(res.error)throw res.error;Object.assign(r,up);dfClose();renderDieta()}
