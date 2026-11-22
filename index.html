@@ -1957,7 +1957,7 @@ function pkChart(nd,gid){const tk=key(today0());let D=[...Array(nd)].map((_,i)=>
     W.forEach((q,j)=>{const x=X(iOf(q.dia)),y=YW(q.v);s+='<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="#2FA36B"/>';if(j===W.length-1||j===0)s+='<text x="'+x+'" y="'+(y-8)+'" font-size="9.5" font-weight="600" fill="#2FA36B" text-anchor="'+(j===0&&W.length>1?'start':'end')+'">'+nf(q.v)+'</text>'})}
   if(hasK)s+=kdots;
   s+='<text x="'+X(0)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+dmy(D[0])+'</text><text x="'+X(n-1)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0" text-anchor="end">'+dmy(tk)+'</text>';
-  return s+'</svg>'+(hasK?'<div class="pk-lg"><span><i class="ln"></i>peso</span><span><i style="background:#3B6FD8"></i>kcal</span>'+(mk?'<span><i style="background:#E5484D"></i>acima da meta</span>':'')+'</div>':'')}
+  return s+'</svg>'}
 function renderEst(){
   const el=$("pg-est");if(!el||page!=="est")return;const V=S.vo2,MV=METAS.vo2,L=V[V.length-1],tk=key(today0()),PL=S.peso[S.peso.length-1];
   let h='<div class="s-st"><div class="s-t">'+sdot("peso")+'Peso<span style="margin-left:auto"></span><button type="button" class="s-plus" data-go="peso" aria-label="Lançar peso">+</button></div>'+

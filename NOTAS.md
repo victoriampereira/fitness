@@ -249,3 +249,7 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
   - Linha verde do peso embaixo. Pontinhos das calorias do dia em cima: azuis dentro da meta, vermelhos acima, com o número na mesma cor.
   - Linha tracejada da meta. O dia de hoje fica de fora até acabar.
   - Começa no primeiro dia com dados.
+- Gráfico peso + calorias sem legenda (pedido dela).
+- saude_alimentos ganhou a coluna "categoria": Laticínios, Pães e grãos, Proteínas e Frutas.
+- Morango incluído: 135 g = 41 kcal.
+- A lista por categoria aguarda a escolha da opção.
