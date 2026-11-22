@@ -237,3 +237,7 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - Dieta:
   - Saiu a bolinha verde.
   - Arrastar o alimento para a esquerda mostra o botão vermelho "Excluir" (pointer events, touch-action:pan-y). Tocar fora ou na linha fecha.
+- Dieta, medida "un" (unidade):
+  - Para esses alimentos, kcal/prot em saude_alimentos e kcal100/prot100 em saude_dieta guardam o valor de 1 unidade (dBase).
+  - Atalhos 1–6 em vez de 50–250.
+  - Ovo: 1 un = 73,5 kcal e 6,3 g de proteína; costume 4 un.
