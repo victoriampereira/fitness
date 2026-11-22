@@ -261,3 +261,16 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
     - Arroz e morango: 100 g.
     - Ovo: 1 un.
     - Pão: 70 g.
+- 22/11: incluídos 10 alimentos do FatSecret:
+  - Tangerina (1 un = 37 kcal).
+  - Sardinha em óleo (105 g = 191 kcal).
+  - Maionese light (12 ml = 21 kcal).
+  - Doce de leite (20 g = 63 kcal).
+  - Club Social integral (24 g = 102 kcal).
+  - Fettuccine à bolonhesa (300 g = 240 kcal).
+  - Yopro chocolate (250 ml = 172 kcal).
+  - Yopro doce de leite (250 ml = 151 kcal).
+  - Requeijão light (30 g = 56 kcal).
+  - Iogurte light mamão e laranja (165 g = 68 kcal).
+  - Proteína estimada (exceto Yopro: 15 g por 250 ml).
+  - Categorias novas: Pratos prontos, Molhos e pastas, Doces e lanches. Ordem no app: Laticínios, Proteínas, Pães e grãos, Frutas, Verduras e legumes, Pratos prontos, Molhos e pastas, Doces e lanches, Outros.

@@ -2222,7 +2222,7 @@ function dfRender(focus){const el=$("df"),st=dfSt;if(!el||!st)return;
     '<div class="df-sr"><input id="df-q" type="search" placeholder="Buscar alimento" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" value="'+escH(q)+'" aria-label="Buscar alimento"></div><div id="df-res"></div>';
   dfLista();if(focus)setTimeout(()=>{const i=$("df-q");if(i&&!st.list.length)i.focus()},60)}
 function dfLista(){const st=dfSt,box=$("df-res");if(!st||!box)return;const q=st.q||"",R=q.trim()?dfBusca(q):dfSeus(st.ref);st.list=R;
-  if(!q.trim()){const ord=["Laticínios","Pães e grãos","Proteínas","Frutas","Verduras e legumes","Carnes","Outros"],G={};R.forEach((o,i)=>{const c=o.cat||"Outros";(G[c]=G[c]||[]).push(i)});
+  if(!q.trim()){const ord=["Laticínios","Proteínas","Pães e grãos","Frutas","Verduras e legumes","Pratos prontos","Molhos e pastas","Doces e lanches","Outros"],G={};R.forEach((o,i)=>{const c=o.cat||"Outros";(G[c]=G[c]||[]).push(i)});
     box.innerHTML=Object.keys(G).sort((a,b)=>(ord.indexOf(a)+1||99)-(ord.indexOf(b)+1||99)).map(c=>'<p class="df-h">'+c+'</p><div class="df-g">'+G[c].map(i=>{const o=R[i];return '<button type="button" class="df-t" data-dfi="'+i+'"><span>'+escH(o.nome)+'</span><small>'+(o.qtd?nf(o.qtd)+' '+dUn(o.qtd,o.unidade)+' · '+nf(r0(o.qtd*o.kcal100/dBase(o.unidade)))+' kcal':nf(r0(o.kcal100))+' kcal / 100 '+o.unidade)+'</small></button>'}).join('')+'</div>').join('');return}
   box.innerHTML='<div class="df-l">'+(R.length?R.map(dfRow).join(''):'<p class="df-e">Nada encontrado aqui.</p>')+'</div>'+
     (q.trim().length>=3?'<button type="button" class="df-on" data-dfon>Buscar produtos de mercado (Open Food Facts)</button><div id="df-off"></div>':'')}
