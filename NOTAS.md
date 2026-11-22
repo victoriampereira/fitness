@@ -253,3 +253,11 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 - saude_alimentos ganhou a coluna "categoria": Laticínios, Pães e grãos, Proteínas e Frutas.
 - Morango incluído: 135 g = 41 kcal.
 - A lista por categoria aguarda a escolha da opção.
+- Seus alimentos, opção D (22/11):
+  - Sem busca, aparecem em blocos lado a lado por categoria (coluna categoria; os sem categoria vão para "Outros").
+  - A medida padrão (porcao) dos salvos sempre vale, em vez da última usada:
+    - Leites: 100 ml.
+    - Mussarela: 30 g.
+    - Arroz e morango: 100 g.
+    - Ovo: 1 un.
+    - Pão: 70 g.
