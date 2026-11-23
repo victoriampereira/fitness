@@ -1961,7 +1961,7 @@ function pkChart(nd,gid){const tk=key(today0());let D=[...Array(nd)].map((_,i)=>
     const pts=W.map(q=>X(iOf(q.dia)).toFixed(1)+","+YW(q.v).toFixed(1));
     s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA36B" stop-opacity=".16"/><stop offset="1" stop-color="#2FA36B" stop-opacity="0"/></linearGradient></defs>';
     if(W.length>1)s+='<path d="M'+X(iOf(W[0].dia))+','+(h-pb)+' L'+pts.join(' L')+' L'+X(iOf(W[W.length-1].dia))+','+(h-pb)+'Z" fill="url(#'+gid+')"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#2FA36B" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>';
-    W.forEach((q,j)=>{const x=X(iOf(q.dia)),y=YW(q.v);s+='<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="#2FA36B"/>';if(j===W.length-1||j===0)s+='<text x="'+x+'" y="'+(y-8)+'" font-size="9.5" font-weight="600" fill="#2FA36B" text-anchor="'+(j===0&&W.length>1?'start':'end')+'">'+nf(q.v)+'</text>'})}
+    W.forEach((q,j)=>{const x=X(iOf(q.dia)),y=YW(q.v);s+='<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="#2FA36B"/>';if(j===W.length-1||j===0){const nb=W.length>1?W[j===0?1:j-1]:null,abx=nb&&YW(nb.v)<=y;s+='<text x="'+x+'" y="'+(abx?y+16:y-8)+'" font-size="9.5" font-weight="600" fill="#2FA36B" text-anchor="'+(j===0&&W.length>1?'start':'end')+'">'+nf(q.v)+'</text>'}})}
   if(hasK)s+=kdots;
   s+='<text x="'+X(0)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+dmy(D[0])+'</text><text x="'+X(n-1)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0" text-anchor="end">'+dmy(tk)+'</text>';
   return s+'</svg>'}

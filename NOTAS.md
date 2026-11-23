@@ -287,3 +287,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 
 ## 22/11 — v110
 - Aba Hoje: cartão "Dieta" abaixo do Peso (calorias e proteína de hoje com barras; toque abre a Dieta). Fonte dos números do Hoje (.h-num) reduzida de 24 para 19 px.
+
+## 23/11 — v111
+- Gráfico do Peso: o rótulo do primeiro/último ponto vai para baixo do ponto quando a linha chega de cima (antes ficava em cima da linha).
