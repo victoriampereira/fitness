@@ -1950,18 +1950,23 @@ function pkChart(nd,gid){const tk=key(today0());let D=[...Array(nd)].map((_,i)=>
   {const f=D.findIndex(d=>S.peso.some(x=>x.dia===d)||(d!==tk&&DIETA.some(r=>r.dia===d)));if(f>0)D=D.slice(Math.min(f,D.length-7));nd=D.length}
   const W=S.peso.filter(x=>x.dia>=D[0]&&x.dia<=tk),KC=D.map(d=>{if(d===tk)return null;const L=DIETA.filter(r=>r.dia===d);return L.length?Math.round(L.reduce((a,r)=>a+dK(r),0)):null});
   const hasK=KC.some(v=>v!=null);if(W.length<2&&!hasK)return W.length?"":"";
-  const mk=(METAS.dieta||{}).v||null,w=350,h=hasK?170:110,pl=14,pr=hasK?34:14,pt=20,pb=20,n=nd,X=i=>pl+i*(w-pl-pr)/(n-1),kb=hasK?pt+58:0;
+  const kst=Math.max(1,Math.ceil(21/((350-14-34)/Math.max(1,nd-1)))),mk=(METAS.dieta||{}).v||null,w=350,h=hasK?170:110,pl=14,pr=hasK?34:14,pt=20,pb=20,n=nd,X=i=>pl+i*(w-pl-pr)/(n-1),kb=hasK?pt+58:0;
   let s='<svg class="s-ch" viewBox="0 0 '+w+' '+h+'" role="img" aria-hidden="true">';
   if(hasK){const kv=KC.filter(v=>v!=null).concat(mk?[mk]:[]),lo=Math.min(...kv),hi=Math.max(...kv)+1,YK=v=>pt+(hi-v)/(hi-lo)*(kb-pt);
     const tks=[...new Set([lo,hi].map(v=>Math.round(v/100)*100))];tks.forEach(v=>{s+='<text x="'+(w-2)+'" y="'+(YK(v)+3)+'" font-size="8.5" fill="#B0B0B0" text-anchor="end">'+nf(v)+'</text>'});
     if(mk)s+='<line x1="'+pl+'" x2="'+(w-pr)+'" y1="'+YK(mk)+'" y2="'+YK(mk)+'" stroke="#C9C9C9" stroke-dasharray="3 3"/>';
-    var kdots='';KC.forEach((v,i)=>{if(v==null)return;const c=mk&&v>mk?"#E5484D":"#3B6FD8";kdots+='<circle cx="'+X(i)+'" cy="'+YK(v)+'" r="3.4" fill="'+c+'"/>';
-      if(n<=16||i>=n-7)kdots+='<text x="'+X(i)+'" y="'+(YK(v)-7)+'" font-size="8.5" fill="'+c+'" text-anchor="'+(i===n-1?'end':i===0?'start':'middle')+'">'+nf(v)+'</text>'})}
-  if(W.length>=1){const vals=W.map(x=>x.v),lo=Math.min(...vals)-.3,hi=Math.max(...vals)+.3,iOf=d=>D.indexOf(d),top=hasK?kb+22:pt,YW=v=>top+(hi-v)/(hi-lo)*(h-top-pb);
+    var kdots='',kd=[],kl=[];KC.forEach((v,i)=>{if(v!=null)kd.push([X(i),YK(v)])});
+    const hit=(a,b)=>a[0]<b[0]+b[2]&&b[0]<a[0]+a[2]&&a[1]<b[1]+b[3]&&b[1]<a[1]+a[3];
+    KC.forEach((v,i)=>{if(v==null)return;const c=mk&&v>mk?"#E5484D":"#3B6FD8",x=X(i),y=YK(v);kdots+='<circle cx="'+x+'" cy="'+y+'" r="3.4" fill="'+c+'"/>';
+      if((n-1-i)%kst===0&&(n-1-i)/kst<(n<=16?n:7)){const t=nf(v),tw=t.length*4.8,an=i===n-1?'end':i===0?'start':'middle',x0=an==='end'?x-tw:an==='start'?x:x-tw/2;
+        for(const dy of [-7,13]){const r=[x0-1,y+dy-8,tw+2,10];if(!kd.some(p=>hit(r,[p[0]-3.6,p[1]-3.6,7.2,7.2]))&&!kl.some(q=>hit(r,q))){kl.push(r);kdots+='<text x="'+x+'" y="'+(y+dy)+'" font-size="8.5" fill="'+c+'" text-anchor="'+an+'">'+t+'</text>';break}}}})}
+  if(W.length>=1){const vals=W.map(x=>x.v),lo=Math.min(...vals)-.3,hi=Math.max(...vals)+.3,iOf=d=>D.indexOf(d),top=hasK?kb+22:pt,YW=v=>top+10+(hi-v)/(hi-lo)*(h-top-pb-28);
     const pts=W.map(q=>X(iOf(q.dia)).toFixed(1)+","+YW(q.v).toFixed(1));
     s+='<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA36B" stop-opacity=".16"/><stop offset="1" stop-color="#2FA36B" stop-opacity="0"/></linearGradient></defs>';
     if(W.length>1)s+='<path d="M'+X(iOf(W[0].dia))+','+(h-pb)+' L'+pts.join(' L')+' L'+X(iOf(W[W.length-1].dia))+','+(h-pb)+'Z" fill="url(#'+gid+')"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#2FA36B" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>';
-    W.forEach((q,j)=>{const x=X(iOf(q.dia)),y=YW(q.v);s+='<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="#2FA36B"/>';if(j===W.length-1||j===0){const nb=W.length>1?W[j===0?1:j-1]:null,abx=nb&&YW(nb.v)<=y;s+='<text x="'+x+'" y="'+(abx?y+16:y-8)+'" font-size="9.5" font-weight="600" fill="#2FA36B" text-anchor="'+(j===0&&W.length>1?'start':'end')+'">'+nf(q.v)+'</text>'}})}
+    W.forEach((q,j)=>{const x=X(iOf(q.dia)),y=YW(q.v);s+='<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="#2FA36B"/>';if(j===W.length-1||j===0){const nb=W.length>1?W[j===0?1:j-1]:null,abx=nb&&YW(nb.v)<=y,an=j===0&&W.length>1?'start':'end',t=nf(q.v),tw=t.length*5.4,x0=an==='start'?x:x-tw,ds=abx?[16,-8]:[-8,16];
+      const dy=ds.find(d=>!W.some((o,k)=>k!==j&&(()=>{const ox=X(iOf(o.dia)),oy=YW(o.v);return ox>x0-3&&ox<x0+tw+3&&oy>y+d-11&&oy<y+d+3})()))??ds[0];
+      s+='<text x="'+x+'" y="'+(y+dy)+'" font-size="9.5" font-weight="600" fill="#2FA36B" text-anchor="'+an+'">'+t+'</text>'}})}
   if(hasK)s+=kdots;
   s+='<text x="'+X(0)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0">'+dmy(D[0])+'</text><text x="'+X(n-1)+'" y="'+(h-4)+'" font-size="10" fill="#A0A0A0" text-anchor="end">'+dmy(tk)+'</text>';
   return s+'</svg>'}

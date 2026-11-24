@@ -290,3 +290,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 
 ## 23/11 — v111
 - Gráfico do Peso: o rótulo do primeiro/último ponto vai para baixo do ponto quando a linha chega de cima (antes ficava em cima da linha).
+
+## 24/11 — v112
+- Gráfico Peso+calorias (pkChart): faixa do peso com folga para os rótulos (não encosta mais nas calorias nem nas datas); rótulo do 1º/último peso escolhe cima/baixo evitando outros pontos; rótulos de calorias evitam pontos e outros rótulos (cima/baixo) e, em 30 dias, aparecem espaçados. Testado com 600 séries aleatórias sem colisão entre métricas.
