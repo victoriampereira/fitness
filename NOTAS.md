@@ -296,3 +296,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 
 ## 27/11 — v113
 - Tela do treino intervalado: removido o texto "pace · km/h" (ex.: 5:17 · 11,4 km/h) embaixo de cada trecho; fica só o "parado" nos descansos. O previsto continua em cinza dentro do campo.
+
+## 27/11 — v114
+- Corrigido: todos os ▶ do treino intervalado iniciavam o cronômetro do 1º trecho (aspas erradas em data-tm="" + x.n). Agora cada ▶ inicia o seu trecho.

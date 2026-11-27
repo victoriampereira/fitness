@@ -1431,7 +1431,7 @@ function renderIv(){const it=PITEMS[ivOpen];if(!it||!it.iv){closeIv();return}
         ph=isT?(ps?nf(Math.round(P.t/ps*100)/100):"km"):(ps?mmss(P.d*ps):"tempo");
       return '<div class="iv-c'+(x.f?' f':'')+'"><button type="button" class="iv-d'+(x.f?' f':'')+(on?' on':'')+'" data-ivd="'+x.n+'" aria-pressed="'+on+'" aria-label="'+g.t+': '+x.lb+(x.pc?' a '+x.pc:'')+'"><span></span><div><b>'+x.lb+'</b></div>'+(x.sp?'':x.stop?'<em class="iv-pk">parado</em>':'')+'</button>'+
         (x.sp?'<button type="button" class="iv-sp'+(ivVal[k_+"#v"]?' mx':'')+'" data-ivsp="'+x.n+'" aria-label="Alterar velocidade de '+g.t+', '+x.lb+'">vel. '+nf(ivVal[k_+"#v"]||x.vel)+'</button>':'')+
-        (ivDur(x)?'<button type="button" class="tmb" data-tm=""'+x.n+'" aria-label="Cronômetro de '+x.lb+'">'+TPLAY+'</button>':'')+
+        (ivDur(x)?'<button type="button" class="tmb" data-tm="'+x.n+'" aria-label="Cronômetro de '+x.lb+'">'+TPLAY+'</button>':'')+
         (x.rest?'':'<label class="iv-v"><input class="iv-in" data-ivp="'+x.n+'" data-kind="'+(isT?'km':'t')+'" type="text" inputmode="'+(isT?'decimal':'numeric')+'" autocomplete="off" placeholder="'+ph+'" value="'+cur+'" aria-label="'+(isT?'Distância feita em km':'Tempo feito')+' em '+g.t+', '+x.lb+'"><small>'+(isT?'km':'min')+'</small></label>')+'</div>'}).join('')+'</div></div>').join('')+'</div>'+
     '<div class="iv-sum" id="iv-sum"></div>'+
     '<div class="iv-note">'+(dn===tot?'Treino completo!':it.hiit?'Toque no ▶ para cronometrar cada trecho e na bolinha quando terminar.':'Toque na bolinha ao terminar o trecho. Nos trechos de tempo, coloque a distância que você fez; nos de distância, o tempo. Em cinza está o previsto. Nos descansos, use só o cronômetro.')+'</div>';
