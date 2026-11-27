@@ -299,3 +299,6 @@ A lista completa de mudanças está nos commits do repositório (`git log`), de 
 
 ## 27/11 — v114
 - Corrigido: todos os ▶ do treino intervalado iniciavam o cronômetro do 1º trecho (aspas erradas em data-tm="" + x.n). Agora cada ▶ inicia o seu trecho.
+
+## 27/11 — v115
+- Treino intervalado: removida a mensagem "N trechos somados. Toque nos km ou no tempo para ajustar." (continua só o aviso "Ajustado por você" com o botão "usar a soma" quando houver ajuste manual).

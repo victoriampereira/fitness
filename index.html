@@ -1441,8 +1441,7 @@ function ivSumRender(){const box=$("iv-sum"),it=PITEMS[ivOpen];if(!box||!it)retu
   box.innerHTML='<label><input id="iv-akm" type="text" inputmode="decimal" autocomplete="off" value="'+nf(Math.round(U.km*100)/100)+'" aria-label="Distância total em km"><span>km</span></label>'+
     '<label><input id="iv-at" type="text" inputmode="numeric" autocomplete="off" value="'+fmtTime(U.t)+'" aria-label="Tempo total"><span>tempo</span></label>'+
     '<div><b>'+mmss(ivPace(U,S))+'</b><span>pace médio'+(S.rk?'<br>sem descansos':'')+'</span></div>'+
-    '<p>'+(A?'Ajustado por você · soma dos trechos: '+nf(Math.round(S.km*100)/100)+' km em '+fmtTime(S.t)+' · <button type="button" data-ivreset>usar a soma</button>':
-      S.n+' trecho'+(S.n===1?'':'s')+' somado'+(S.n===1?'':'s')+(S.plan?' · '+S.plan+' sem dado, usando o previsto':'')+'. Toque nos km ou no tempo para ajustar.')+'</p>';
+    (A?'<p>Ajustado por você · soma dos trechos: '+nf(Math.round(S.km*100)/100)+' km em '+fmtTime(S.t)+' · <button type="button" data-ivreset>usar a soma</button></p>':'');
   box.classList.toggle("aj",!!A);maskTime($("iv-at"),6);box.querySelectorAll("input").forEach(i=>i.dataset.sv=i.value)}
 async function ivSaveAj(id,A){const it=PITEMS[id];if(!session)return;const old=ivAj[id];if(A)ivAj[id]=A;else delete ivAj[id];ivSumRender();
   const r=A?await sb.from("fitness_checks").upsert({user_id:session.user.id,item:id+"#aj",vel:Math.round(A.km*100)/100,valor:Math.round(A.t)}):await sb.from("fitness_checks").delete().eq("user_id",session.user.id).eq("item",id+"#aj");
